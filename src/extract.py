@@ -164,15 +164,6 @@ def candles_to_dataframe(candles_response: dict) -> pd.DataFrame:
     return df
 
 def save_extracted_data(success_data, output_dir="data"):
-    """
-    Convert extracted candle data to CSV files.
-
-    Returns:
-        {
-            "files": [...],
-            "total_rows": int
-        }
-    """
 
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)

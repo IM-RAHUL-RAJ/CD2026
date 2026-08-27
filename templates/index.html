@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analysis</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            margin-bottom: 25px;
+        }
+
+        .instrument {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .instrument input {
+            margin-right: 12px;
+        }
+
+        .ticker {
+            margin-left: 8px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+        }
+
+        #selection-count,
+        #nse-bse-count {
+            font-weight: bold;
+        }
+
+        #message {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h1>Akatsuki Stock Analyzer</h1>
+
+<p class="subtitle">
+    Select exactly 5 instruments from the list below.
+</p>
+
+
+<p>
+    Selected:
+    <span id="selection-count">0</span> / 5
+</p>
+
+
+<p>
+    NSE/BSE companies selected:
+    <span id="nse-bse-count">0</span> / 2 minimum
+</p>
+
+
+<div id="instruments">
+
+    <label class="instrument">
+        <input type="checkbox" value="INFY.NS">
+        <span>Infosys</span>
+        <span class="ticker">(INFY.NS)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="TATASTEEL.NS">
+        <span>Tata Steel</span>
+        <span class="ticker">(TATASTEEL.NS)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="RELIANCE.NS">
+        <span>Reliance Industries</span>
+        <span class="ticker">(RELIANCE.NS)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="MSFT">
+        <span>Microsoft Corporation</span>
+        <span class="ticker">(MSFT)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="GOOGL">
+        <span>Alphabet Inc.</span>
+        <span class="ticker">(GOOGL)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="AMZN">
+        <span>Amazon.com Inc.</span>
+        <span class="ticker">(AMZN)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="TSLA">
+        <span>Tesla Inc.</span>
+        <span class="ticker">(TSLA)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="NVDA">
+        <span>NVIDIA Corporation</span>
+        <span class="ticker">(NVDA)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="META">
+        <span>Meta Platforms Inc.</span>
+        <span class="ticker">(META)</span>
+    </label>
+
+
+    <label class="instrument">
+        <input type="checkbox" value="NFLX">
+        <span>Netflix Inc.</span>
+        <span class="ticker">(NFLX)</span>
+    </label>
+
+</div>
+
+
+<button id="submit-btn">
+    Analyse Selected Stocks
+</button>
+
+
+<div id="message"></div>
+
+
+<script>
+
+const checkboxes = document.querySelectorAll(
+    '#instruments input[type="checkbox"]'
+);
+
+const countDisplay =
+    document.getElementById('selection-count');
+
+const nseBseCountDisplay =
+    document.getElementById('nse-bse-count');
+
+const submitButton =
+    document.getElementById('submit-btn');
+
+const message =
+    document.getElementById('message');
+
+
+// Required NSE/BSE companies
+const requiredCompanies = [
+    'INFY.NS',
+    'TATASTEEL.NS',
+    'RELIANCE.NS'
+];
+
+
+function updateSelection() {
+
+    const selected =
+        [
+            ...document.querySelectorAll(
+                '#instruments input[type="checkbox"]:checked'
+            )
+        ];
+
+
+    const selectedSymbols =
+        selected.map(
+            checkbox => checkbox.value
+        );
+
+
+    const nseBseCount =
+        selectedSymbols.filter(
+            symbol =>
+                requiredCompanies.includes(symbol)
+        ).length;
+
+
+    countDisplay.textContent =
+        selected.length;
+
+
+    nseBseCountDisplay.textContent =
+        nseBseCount;
+
+
+    // Disable remaining checkboxes after 5 selections
+    checkboxes.forEach(
+        checkbox => {
+
+            if (!checkbox.checked) {
+                checkbox.disabled =
+                    selected.length >= 5;
+            }
+
+        }
+    );
+
+
+    submitButton.disabled =
+        !(
+            selected.length === 5 &&
+            nseBseCount >= 2
+        );
+}
+
+
+checkboxes.forEach(
+    checkbox => {
+
+        checkbox.addEventListener(
+            'change',
+            updateSelection
+        );
+
+    }
+);
+
+
+
+submitButton.addEventListener(
+    'click',
+    async () => {
+
+
+        const selected =
+            [
+                ...document.querySelectorAll(
+                    '#instruments input[type="checkbox"]:checked'
+                )
+            ]
+            .map(
+                checkbox => checkbox.value
+            );
+
+
+        const nseBseCount =
+            selected.filter(
+                symbol =>
+                    requiredCompanies.includes(symbol)
+            ).length;
+
+
+
+        if (selected.length !== 5) {
+
+            message.textContent =
+                "Please select exactly 5 instruments.";
+
+            return;
+        }
+
+
+        if (nseBseCount < 2) {
+
+            message.textContent =
+                "Select at least 2 NSE/BSE companies.";
+
+            return;
+        }
+
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    'http://127.0.0.1:5000/extract',
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+
+                        body:
+                            JSON.stringify({
+                                symbols: selected
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+
+            if (!response.ok) {
+
+                message.textContent =
+                    data.error ||
+                    "Backend error.";
+
+                return;
+            }
+
+
+            // No UI update on success.
+            message.textContent =
+                "Stock data extracted successfully!";
+
+            console.log(
+                "Extraction response:",
+                data
+            );
+
+
+        }
+        catch(error) {
+
+            console.error(error);
+
+            message.textContent =
+                "Could not connect to backend.";
+
+        }
+        finally {
+
+            updateSelection();
+
+        }
+
+    }
+);
+
+
+
+updateSelection();
+
+</script>
+
+
+</body>
+</html>
