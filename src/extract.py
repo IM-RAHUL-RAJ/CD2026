@@ -198,26 +198,6 @@ def save_extracted_data(success_data, output_dir="data"):
             "rows": len(df)
         })
 
-    # Combined CSV
-    if all_frames:
-        combined_df = pd.concat(
-            all_frames,
-            ignore_index=True
-        )
-
-        combined_path = output_path / "all_symbols.csv"
-
-        combined_df.to_csv(
-            combined_path,
-            index=False
-        )
-
-        saved_files.append({
-            "symbol": "ALL",
-            "file": str(combined_path),
-            "rows": len(combined_df)
-        })
-
     return {
         "files": saved_files,
         "total_rows": total_rows
