@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import date, timedelta
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from src.apiClient import (
     FauxnanceClient,
     FauxnanceRateLimitError,
@@ -22,6 +22,9 @@ app = Flask(__name__)
 # Initialize environment variables
 load_env()
 
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 @app.route("/health", methods=["GET"])
 def health():
