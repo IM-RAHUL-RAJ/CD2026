@@ -163,98 +163,72 @@ def candles_to_dataframe(candles_response: dict) -> pd.DataFrame:
                 
     return df
 
+def save_extracted_data(success_data, output_dir="data"):
+    """
+    Convert extracted candle data to CSV files.
 
-if __name__ == "__main__":
-    # Test script entry point / CLI interface
-    import sys
-    import argparse
-    logging.basicConfig(level=logging.INFO)
+    Returns:
+        {
+            "files": [...],
+            "total_rows": int
+        }
+    """
 
-    # 1. Parse command line arguments
-    # Usage examples:
-    #   python -m src.extract INFY.NS TCS.NS --days 7
-    #   python -m src.extract INFY.NS TCS.NS --from 2026-08-01 --to 2026-08-20
-    parser = argparse.ArgumentParser(description="Fauxnance data extractor")
-    parser.add_argument("symbols", nargs="*", help="Ticker symbols to extract (e.g. INFY.NS TCS.NS)")
-    parser.add_argument("--from", dest="from_date", default=None, help="Start date YYYY-MM-DD")
-    parser.add_argument("--to",   dest="to_date",   default=None, help="End date YYYY-MM-DD")
-    parser.add_argument("--days", dest="days", type=int, default=None,
-                        help="Number of past days to fetch (e.g. --days 7 for 1 week). Overrides --from/--to.")
-    args = parser.parse_args()
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    # Resolve symbols
-    test_symbols = args.symbols if args.symbols else ["INFY.NS", "RELIANCE.NS", "INVALID_STOCK"]
-    logger.info(f"Symbols: {test_symbols}")
+    all_frames = []
+    saved_files = []
+    total_rows = 0
 
-    # Resolve date range — default is last 30 days (1 month) if nothing is specified
-    from datetime import date, timedelta
-    if args.days:
-        # --days flag: e.g. --days 7 for 1 week
-        start_date = (date.today() - timedelta(days=args.days)).isoformat()
-        end_date   = date.today().isoformat()
-    elif args.from_date:
-        # --from / --to flags: explicit date range
-        start_date = args.from_date
-        end_date   = args.to_date or date.today().isoformat()
-    else:
-        # Default: last 30 days
-        start_date = (date.today() - timedelta(days=30)).isoformat()
-        end_date   = date.today().isoformat()
+    for sym, raw_response in success_data.items():
 
-    logger.info(f"Date range: {start_date} -> {end_date}")
+        df = candles_to_dataframe(raw_response)
 
-    res = extract_data(test_symbols, start_date=start_date, end_date=end_date)
+        if df.empty:
+            continue
+
+        # Add symbol column
+        df.insert(0, "symbol", sym)
+
+        all_frames.append(df)
+        total_rows += len(df)
+
+        # INFY.NS -> INFY_NS.csv
+        safe_sym = sym.replace(".", "_")
+
+        file_path = output_path / f"{safe_sym}.csv"
+
+        df.to_csv(file_path, index=False)
+
+        saved_files.append({
+            "symbol": sym,
+            "file": str(file_path),
+            "rows": len(df)
+        })
+
+    # Combined CSV
+    if all_frames:
+        combined_df = pd.concat(
+            all_frames,
+            ignore_index=True
+        )
+
+        combined_path = output_path / "all_symbols.csv"
+
+        combined_df.to_csv(
+            combined_path,
+            index=False
+        )
+
+        saved_files.append({
+            "symbol": "ALL",
+            "file": str(combined_path),
+            "rows": len(combined_df)
+        })
+
+    return {
+        "files": saved_files,
+        "total_rows": total_rows
+    }
     
-    print("\n" + "=" * 60)
-    print("EXTRACTION RUN SUMMARY")
-    print("=" * 60)
-    print(f"Overall Run Status: {res['status'].upper()}")
-    print(f"Successfully Extracted ({len(res['success'])}): {list(res['success'].keys())}")
-    
-    if res['failed']:
-        print(f"Failed to Extract ({len(res['failed'])}):")
-        for sym, error in res['failed'].items():
-            print(f"  - {sym}: {error}")
-    print("=" * 60)
-    
-    # 2. Leverage Pandas to show a sample table of successful extracts
-    if res['success']:
-        print("\nSAMPLE EXTRACTED DATA (PANDAS DATAFRAMES):")
-        for sym, raw_response in res['success'].items():
-            df = candles_to_dataframe(raw_response)
-            print(f"\nTicker: {sym} (First 5 rows):")
-            if not df.empty:
-                print(df.head(5).to_string(index=False))
-            else:
-                print("[Empty DataFrame]")
-        print("=" * 60)
-
-    # 3. Save extracted data to CSV files in data/ folder
-    if res['success']:
-        output_dir = Path("data")
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        all_frames = []
-        print("\nSAVING CSV FILES:")
-
-        for sym, raw_response in res['success'].items():
-            df = candles_to_dataframe(raw_response)
-            if not df.empty:
-                # Add symbol column so we know which stock each row belongs to
-                df.insert(0, "symbol", sym)
-                all_frames.append(df)
-
-                # Save one CSV per symbol  e.g. data/INFY_NS.csv
-                safe_sym = sym.replace(".", "_")
-                per_symbol_path = output_dir / f"{safe_sym}.csv"
-                df.to_csv(per_symbol_path, index=False)
-                print(f"  Saved {sym:20s} -> {per_symbol_path}  ({len(df)} rows)")
-
-        # Save one combined CSV with all symbols stacked
-        if all_frames:
-            combined_df = pd.concat(all_frames, ignore_index=True)
-            combined_path = output_dir / "all_symbols.csv"
-            combined_df.to_csv(combined_path, index=False)
-            print(f"\n  Combined file      -> {combined_path}  ({len(combined_df)} total rows)")
-
-        print("=" * 60)

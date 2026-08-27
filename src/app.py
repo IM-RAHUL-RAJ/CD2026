@@ -1,8 +1,17 @@
 import os
 import logging
+from datetime import date, timedelta
 from flask import Flask, jsonify, request
-from src.apiClient import FauxnanceClient, FauxnanceRateLimitError, FauxnanceClientError
-from src.extract import extract_data, load_env
+from src.apiClient import (
+    FauxnanceClient,
+    FauxnanceRateLimitError,
+    FauxnanceClientError
+)
+from src.extract import (
+    extract_data,
+    load_env,
+    save_extracted_data
+)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -62,44 +71,103 @@ def get_symbol_candles(symbol):
 
 @app.route("/extract", methods=["POST"])
 def trigger_extraction():
-    """
-    Endpoint to trigger bulk extraction for a list of symbols.
-    Body format:
-    {
-        "symbols": ["INFY.NS", "RELIANCE.NS"],
-        "from": "2026-07-01",
-        "to": "2026-07-15"
-    }
-    """
-    body = request.get_json() or {}
-    symbols = body.get("symbols", [])
-    start_date = body.get("from")
-    end_date = body.get("to")
 
-    if not symbols or not isinstance(symbols, list):
-        return jsonify({"error": "Missing or invalid 'symbols' list in request body"}), 400
+    body = request.get_json(silent=True) or {}
+
+    symbols = body.get("symbols", [])
+
+    # Validate symbols
+    if not isinstance(symbols, list) or not symbols:
+        return jsonify({
+            "error": "'symbols' must be a non-empty list"
+        }), 400
+
+    # Clean symbols
+    symbols = [
+        symbol.strip().upper()
+        for symbol in symbols
+        if isinstance(symbol, str) and symbol.strip()
+    ]
+
+    if not symbols:
+        return jsonify({
+            "error": "No valid symbols provided"
+        }), 400
 
     try:
-        logger.info(f"Flask API: Triggering batch extraction for symbols: {symbols}")
-        results = extract_data(symbols, start_date=start_date, end_date=end_date)
-        
+        logger.info(
+            f"Starting 30-day extraction for: {symbols}"
+        )
+
+        # extract_data already has optional dates.
+        # We explicitly calculate last 30 days here.
+        from datetime import date, timedelta
+
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+
+        results = extract_data(
+            symbols=symbols,
+            start_date=start_date.isoformat(),
+            end_date=end_date.isoformat()
+        )
+
+        # Save successful extracted data to CSV
+        csv_result = {
+            "files": [],
+            "total_rows": 0
+        }
+
+        if results["success"]:
+            csv_result = save_extracted_data(
+                success_data=results["success"],
+                output_dir="data"
+            )
+
+        # Add CSV information to response
+        results["csv"] = csv_result
+
+        # Add date range for UI
+        results["date_range"] = {
+            "from": start_date.isoformat(),
+            "to": end_date.isoformat()
+        }
+
         status_code = 200
+
         if results.get("status") == "interrupted":
             status_code = 429
-            
+
         return jsonify(results), status_code
+
     except Exception as e:
-        logger.error(f"Batch extraction trigger failed: {e}")
-        return jsonify({"error": str(e)}), 500
 
+        logger.exception(
+            f"Batch extraction failed: {e}"
+        )
 
+        return jsonify({
+            "error": "Extraction failed",
+            "details": str(e)
+        }), 500
 
 def main():
-    """Entry point for the fauxnance-serve CLI command."""
+    """Entry point for the Fauxnance Extract API."""
     port = int(os.getenv("FLASK_PORT", 5000))
-    logger.info(f"Starting Fauxnance Extract API on port {port}...")
-    app.run(host="0.0.0.0", port=port, debug=True)
 
+    logger.info(
+        f"Starting Fauxnance Extract API on port {port}..."
+    )
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=True
+    )
+
+
+if __name__ == "__main__":
+    main()
 
 if __name__ == "__main__":
     main()
