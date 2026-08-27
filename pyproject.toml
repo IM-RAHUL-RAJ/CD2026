@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "leap-capstone-eda"
+version = "0.1.0"
+description = "Fauxnance financial data ETL and EDA pipeline"
+requires-python = ">=3.10"
+
+dependencies = [
+    "flask>=3.0",
+    "requests>=2.32",
+    "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+# Tells setuptools that our package lives inside the src/ folder
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+# CLI entry points - lets you run `fauxnance-extract` instead of `python -m src.extract`
+[project.scripts]
+fauxnance-extract = "src.extract:main"
+fauxnance-serve   = "src.app:main"
