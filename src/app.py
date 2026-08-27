@@ -13,6 +13,7 @@ from src.extract import (
     save_extracted_data
 )
 from flask_cors import CORS
+from src.pipeline import start_etl
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -143,6 +144,7 @@ def trigger_extraction():
         }
 
         status_code = 200
+        start_etl()
 
         if results.get("status") == "interrupted":
             status_code = 429

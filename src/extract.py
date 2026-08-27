@@ -198,8 +198,6 @@ def save_extracted_data(success_data, output_dir="data"):
             "rows": len(df)
         })
 
-    
-
     return {
         "files": saved_files,
         "total_rows": total_rows
