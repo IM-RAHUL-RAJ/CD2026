@@ -1,5 +1,6 @@
 import os
 import logging
+from dotenv import load_dotenv
 from pathlib import Path
 import pandas as pd
 from src.apiClient import (
@@ -21,25 +22,18 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 
+logger = logging.getLogger(__name__)
+
 def load_env(path: str = ".env"):
-    """Manually parse .env file to load variables into environment without external packages."""
+    """Load environment variables from .env file using python-dotenv."""
     dotenv_file = Path(path)
+
     if dotenv_file.exists():
         logger.info(f"Loading environment variables from {dotenv_file.resolve()}")
         try:
-            with open(dotenv_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#") or "=" not in line:
-                        continue
-                    key, val = line.split("=", 1)
-                    key = key.strip()
-                    val = val.strip().strip("'\"")
-                    # Set environment variable if not already set by shell
-                    if key and key not in os.environ:
-                        os.environ[key] = val
+            load_dotenv(dotenv_path=dotenv_file, override=False)
         except Exception as e:
-            logger.error(f"Failed to read .env file: {e}")
+            logger.error(f"Failed to load .env file: {e}")
 
 
 def extract_data(symbols: list, start_date: str = None, end_date: str = None, cache_dir: str = None) -> dict:

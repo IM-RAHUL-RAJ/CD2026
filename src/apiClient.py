@@ -59,18 +59,18 @@ class FauxnanceClient:
 
     def __init__(self, base_url: str = None, api_key: str = None, cache_dir: str = None):
         # 1. Read API key only from FAUXNANCE_API_KEY environment variable. Never hard-code it.
-        self.api_key = api_key or os.environ.get("FAUXNANCE_API_KEY")
+        self.api_key = api_key or os.getenv("FAUXNANCE_API_KEY")
         if not self.api_key:
             raise ValueError("FAUXNANCE_API_KEY environment variable is not set.")
 
         # 2. Get base URL from environment or fallback to the fixed deployed URL.
-        self.base_url = base_url or os.environ.get(
+        self.base_url = base_url or os.getenv(
             "FAUXNANCE_BASE_URL", 
             "https://y4t9nq2bqf.execute-api.eu-west-2.amazonaws.com/v1"
         ).rstrip("/")
 
         # 3. Configure cache directory
-        cache_dir_name = cache_dir or os.environ.get("FAUXNANCE_CACHE_DIR", ".cache")
+        cache_dir_name = cache_dir or os.getenv("FAUXNANCE_CACHE_DIR", ".cache")
         self.cache_dir = Path(cache_dir_name)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
@@ -209,7 +209,7 @@ class FauxnanceClient:
     def get_candles(self, symbol: str, start_date: str = None, end_date: str = None) -> dict:
         """Retrieve daily candles for a given symbol, checking cache first."""
         # Normalize/resolve dates so caching is deterministic and doesn't drift with daily runs
-        resolved_start = start_date or (date.today() - timedelta(days=365)).isoformat()
+        resolved_start = start_date or (date.today() - timedelta(days=30)).isoformat()
         resolved_end = end_date or date.today().isoformat()
 
         cache_path = self._get_cache_path(symbol, resolved_start, resolved_end)

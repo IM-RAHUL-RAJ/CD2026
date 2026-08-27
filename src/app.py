@@ -96,7 +96,7 @@ def trigger_extraction():
 
 def main():
     """Entry point for the fauxnance-serve CLI command."""
-    port = int(os.environ.get("FLASK_PORT", 5000))
+    port = int(os.getenv("FLASK_PORT", 5000))
     logger.info(f"Starting Fauxnance Extract API on port {port}...")
     app.run(host="0.0.0.0", port=port, debug=True)
 
