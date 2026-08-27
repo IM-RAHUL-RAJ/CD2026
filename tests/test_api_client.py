@@ -28,17 +28,17 @@ class TestFauxnanceClient(unittest.TestCase):
         # Create a temporary directory for caching
         self.test_dir = Path(tempfile.mkdtemp())
         self.api_key = "fnx_test_key_1234567890"
-        os.getenv["FAUXNANCE_API_KEY"] = self.api_key
-        os.getenv["FAUXNANCE_BASE_URL"] = "https://api.test.fauxnance/v1"
+        os.environ["FAUXNANCE_API_KEY"] = self.api_key
+        os.environ["FAUXNANCE_BASE_URL"] = "https://api.test.fauxnance/v1"
 
     def tearDown(self):
         # Clean up cache files
         shutil.rmtree(self.test_dir)
-        if "FAUXNANCE_API_KEY" in os.getenv:
-            del os.getenv["FAUXNANCE_API_KEY"]
+        if "FAUXNANCE_API_KEY" in os.environ:
+            del os.environ["FAUXNANCE_API_KEY"]
 
     def test_missing_api_key_raises_value_error(self):
-        del os.getenv["FAUXNANCE_API_KEY"]
+        del os.environ["FAUXNANCE_API_KEY"]
         with self.assertRaises(ValueError) as ctx:
             FauxnanceClient()
         self.assertIn("FAUXNANCE_API_KEY environment variable is not set", str(ctx.exception))
@@ -151,13 +151,13 @@ class TestExtractCoordination(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
         self.api_key = "fnx_test_key_1234567890"
-        os.getenv["FAUXNANCE_API_KEY"] = self.api_key
-        os.getenv["FAUXNANCE_BASE_URL"] = "https://api.test.fauxnance/v1"
+        os.environ["FAUXNANCE_API_KEY"] = self.api_key
+        os.environ["FAUXNANCE_BASE_URL"] = "https://api.test.fauxnance/v1"
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
-        if "FAUXNANCE_API_KEY" in os.getenv:
-            del os.getenv["FAUXNANCE_API_KEY"]
+        if "FAUXNANCE_API_KEY" in os.environ:
+            del os.environ["FAUXNANCE_API_KEY"]
 
     @patch("requests.get")
     def test_extract_data_success_and_failures(self, mock_get):
