@@ -1,14 +1,17 @@
 import os
+import sys
 import json
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
 import tempfile
 import shutil
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.api.apiClient import (
     FauxnanceClient,
@@ -16,9 +19,10 @@ from src.api.apiClient import (
     FauxnanceRateLimitError,
     FauxnanceClientError,
     FauxnanceServerError,
-    FauxnanceConnectionError
+    FauxnanceConnectionError,
 )
 from src.extract.extract import extract_data
+
 
 
 class TestFauxnanceClient(unittest.TestCase):
@@ -245,5 +249,19 @@ class TestExtractCoordination(unittest.TestCase):
         self.assertTrue(empty_df.empty)
 
 
+class TestFlaskRoutes(unittest.TestCase):
+
+    def setUp(self):
+        from src.api.app import app
+        app.testing = True
+        self.client = app.test_client()
+
+    def test_index_route(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Akatsuki Stock Analyzer", response.data)
+
+
 if __name__ == "__main__":
     unittest.main()
+

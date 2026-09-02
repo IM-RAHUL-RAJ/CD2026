@@ -1,7 +1,9 @@
 from pathlib import Path
 import random
+import shutil
 import numpy as np
 import pandas as pd
+
 
 
 INPUT_DIR = Path.cwd() / "data"
@@ -299,13 +301,16 @@ def transform_file(file):
 
 
 def transform():
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     files = list(INPUT_DIR.glob("*.csv"))
 
     for file in files:
         try:
             transform_file(file)
-
         except ValidationError as e:
             print("FAILED:", e)
+
 

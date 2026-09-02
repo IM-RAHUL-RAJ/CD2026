@@ -1,27 +1,26 @@
 import os
+import sys
 import logging
-from dotenv import load_dotenv
+import shutil
 from pathlib import Path
+from dotenv import load_dotenv
 import pandas as pd
+
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.api.apiClient import (
-    FauxnanceClient, 
-    FauxnanceRateLimitError, 
-    FauxnanceClientError, 
-    FauxnanceAPIError, 
-    FauxnanceConnectionError
+    FauxnanceClient,
+    FauxnanceRateLimitError,
+    FauxnanceClientError,
+    FauxnanceAPIError,
+    FauxnanceConnectionError,
 )
 
-
-logger = logging.getLogger("Extract")
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-
-
 logger = logging.getLogger(__name__)
+
 
 def load_env(path: str = ".env"):
     dotenv_file = Path(path)

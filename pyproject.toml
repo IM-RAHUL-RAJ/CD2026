@@ -10,8 +10,13 @@ requires-python = ">=3.10"
 
 dependencies = [
     "flask>=3.0",
+    "flask-cors>=4.0",
     "requests>=2.32",
     "pandas>=2.0",
+    "numpy>=1.24",
+    "duckdb>=1.0",
+    "plotly>=5.18",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]
@@ -24,7 +29,8 @@ dev = [
 where = ["."]
 include = ["src*"]
 
-# CLI entry points - lets you run `fauxnance-extract` instead of `python -m src.extract`
+# CLI entry points
 [project.scripts]
-fauxnance-extract = "src.extract:main"
-fauxnance-serve   = "src.app:main"
+fauxnance-extract  = "src.extract.extract:main"
+fauxnance-serve    = "src.api.app:main"
+fauxnance-pipeline = "src.pipeline.pipeline:main"

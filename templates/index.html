@@ -59,6 +59,8 @@
             margin-top: 20px;
             white-space: pre-wrap;
             text-align: center;
+            color: #555;
+            font-size: 14px;
         }
 
     </style>
@@ -259,117 +261,57 @@ checkboxes.forEach(
 
 
 
-submitButton.addEventListener(
-    'click',
-    async () => {
+submitButton.addEventListener('click', async () => {
+    const selected = [
+        ...document.querySelectorAll('#instruments input[type="checkbox"]:checked')
+    ].map(cb => cb.value);
 
+    const nseBseCount = selected.filter(s => requiredCompanies.includes(s)).length;
 
-        const selected =
-            [
-                ...document.querySelectorAll(
-                    '#instruments input[type="checkbox"]:checked'
-                )
-            ]
-            .map(
-                checkbox => checkbox.value
-            );
-
-
-        const nseBseCount =
-            selected.filter(
-                symbol =>
-                    requiredCompanies.includes(symbol)
-            ).length;
-
-
-
-        if (selected.length !== 5) {
-
-            message.textContent =
-                "Please select exactly 5 instruments.";
-
-            return;
-        }
-
-
-        if (nseBseCount < 2) {
-
-            message.textContent =
-                "Select at least 2 NSE/BSE companies.";
-
-            return;
-        }
-
-
-
-        try {
-
-
-            const response =
-                await fetch(
-                    'http://127.0.0.1:5000/extract',
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            'Content-Type':
-                                'application/json'
-                        },
-
-
-                        body:
-                            JSON.stringify({
-                                symbols: selected
-                            })
-                    }
-                );
-
-
-           const html = await response.text();
-
-            document.open();
-            document.write(html);
-            document.close();
-
-
-
-            if (!response.ok) {
-
-                message.textContent =
-                    data.error ||
-                    "Backend error.";
-
-                return;
-            }
-
-
-            // No UI update on success.
-            message.textContent =
-                "Stock data extracted successfully!";
-
-            console.log(
-                "Extraction response:",
-                data
-            );
-
-
-        }
-        catch(error) {
-
-            console.error(error);
-
-            message.textContent =
-                "Could not connect to backend.";
-
-        }
-        finally {
-
-            updateSelection();
-
-        }
-
+    if (selected.length !== 5) {
+        message.textContent = "Please select exactly 5 instruments.";
+        return;
     }
-);
+
+    if (nseBseCount < 2) {
+        message.textContent = "Select at least 2 NSE/BSE companies.";
+        return;
+    }
+
+    submitButton.disabled = true;
+    message.textContent = "Fetching data and generating report, this may take a moment…";
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/extract', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbols: selected }),
+        });
+
+        if (!response.ok) {
+            let errText = "Backend error.";
+            try {
+                const errJson = await response.json();
+                errText = errJson.error || errText;
+            } catch (_) {}
+            message.textContent = errText;
+            submitButton.disabled = false;
+            updateSelection();
+            return;
+        }
+
+        const html = await response.text();
+        document.open();
+        document.write(html);
+        document.close();
+
+    } catch (err) {
+        console.error(err);
+        message.textContent = "Could not connect to backend. Is the server running?";
+        submitButton.disabled = false;
+        updateSelection();
+    }
+});
 
 
 
