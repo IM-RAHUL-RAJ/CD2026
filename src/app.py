@@ -149,7 +149,11 @@ def trigger_extraction():
         if results.get("status") == "interrupted":
             status_code = 429
 
-        return jsonify(results), status_code
+        
+        return render_template(
+            "report.html",
+            results=results
+        )
 
     except Exception as e:
 

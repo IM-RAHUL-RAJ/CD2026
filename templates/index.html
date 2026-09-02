@@ -325,8 +325,11 @@ submitButton.addEventListener(
                 );
 
 
-            const data =
-                await response.json();
+           const html = await response.text();
+
+            document.open();
+            document.write(html);
+            document.close();
 
 
 

@@ -13,7 +13,7 @@ from plotly.offline import plot
 # =====================================================
 
 DATA_FOLDER = "data"
-OUTPUT_FILE = "dashboard.html"
+OUTPUT_FILE = "templates/report.html"
 
 
 # =====================================================
