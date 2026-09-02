@@ -13,14 +13,14 @@ from plotly.offline import plot
 # CONFIGURATION
 # =====================================================
 
-DATABASE_FILE = "src/trading.duckdb"
+DATABASE_FILE = "analytics.duckdb"
 
 OUTPUT_FILE = "dashboard.html"
 
 
 
 # =====================================================
-# LOAD DATA FROM DUCKDB
+# LOAD DATA FROM DUCKDB ANALYTICAL SCHEMA
 # =====================================================
 
 def load_data():
@@ -33,39 +33,66 @@ def load_data():
 
         data = conn.execute(
             """
-            SELECT *
-            FROM trading_raw
+            SELECT
+
+                i.symbol,
+
+                d.full_date AS date,
+
+                f.quantity,
+
+                f.price,
+
+                f.quantity * f.price AS trade_value
+
+            FROM fact_trades f
+
+
+            JOIN dim_instrument i
+
+                ON f.instrument_key = i.instrument_key
+
+
+            JOIN dim_date d
+
+                ON f.date_key = d.date_key
+
+
+            ORDER BY
+
+                i.symbol,
+
+                d.full_date
+
             """
         ).fetchdf()
+
 
     finally:
 
         conn.close()
 
 
+
     if data.empty:
 
         raise Exception(
-            "No data found inside trading_raw table"
+            "No trading data found in fact_trades"
         )
 
 
-    # Normalize column names
+
+    # =================================================
+    # NORMALIZE TYPES
+    # =================================================
+
 
     data.columns = (
         data.columns
         .str.lower()
-        .str.replace(" ", "_")
+        .str.strip()
     )
 
-
-    # Date handling
-
-    if "date" not in data.columns:
-
-        raise Exception(
-            "Date column missing in DuckDB table"
-        )
 
 
     data["date"] = pd.to_datetime(
@@ -74,40 +101,35 @@ def load_data():
     )
 
 
-    # Price column handling
-
-    if "adj_close" in data.columns:
-
-        data["close"] = data["adj_close"]
-
-
-    elif "adjusted_close" in data.columns:
-
-        data["close"] = data["adjusted_close"]
-
-
-    elif "close" not in data.columns:
-
-        raise Exception(
-            "No close price found in DuckDB table"
-        )
-
-
-    data["close"] = pd.to_numeric(
-        data["close"],
+    data["trade_value"] = pd.to_numeric(
+        data["trade_value"],
         errors="coerce"
     )
+
+
+    data["price"] = pd.to_numeric(
+        data["price"],
+        errors="coerce"
+    )
+
+
+    data["quantity"] = pd.to_numeric(
+        data["quantity"],
+        errors="coerce"
+    )
+
 
 
     data = data.dropna(
         subset=[
             "symbol",
             "date",
-            "close"
+            "price"
         ]
     )
 
 
+    data['close'] = data['price']
     data = data.sort_values(
         [
             "symbol",
