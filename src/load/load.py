@@ -7,10 +7,6 @@ import duckdb
 import pandas as pd
 
 
-
-# Seed data for not available values
-
-
 SEED_DATE = datetime(2025, 1, 1).date()
 
 SEED_ACCOUNT = {
@@ -93,9 +89,6 @@ class TradingLoader:
             else Path(schema_path).resolve()
         )  
 
-    
-
-    #Connecting to the duckdb database
     def connect(self):
 
         self.database_path.parent.mkdir(
@@ -108,7 +101,6 @@ class TradingLoader:
         )
 
     
-    #load function - main
     def load(
         self,
         transformed_folder: str | Path = None,
@@ -135,9 +127,7 @@ class TradingLoader:
                 "No transformed CSV files found."
             )
 
-        print("\n========================================")
-        print("        TRADING ETL LOAD START")
-        print("========================================")
+        print("TRADING ETL LOAD START")
 
         print(f"\nFound {len(csv_files)} CSV file(s):")
 
@@ -220,8 +210,6 @@ class TradingLoader:
                 "\nDuckDB connection closed."
             )
 
-    
-    #Schema from the analytics-schema file
     def create_schema(
         self,
         conn
@@ -256,7 +244,6 @@ class TradingLoader:
 
         df = df.copy()
 
-        # Remove unnamed CSV index columns
         df = df.loc[
             :,
             ~df.columns.str.contains(
@@ -265,7 +252,6 @@ class TradingLoader:
             )
         ]
 
-        # Normalize column names
         df.columns = [
             str(column).strip().lower()
             for column in df.columns
@@ -320,7 +306,6 @@ class TradingLoader:
             return None
 
     def to_float_or_none(self, value):
-        """Convert a value to float, returning None when unavailable/invalid."""
         if value is None:
             return None
         try:
@@ -341,7 +326,6 @@ class TradingLoader:
         return str(value).strip() or None
 
 
-    #seed data for other tables
     def seed_instrument_for_symbol(self, symbol):
         symbol = self.clean_text_or_none(symbol)
 
@@ -406,7 +390,6 @@ class TradingLoader:
         return next_key
 
     def get_or_create_seed_account(self, conn):
-        """Create the fallback account if it is not already present."""
         account_id = SEED_ACCOUNT["account_id"]
         effective_date = SEED_ACCOUNT["effective_date"]
 
@@ -507,7 +490,7 @@ class TradingLoader:
     ):
 
         print(
-            "\n---------- DIM_DATE ----------"
+            "\nDIM_DATE"
         )
 
         all_dates = []
@@ -628,7 +611,7 @@ class TradingLoader:
     ):
 
         print(
-            "\n------ DIM_INSTRUMENT ------"
+            "\nDIM_INSTRUMENT"
         )
 
         total_inserted = 0
@@ -772,7 +755,7 @@ class TradingLoader:
     ):
 
         print(
-            "\n--------- DIM_ACCOUNT ---------"
+            "\nDIM_ACCOUNT"
         )
 
         total_inserted = 0
@@ -930,7 +913,7 @@ class TradingLoader:
     ):
 
         print(
-            "\n---------- FACT_TRADES ----------"
+            "\nFACT_TRADES"
         )
 
         total_inserted = 0
@@ -1236,19 +1219,15 @@ class TradingLoader:
             f"Skipped duplicates/uninsertable rows: {total_skipped}"
         )
 
-
-
-    #validations - db side
     def validate_database(
         self,
         conn
     ):
 
         print(
-            "\n========== VALIDATION =========="
+            "\nVALIDATION"
         )
 
-        #check required tables
         tables = conn.execute(
             """
             SELECT table_name
@@ -1275,9 +1254,8 @@ class TradingLoader:
                 )
             )
 
-        print("✓ All required tables exist.")
+        print("All required tables exist.")
 
-        #duplicate checks
         duplicate_instruments = conn.execute(
             """
             SELECT symbol, COUNT(*)
@@ -1293,7 +1271,7 @@ class TradingLoader:
                 "Duplicate instruments detected."
             )
 
-        print("✓ DIM_INSTRUMENT has no duplicate non-blank symbols.")
+        print("DIM_INSTRUMENT has no duplicate non-blank symbols.")
 
         duplicate_dates = conn.execute(
             """
@@ -1310,7 +1288,7 @@ class TradingLoader:
                 "Duplicate dates detected."
             )
 
-        print("✓ DIM_DATE has no duplicate non-blank dates.")
+        print("DIM_DATE has no duplicate non-blank dates.")
 
         duplicate_accounts = conn.execute(
             """
@@ -1332,7 +1310,7 @@ class TradingLoader:
                 "Duplicate account versions detected."
             )
 
-        print("✓ DIM_ACCOUNT has no duplicate account versions.")
+        print("DIM_ACCOUNT has no duplicate account versions.")
 
         duplicate_orders = conn.execute(
             """
@@ -1351,7 +1329,7 @@ class TradingLoader:
                 "Duplicate FACT_TRADES orders detected."
             )
 
-        print("✓ FACT_TRADES has no duplicate non-blank orders.")
+        print("FACT_TRADES has no duplicate non-blank orders.")
 
 
         unresolved = conn.execute(
@@ -1380,7 +1358,7 @@ class TradingLoader:
                 "have unresolved non-NULL dimension keys."
             )
 
-        print("✓ All non-blank FACT_TRADES foreign keys resolve.")
+        print("All non-blank FACT_TRADES foreign keys resolve.")
 
 
         blank_counts = conn.execute(
@@ -1427,10 +1405,8 @@ class TradingLoader:
             f"{invalid_values}"
         )
 
-        print("================================")
         print("VALIDATION PASSED")
         print("Seed fallback data was used only where CSV values were missing.")
-        print("================================")
 
 
     def print_summary(
@@ -1439,7 +1415,7 @@ class TradingLoader:
     ):
 
         print(
-            "\n========== LOAD SUMMARY =========="
+            "\nLOAD SUMMARY"
         )
 
         for table in [
@@ -1459,18 +1435,3 @@ class TradingLoader:
             print(
                 f"{table.upper():20} : {count} rows"
             )
-
-        print(
-            "==================================\n"
-        )
-
-
-# ====================================================================
-# EXAMPLE USAGE
-# ====================================================================
-
-if __name__ == "__main__":
-
-    loader = TradingLoader()
-
-    loader.load()

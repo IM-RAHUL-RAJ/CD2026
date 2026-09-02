@@ -1,4 +1,5 @@
 import os
+import duckdb
 import pandas as pd
 import numpy as np
 
@@ -7,69 +8,122 @@ import plotly.express as px
 
 from plotly.offline import plot
 
-DATA_FOLDER = "data"
+
+DATABASE_FILE = "analytics.duckdb"
+
 OUTPUT_FILE = "templates/report.html"
+
+
 
 def load_data():
 
-    stocks = []
+    conn = duckdb.connect(
+        DATABASE_FILE
+    )
 
-    for file in os.listdir(DATA_FOLDER):
+    try:
 
-        if file.endswith(".csv"):
+        data = conn.execute(
+            """
+            SELECT
 
-            path = os.path.join(
-                DATA_FOLDER,
-                file
-            )
+                i.symbol,
 
-            df = pd.read_csv(path)
+                d.full_date AS date,
 
-            df.columns = (
-                df.columns
-                .str.lower()
-                .str.replace(" ", "_")
-            )
+                f.quantity,
 
-            symbol = file.replace(".csv", "")
-            df["symbol"] = symbol
+                f.price,
 
-            if "date" not in df.columns:
-                raise Exception(
-                    f"Date column missing in {file}"
-                )
+                f.quantity * f.price AS trade_value
 
-            df["date"] = pd.to_datetime(df["date"])
+            FROM fact_trades f
 
-            if "adj_close" in df.columns:
-                df["close"] = df["adj_close"]
 
-            elif "adjusted_close" in df.columns:
-                df["close"] = df["adjusted_close"]
+            JOIN dim_instrument i
 
-            elif "close" not in df.columns:
-                raise Exception(
-                    f"No close price found in {file}"
-                )
+                ON f.instrument_key = i.instrument_key
 
-            stocks.append(df)
 
-    if len(stocks) == 0:
+            JOIN dim_date d
+
+                ON f.date_key = d.date_key
+
+
+            ORDER BY
+
+                i.symbol,
+
+                d.full_date
+
+            """
+        ).fetchdf()
+
+
+    finally:
+
+        conn.close()
+
+
+
+    if data.empty:
+
         raise Exception(
-            "No CSV files found inside data folder"
+            "No trading data found in fact_trades"
         )
 
-    data = pd.concat(
-        stocks,
-        ignore_index=True
+
+    data.columns = (
+        data.columns
+        .str.lower()
+        .str.strip()
     )
 
-    data = data.sort_values(
-        ["symbol", "date"]
+
+
+    data["date"] = pd.to_datetime(
+        data["date"],
+        errors="coerce"
     )
+
+
+    data["trade_value"] = pd.to_numeric(
+        data["trade_value"],
+        errors="coerce"
+    )
+
+
+    data["price"] = pd.to_numeric(
+        data["price"],
+        errors="coerce"
+    )
+
+
+    data["quantity"] = pd.to_numeric(
+        data["quantity"],
+        errors="coerce"
+    )
+
+
+    data = data.dropna(
+        subset=[
+            "symbol",
+            "date",
+            "price"
+        ]
+    )
+
+
+    data['close'] = data['price']
+    data = data.sort_values(
+        [
+            "symbol",
+            "date"
+        ]
+    )
+
 
     return data
-
 
 def calculate_metrics(df):
 
@@ -133,6 +187,7 @@ def calculate_metrics(df):
 
 def generate_claims(metrics, correlation):
 
+    # Highest return
     best_return = (
         metrics
         .sort_values(
@@ -237,6 +292,7 @@ def generate_claims(metrics, correlation):
 
     ]
 
+
 def create_charts(df, metrics):
 
     charts = []
@@ -256,6 +312,7 @@ def create_charts(df, metrics):
             b=55
         )
     )
+
 
     fig = go.Figure()
 
@@ -314,6 +371,7 @@ def create_charts(df, metrics):
         )
     )
 
+
     fig2 = px.scatter(
         metrics,
         x="volatility",
@@ -358,6 +416,7 @@ def create_charts(df, metrics):
         )
     )
 
+
     pivot = df.pivot_table(
         index="date",
         columns="symbol",
@@ -395,6 +454,7 @@ def create_charts(df, metrics):
             )
         )
     )
+
 
     metrics_sorted = (
         metrics
@@ -444,7 +504,6 @@ def create_charts(df, metrics):
 
     return charts
 
-
 def create_dashboard():
 
     df = load_data()
@@ -472,7 +531,6 @@ def create_dashboard():
         df,
         metrics
     )
-
 
     html = """
 
@@ -669,7 +727,6 @@ body {
 <div class="findings-grid">
 
 """
-
 
     for c in claims:
 
