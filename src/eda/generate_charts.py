@@ -7,18 +7,8 @@ import plotly.express as px
 
 from plotly.offline import plot
 
-
-# =====================================================
-# CONFIGURATION
-# =====================================================
-
 DATA_FOLDER = "data"
 OUTPUT_FILE = "templates/report.html"
-
-
-# =====================================================
-# LOAD CSV FILES
-# =====================================================
 
 def load_data():
 
@@ -35,18 +25,15 @@ def load_data():
 
             df = pd.read_csv(path)
 
-            # Normalize column names
             df.columns = (
                 df.columns
                 .str.lower()
                 .str.replace(" ", "_")
             )
 
-            # Symbol from filename
             symbol = file.replace(".csv", "")
             df["symbol"] = symbol
 
-            # Date handling
             if "date" not in df.columns:
                 raise Exception(
                     f"Date column missing in {file}"
@@ -54,7 +41,6 @@ def load_data():
 
             df["date"] = pd.to_datetime(df["date"])
 
-            # Price column handling
             if "adj_close" in df.columns:
                 df["close"] = df["adj_close"]
 
@@ -84,10 +70,6 @@ def load_data():
 
     return data
 
-
-# =====================================================
-# CALCULATE METRICS
-# =====================================================
 
 def calculate_metrics(df):
 
@@ -149,14 +131,8 @@ def calculate_metrics(df):
 
     return pd.DataFrame(results)
 
-
-# =====================================================
-# GENERATE FINDINGS
-# =====================================================
-
 def generate_claims(metrics, correlation):
 
-    # Highest return
     best_return = (
         metrics
         .sort_values(
@@ -166,7 +142,6 @@ def generate_claims(metrics, correlation):
         .iloc[0]
     )
 
-    # Best risk-adjusted performance
     best_sharpe = (
         metrics
         .sort_values(
@@ -176,7 +151,6 @@ def generate_claims(metrics, correlation):
         .iloc[0]
     )
 
-    # Most consistent
     most_consistent = (
         metrics
         .sort_values(
@@ -186,7 +160,6 @@ def generate_claims(metrics, correlation):
         .iloc[0]
     )
 
-    # Strongest correlation pair
     corr = correlation.copy()
 
     corr_array = corr.to_numpy(copy=True)
@@ -264,11 +237,6 @@ def generate_claims(metrics, correlation):
 
     ]
 
-
-# =====================================================
-# CREATE CHARTS
-# =====================================================
-
 def create_charts(df, metrics):
 
     charts = []
@@ -288,10 +256,6 @@ def create_charts(df, metrics):
             b=55
         )
     )
-
-    # -------------------------------------------------
-    # 1. CUMULATIVE RETURN
-    # -------------------------------------------------
 
     fig = go.Figure()
 
@@ -350,11 +314,6 @@ def create_charts(df, metrics):
         )
     )
 
-
-    # -------------------------------------------------
-    # 2. RISK VS RETURN
-    # -------------------------------------------------
-
     fig2 = px.scatter(
         metrics,
         x="volatility",
@@ -399,11 +358,6 @@ def create_charts(df, metrics):
         )
     )
 
-
-    # -------------------------------------------------
-    # 3. CORRELATION
-    # -------------------------------------------------
-
     pivot = df.pivot_table(
         index="date",
         columns="symbol",
@@ -441,11 +395,6 @@ def create_charts(df, metrics):
             )
         )
     )
-
-
-    # -------------------------------------------------
-    # 4. CONSISTENCY
-    # -------------------------------------------------
 
     metrics_sorted = (
         metrics
@@ -496,10 +445,6 @@ def create_charts(df, metrics):
     return charts
 
 
-# =====================================================
-# BUILD HTML DASHBOARD
-# =====================================================
-
 def create_dashboard():
 
     df = load_data()
@@ -528,10 +473,6 @@ def create_dashboard():
         metrics
     )
 
-
-    # =================================================
-    # HTML
-    # =================================================
 
     html = """
 
@@ -729,9 +670,6 @@ body {
 
 """
 
-    # =================================================
-    # FINDINGS
-    # =================================================
 
     for c in claims:
 
@@ -769,10 +707,6 @@ body {
 <h2 class="section-title">Analysis Charts</h2>
 
 """
-
-    # =================================================
-    # CHARTS
-    # =================================================
 
     for title, desc, chart in charts:
 
@@ -817,11 +751,6 @@ Akatsuki Stock Analyzer
 
     print("Dashboard created successfully!")
     print(f"Output file: {OUTPUT_FILE}")
-
-
-# =====================================================
-# MAIN
-# =====================================================
 
 if __name__ == "__main__":
 

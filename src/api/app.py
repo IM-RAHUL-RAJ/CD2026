@@ -2,20 +2,19 @@ import os
 import logging
 from datetime import date, timedelta
 from flask import Flask, jsonify, request, render_template
-from src.apiClient import (
+from src.api.apiClient import (
     FauxnanceClient,
     FauxnanceRateLimitError,
     FauxnanceClientError
 )
-from src.extract import (
+from src.extract.extract import (
     extract_data,
     load_env,
     save_extracted_data
 )
 from flask_cors import CORS
-from src.pipeline import start_etl
+from src.pipeline.pipeline import start_etl
 
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ExtractAPI")
 
@@ -26,7 +25,6 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates")
 )
 CORS(app)
-# Initialize environment variables
 load_env()
 
 @app.route("/")
@@ -35,7 +33,6 @@ def index():
 
 @app.route("/health", methods=["GET"])
 def health():
-    """Endpoint to check Fauxnance API health."""
     try:
         client = FauxnanceClient()
         health_data = client.get_health()
@@ -47,7 +44,6 @@ def health():
 
 @app.route("/usage", methods=["GET"])
 def usage():
-    """Endpoint to check the daily quota status of the API key."""
     try:
         client = FauxnanceClient()
         usage_data = client.get_usage()
@@ -61,7 +57,6 @@ def usage():
 
 @app.route("/candles/<symbol>", methods=["GET"])
 def get_symbol_candles(symbol):
-    """Endpoint to retrieve candles for a specific symbol (with caching)."""
     start_date = request.args.get("from")
     end_date = request.args.get("to")
     
@@ -86,13 +81,11 @@ def trigger_extraction():
 
     symbols = body.get("symbols", [])
 
-    # Validate symbols
     if not isinstance(symbols, list) or not symbols:
         return jsonify({
             "error": "'symbols' must be a non-empty list"
         }), 400
 
-    # Clean symbols
     symbols = [
         symbol.strip().upper()
         for symbol in symbols
@@ -109,8 +102,6 @@ def trigger_extraction():
             f"Starting 30-day extraction for: {symbols}"
         )
 
-        # extract_data already has optional dates.
-        # We explicitly calculate last 30 days here.
         from datetime import date, timedelta
 
         end_date = date.today()
@@ -122,7 +113,6 @@ def trigger_extraction():
             end_date=end_date.isoformat()
         )
 
-        # Save successful extracted data to CSV
         csv_result = {
             "files": [],
             "total_rows": 0
@@ -134,10 +124,8 @@ def trigger_extraction():
                 output_dir="data"
             )
 
-        # Add CSV information to response
         results["csv"] = csv_result
 
-        # Add date range for UI
         results["date_range"] = {
             "from": start_date.isoformat(),
             "to": end_date.isoformat()
@@ -167,7 +155,6 @@ def trigger_extraction():
         }), 500
 
 def main():
-    """Entry point for the Fauxnance Extract API."""
     port = int(os.getenv("FLASK_PORT", 5000))
 
     logger.info(
@@ -180,9 +167,6 @@ def main():
         debug=True
     )
 
-
-if __name__ == "__main__":
-    main()
 
 if __name__ == "__main__":
     main()

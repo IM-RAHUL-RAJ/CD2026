@@ -24,7 +24,6 @@ VALID_COLUMNS = [
 ]
 
 
-# transformed is outside src
 TRANSFORMED_DIR = (
     Path(__file__).resolve().parent.parent / "transformed"
 )
@@ -51,20 +50,11 @@ def get_transformed_files():
 )
 def test_transformed_file(file):
 
-    """
-    Validates the actual transformed CSV files.
-    Does not create fake dataframes.
-    """
-
     df = pd.read_csv(file)
-
-
-     # Basic file checks
  
     assert not df.empty, (
         f"{file.name}: file is empty"
     )
-
 
     assert set(df.columns) == set(
         VALID_COLUMNS
@@ -73,23 +63,15 @@ def test_transformed_file(file):
     )
 
 
-     # Schema validation
- 
     validate_schema(
         df,
         file.name
     )
-
-
-     # Data validation
  
     validate_data(
         df,
         file.name
     )
-
-
-     # Symbol validation
  
     expected_symbol = (
         expected_symbol_from_filename(file)
@@ -104,9 +86,6 @@ def test_transformed_file(file):
         f"{file.name}: "
         f"expected symbol {expected_symbol}"
     )
-
-
-     # Date validation
  
     dates = pd.to_datetime(
         df["date"],
@@ -128,9 +107,6 @@ def test_transformed_file(file):
     assert dates.is_monotonic_increasing, (
         f"{file.name}: dates are not sorted"
     )
-
-
-     # Price validation
  
     price_columns = [
         "open",
@@ -167,9 +143,6 @@ def test_transformed_file(file):
             f"{file.name}: "
             f"negative value in {column}"
         )
-
-
-     # OHLC validation
  
     assert (
         df["high"] >= df["low"]
@@ -194,9 +167,6 @@ def test_transformed_file(file):
         f"{file.name}: "
         "close outside low/high range"
     )
-
-
-     # Volume validation
  
     volume = pd.to_numeric(
         df["volume"],
@@ -218,8 +188,6 @@ def test_transformed_file(file):
         f"{file.name}: negative volume"
     )
 
-
-     # Synthetic validation
  
     assert df["synthetic"].notna().all(), (
         f"{file.name}: missing synthetic value"

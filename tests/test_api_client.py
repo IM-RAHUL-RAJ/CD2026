@@ -7,11 +7,10 @@ from pathlib import Path
 import tempfile
 import shutil
 
-# Make sure src is in import path if running from root
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.apiClient import (
+from src.api.apiClient import (
     FauxnanceClient,
     FauxnanceAPIError,
     FauxnanceRateLimitError,
@@ -19,20 +18,18 @@ from src.apiClient import (
     FauxnanceServerError,
     FauxnanceConnectionError
 )
-from src.extract import extract_data
+from src.extract.extract import extract_data
 
 
 class TestFauxnanceClient(unittest.TestCase):
 
     def setUp(self):
-        # Create a temporary directory for caching
         self.test_dir = Path(tempfile.mkdtemp())
         self.api_key = "fnx_test_key_1234567890"
         os.environ["FAUXNANCE_API_KEY"] = self.api_key
         os.environ["FAUXNANCE_BASE_URL"] = "https://api.test.fauxnance/v1"
 
     def tearDown(self):
-        # Clean up cache files
         shutil.rmtree(self.test_dir)
         if "FAUXNANCE_API_KEY" in os.environ:
             del os.environ["FAUXNANCE_API_KEY"]
@@ -45,7 +42,6 @@ class TestFauxnanceClient(unittest.TestCase):
 
     @patch("requests.get")
     def test_get_candles_caching(self, mock_get):
-        # Setup mock API response
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
@@ -61,7 +57,6 @@ class TestFauxnanceClient(unittest.TestCase):
 
         client = FauxnanceClient(cache_dir=str(self.test_dir))
         
-        # First call: Cache miss. Should call API and write to cache.
         symbol = "INFY.NS"
         start_date = "2026-07-01"
         end_date = "2026-07-02"
@@ -70,11 +65,9 @@ class TestFauxnanceClient(unittest.TestCase):
         self.assertEqual(res1["data"]["symbol"], "INFY.NS")
         self.assertEqual(mock_get.call_count, 1)
         
-        # Verify cache file exists
         cache_file = self.test_dir / f"INFY.NS_{start_date}_{end_date}.json"
         self.assertTrue(cache_file.exists())
         
-        # Second call: Cache hit. Should NOT call API again.
         res2 = client.get_candles(symbol, start_date=start_date, end_date=end_date)
         self.assertEqual(res2["data"]["symbol"], "INFY.NS")
         self.assertEqual(mock_get.call_count, 1)  # Call count remains 1
@@ -115,7 +108,7 @@ class TestFauxnanceClient(unittest.TestCase):
         self.assertEqual(ctx.exception.status_code, 404)
         self.assertEqual(ctx.exception.error_code, "SYMBOL_NOT_FOUND")
 
-    @patch("time.sleep")  # Avoid delay in tests
+    @patch("time.sleep")  
     @patch("requests.get")
     def test_connection_error_retry(self, mock_get, mock_sleep):
         import requests.exceptions
@@ -126,7 +119,6 @@ class TestFauxnanceClient(unittest.TestCase):
         with self.assertRaises(FauxnanceConnectionError):
             client.get_candles("RELIANCE.NS", start_date="2026-07-01", end_date="2026-07-02")
             
-        # Should attempt 3 times
         self.assertEqual(mock_get.call_count, 3)
         self.assertEqual(mock_sleep.call_count, 2)
 
@@ -161,7 +153,6 @@ class TestExtractCoordination(unittest.TestCase):
 
     @patch("requests.get")
     def test_extract_data_success_and_failures(self, mock_get):
-        # We will mock the requests.get behavior based on URL path
         def side_effect(url, headers, params=None, timeout=None):
             resp = MagicMock()
             if "/health" in url:
@@ -184,7 +175,6 @@ class TestExtractCoordination(unittest.TestCase):
 
         mock_get.side_effect = side_effect
 
-        # Run extract with a good stock and a bad stock
         res = extract_data(
             symbols=["GOOD_STOCK", "BAD_STOCK"], 
             start_date="2026-07-01", 
@@ -199,7 +189,6 @@ class TestExtractCoordination(unittest.TestCase):
 
     @patch("requests.get")
     def test_extract_data_aborts_on_429(self, mock_get):
-        # We will mock the requests.get behavior based on URL path
         def side_effect(url, headers, params=None, timeout=None):
             resp = MagicMock()
             if "/health" in url:
@@ -215,8 +204,6 @@ class TestExtractCoordination(unittest.TestCase):
 
         mock_get.side_effect = side_effect
 
-        # Run extract with LIMIT_STOCK first and then GOOD_STOCK
-        # It should hit the 429 on LIMIT_STOCK and stop immediately, never querying GOOD_STOCK.
         res = extract_data(
             symbols=["LIMIT_STOCK", "GOOD_STOCK"], 
             start_date="2026-07-01", 
@@ -231,10 +218,9 @@ class TestExtractCoordination(unittest.TestCase):
         self.assertNotIn("GOOD_STOCK", res["failed"])
 
     def test_candles_to_dataframe(self):
-        from src.extract import candles_to_dataframe
+        from src.extract.extract import candles_to_dataframe
         import pandas as pd
         
-        # Test valid input
         valid_response = {
             "data": {
                 "symbol": "INFY.NS",
@@ -251,12 +237,10 @@ class TestExtractCoordination(unittest.TestCase):
         
         self.assertIsInstance(df, pd.DataFrame)
         self.assertEqual(len(df), 2)
-        # Check sorting by date (2026-07-01 should be first, even though it was second in list)
         self.assertEqual(df.iloc[0]["date"], pd.Timestamp("2026-07-01"))
         self.assertEqual(df.iloc[1]["date"], pd.Timestamp("2026-07-02"))
         self.assertEqual(df.iloc[0]["close"], 1495.0)
         
-        # Test empty/invalid input
         empty_df = candles_to_dataframe({})
         self.assertTrue(empty_df.empty)
 
