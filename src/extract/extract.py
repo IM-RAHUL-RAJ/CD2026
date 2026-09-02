@@ -133,9 +133,17 @@ def candles_to_dataframe(candles_response: dict) -> pd.DataFrame:
                 
     return df
 
+from pathlib import Path
+import shutil
+
+
 def save_extracted_data(success_data, output_dir="data"):
 
     output_path = Path(output_dir)
+
+    if output_path.exists():
+        shutil.rmtree(output_path)
+
     output_path.mkdir(parents=True, exist_ok=True)
 
     all_frames = []
@@ -170,4 +178,3 @@ def save_extracted_data(success_data, output_dir="data"):
         "files": saved_files,
         "total_rows": total_rows
     }
-    
