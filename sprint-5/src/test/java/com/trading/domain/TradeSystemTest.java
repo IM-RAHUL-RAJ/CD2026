@@ -148,6 +148,16 @@ class TradeSystemTest {
         assertTrue(
                 tradeSystem.getPositions().containsKey(1L)
         );
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> tradeSystem.getHoldings().clear()
+        );
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> tradeSystem.getPositions().clear()
+        );
     }
 
     @Test

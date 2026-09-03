@@ -110,6 +110,23 @@ class ExceptionsTest {
     }
 
     @Test
+    void remainingOrderExceptionsHaveCorrectCodesAndMessages() {
+        InsufficientInstrumentQuantityException quantityException =
+                new InsufficientInstrumentQuantityException();
+        OrderValidationException defaultValidationException = new OrderValidationException();
+        OrderValidationException customValidationException = new OrderValidationException("Invalid price");
+
+        assertAll(
+                () -> assertEquals("ORD-409", quantityException.getCode()),
+                () -> assertEquals("Insufficient instrument quantity", quantityException.getMessage()),
+                () -> assertEquals("VAL-422", defaultValidationException.getCode()),
+                () -> assertEquals("Invalid order", defaultValidationException.getMessage()),
+                () -> assertEquals("VAL-422", customValidationException.getCode()),
+                () -> assertEquals("Invalid price", customValidationException.getMessage())
+        );
+    }
+
+    @Test
     void exceptionsAreRuntimeExceptions() {
 
         assertTrue(
