@@ -15,12 +15,9 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 class TradeSystemTest {
-
 
     private Account createAccount(
             BigDecimal balance,
@@ -33,7 +30,6 @@ class TradeSystemTest {
                 status
         );
     }
-
 
     private Instrument createInstrument(
             boolean tradeable,
@@ -50,25 +46,23 @@ class TradeSystemTest {
         );
     }
 
-
     private TradeSystem createTradeSystem(
             Account account,
             Instrument instrument
     ) {
-
         Map<Long, Account> accounts = new HashMap<>();
+
         accounts.put(
                 account.getAccountId(),
                 account
         );
 
-
         Map<Long, Instrument> instruments = new HashMap<>();
+
         instruments.put(
                 instrument.getInstrumentId(),
                 instrument
         );
-
 
         return new TradeSystem(
                 accounts,
@@ -76,12 +70,10 @@ class TradeSystemTest {
         );
     }
 
-
     private PlaceOrderRequest buyRequest(
             long quantity,
             String idempotencyKey
     ) {
-
         return new PlaceOrderRequest(
                 1L,
                 "AAPL",
@@ -92,12 +84,10 @@ class TradeSystemTest {
         );
     }
 
-
     private PlaceOrderRequest sellRequest(
             long quantity,
             String idempotencyKey
     ) {
-
         return new PlaceOrderRequest(
                 1L,
                 "AAPL",
@@ -107,8 +97,6 @@ class TradeSystemTest {
                 idempotencyKey
         );
     }
-
-
 
     @Test
     @DisplayName("Buy succeeds and updates cash and position")
@@ -120,20 +108,17 @@ class TradeSystemTest {
                         AccountStatus.ACTIVE
                 );
 
-
         Instrument instrument =
                 createInstrument(
                         true,
                         100
                 );
 
-
         TradeSystem tradeSystem =
                 createTradeSystem(
                         account,
                         instrument
                 );
-
 
         tradeSystem.placeOrder(
                 1L,
@@ -143,30 +128,27 @@ class TradeSystemTest {
                 )
         );
 
-
-        assertThat(account.getAccountBalance())
-                .isEqualByComparingTo("500.00");
-
+        assertEquals(
+                new BigDecimal("500.00"),
+                account.getAccountBalance()
+        );
 
         Holdings holdings =
                 tradeSystem
                         .getHoldings()
                         .get("1:1");
 
+        assertNotNull(holdings);
 
-        assertThat(holdings)
-                .isNotNull();
+        assertEquals(
+                5,
+                holdings.getQuantity()
+        );
 
-
-        assertThat(holdings.getQuantity())
-                .isEqualTo(5);
-
-
-        assertThat(tradeSystem.getPositions())
-                .containsKey(1L);
+        assertTrue(
+                tradeSystem.getPositions().containsKey(1L)
+        );
     }
-
-
 
     @Test
     @DisplayName("Buy rejected on insufficient funds")
@@ -178,13 +160,11 @@ class TradeSystemTest {
                         AccountStatus.ACTIVE
                 );
 
-
         Instrument instrument =
                 createInstrument(
                         true,
                         100
                 );
-
 
         TradeSystem tradeSystem =
                 createTradeSystem(
@@ -192,25 +172,22 @@ class TradeSystemTest {
                         instrument
                 );
 
-
-        assertThatThrownBy(() ->
-                tradeSystem.placeOrder(
-                        1L,
-                        buyRequest(
-                                1,
-                                "FUNDS-FAIL"
+        assertThrows(
+                InsufficientFundsException.class,
+                () ->
+                        tradeSystem.placeOrder(
+                                1L,
+                                buyRequest(
+                                        1,
+                                        "FUNDS-FAIL"
+                                )
                         )
-                )
-        )
-                .isInstanceOf(InsufficientFundsException.class);
+        );
     }
-
-
 
     @Test
     @DisplayName("Sell rejected on insufficient holdings")
     void sellRejectedOnInsufficientHoldings() {
-
 
         Account account =
                 createAccount(
@@ -218,13 +195,11 @@ class TradeSystemTest {
                         AccountStatus.ACTIVE
                 );
 
-
         Instrument instrument =
                 createInstrument(
                         true,
                         100
                 );
-
 
         TradeSystem tradeSystem =
                 createTradeSystem(
@@ -232,39 +207,36 @@ class TradeSystemTest {
                         instrument
                 );
 
-
-        assertThatThrownBy(() ->
-                tradeSystem.placeOrder(
-                        1L,
-                        sellRequest(
-                                10,
-                                "SELL-FAIL"
+        assertThrows(
+                InsufficientHoldingsException.class,
+                () ->
+                        tradeSystem.placeOrder(
+                                1L,
+                                sellRequest(
+                                        10,
+                                        "SELL-FAIL"
+                                )
                         )
-                )
-        )
-                .isInstanceOf(InsufficientHoldingsException.class);
+        );
     }
-
-
 
     @Test
     @DisplayName("Order rejected on an account that does not exist")
     void orderRejectedWhenAccountDoesNotExist() {
 
-
         Map<Long, Account> accounts =
                 new HashMap<>();
-
 
         Map<Long, Instrument> instruments =
                 new HashMap<>();
 
-
         instruments.put(
                 1L,
-                createInstrument(true,100)
+                createInstrument(
+                        true,
+                        100
+                )
         );
-
 
         TradeSystem tradeSystem =
                 new TradeSystem(
@@ -272,33 +244,29 @@ class TradeSystemTest {
                         instruments
                 );
 
-
         PlaceOrderRequest request =
                 new PlaceOrderRequest(
                         99L,
                         "AAPL",
                         OrderSide.BUY,
-                        1,
+                        1L,
                         new BigDecimal("100.00"),
                         "ACCOUNT-FAIL"
                 );
 
-
-        assertThatThrownBy(() ->
-                tradeSystem.placeOrder(
-                        1L,
-                        request
-                )
-        )
-                .isInstanceOf(AccountNotFoundException.class);
+        assertThrows(
+                AccountNotFoundException.class,
+                () ->
+                        tradeSystem.placeOrder(
+                                1L,
+                                request
+                        )
+        );
     }
-
-
 
     @Test
     @DisplayName("Order rejected on an inactive account")
     void orderRejectedWhenAccountInactive() {
-
 
         Account account =
                 createAccount(
@@ -306,13 +274,11 @@ class TradeSystemTest {
                         AccountStatus.SUSPENDED
                 );
 
-
         Instrument instrument =
                 createInstrument(
                         true,
                         100
                 );
-
 
         TradeSystem tradeSystem =
                 createTradeSystem(
@@ -320,32 +286,28 @@ class TradeSystemTest {
                         instrument
                 );
 
-
-        assertThatThrownBy(() ->
-                tradeSystem.placeOrder(
-                        1L,
-                        buyRequest(
-                                1,
-                                "INACTIVE-ACCOUNT"
+        assertThrows(
+                AccountNotActiveException.class,
+                () ->
+                        tradeSystem.placeOrder(
+                                1L,
+                                buyRequest(
+                                        1,
+                                        "INACTIVE-ACCOUNT"
+                                )
                         )
-                )
-        )
-                .isInstanceOf(AccountNotActiveException.class);
+        );
     }
-
-
 
     @Test
     @DisplayName("Order rejected on unknown or non-tradable instrument")
     void orderRejectedOnInvalidInstrument() {
-
 
         Account account =
                 createAccount(
                         new BigDecimal("1000.00"),
                         AccountStatus.ACTIVE
                 );
-
 
         Instrument instrument =
                 createInstrument(
@@ -353,32 +315,28 @@ class TradeSystemTest {
                         100
                 );
 
-
         TradeSystem tradeSystem =
                 createTradeSystem(
                         account,
                         instrument
                 );
 
-
-        assertThatThrownBy(() ->
-                tradeSystem.placeOrder(
-                        1L,
-                        buyRequest(
-                                1,
-                                "INVALID-INSTRUMENT"
+        assertThrows(
+                InstrumentNotFoundException.class,
+                () ->
+                        tradeSystem.placeOrder(
+                                1L,
+                                buyRequest(
+                                        1,
+                                        "INVALID-INSTRUMENT"
+                                )
                         )
-                )
-        )
-                .isInstanceOf(InstrumentNotFoundException.class);
+        );
     }
-
-
 
     @Test
     @DisplayName("Duplicate idempotency key rejected")
     void duplicateIdempotencyKeyRejected() {
-
 
         Account account =
                 createAccount(
@@ -386,20 +344,17 @@ class TradeSystemTest {
                         AccountStatus.ACTIVE
                 );
 
-
         Instrument instrument =
                 createInstrument(
                         true,
                         100
                 );
 
-
         TradeSystem tradeSystem =
                 createTradeSystem(
                         account,
                         instrument
                 );
-
 
         PlaceOrderRequest request =
                 buyRequest(
@@ -407,28 +362,24 @@ class TradeSystemTest {
                         "DUPLICATE-KEY"
                 );
 
-
         tradeSystem.placeOrder(
                 1L,
                 request
         );
 
-
-        assertThatThrownBy(() ->
-                tradeSystem.placeOrder(
-                        2L,
-                        request
-                )
-        )
-                .isInstanceOf(DuplicateOrderException.class);
+        assertThrows(
+                DuplicateOrderException.class,
+                () ->
+                        tradeSystem.placeOrder(
+                                2L,
+                                request
+                        )
+        );
     }
-
-
 
     @Test
     @DisplayName("A request breaking two rules returns the code of the first rule")
     void firstRuleFailureReturned() {
-
 
         Account account =
                 createAccount(
@@ -436,13 +387,11 @@ class TradeSystemTest {
                         AccountStatus.ACTIVE
                 );
 
-
         Instrument instrument =
                 createInstrument(
                         true,
                         0
                 );
-
 
         TradeSystem tradeSystem =
                 createTradeSystem(
@@ -450,19 +399,22 @@ class TradeSystemTest {
                         instrument
                 );
 
+        InsufficientInstrumentQuantityException exception =
+                assertThrows(
+                        InsufficientInstrumentQuantityException.class,
+                        () ->
+                                tradeSystem.placeOrder(
+                                        1L,
+                                        buyRequest(
+                                                5,
+                                                "MULTI-RULE-FAIL"
+                                        )
+                                )
+                );
 
-        assertThatThrownBy(() ->
-                tradeSystem.placeOrder(
-                        1L,
-                        buyRequest(
-                                5,
-                                "MULTI-RULE-FAIL"
-                        )
-                )
-        )
-                .isInstanceOf(InsufficientInstrumentQuantityException.class)
-                .extracting("code")
-                .isEqualTo("ORD-409");
+        assertEquals(
+                "ORD-409",
+                exception.getCode()
+        );
     }
-
 }

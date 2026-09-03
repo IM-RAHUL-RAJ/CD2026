@@ -24,7 +24,6 @@ class ExceptionsTest {
         );
     }
 
-
     @Test
     void accountNotActiveHasCorrectCodeAndMessage() {
 
@@ -41,7 +40,6 @@ class ExceptionsTest {
                 exception.getMessage()
         );
     }
-
 
     @Test
     void instrumentNotFoundHasCorrectCodeAndMessage() {
@@ -60,7 +58,6 @@ class ExceptionsTest {
         );
     }
 
-
     @Test
     void insufficientFundsHasCorrectCodeAndMessage() {
 
@@ -68,7 +65,7 @@ class ExceptionsTest {
                 new InsufficientFundsException();
 
         assertEquals(
-                "FUNDS-400",
+                "ORD-400",
                 exception.getCode()
         );
 
@@ -78,7 +75,6 @@ class ExceptionsTest {
         );
     }
 
-
     @Test
     void insufficientHoldingsHasCorrectCodeAndMessage() {
 
@@ -86,7 +82,7 @@ class ExceptionsTest {
                 new InsufficientHoldingsException();
 
         assertEquals(
-                "HOLDINGS-400",
+                "ORD-409",
                 exception.getCode()
         );
 
@@ -95,7 +91,6 @@ class ExceptionsTest {
                 exception.getMessage()
         );
     }
-
 
     @Test
     void duplicateOrderHasCorrectCodeAndMessage() {
@@ -113,7 +108,6 @@ class ExceptionsTest {
                 exception.getMessage()
         );
     }
-
 
     @Test
     void exceptionsAreRuntimeExceptions() {
