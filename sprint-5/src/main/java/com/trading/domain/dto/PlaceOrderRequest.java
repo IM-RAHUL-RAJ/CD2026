@@ -10,5 +10,12 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-public record PlaceOrderRequest() {
-}
+public record PlaceOrderRequest(
+        @NotNull @Min(1) Long accountId,
+        @NotBlank @Size(max = 20) String symbol,
+        @NotNull OrderSide side,
+        @NotNull @Min(1) Long quantity,
+        @NotNull @DecimalMin(value = "0.0", inclusive = false)
+        @Digits(integer = 18, fraction = 2) BigDecimal price,
+        @NotBlank @Size(min = 8, max = 100) String idempotencyKey) {
+        }
