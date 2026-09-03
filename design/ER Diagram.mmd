@@ -1,0 +1,93 @@
+erDiagram
+    CLIENT ||--o{ ACCOUNT : owns
+    ACCOUNT ||--o{ ORDERS : places
+    INSTRUMENT ||--o{ ORDERS : "is traded in"
+    ACCOUNT ||--o{ HOLDING : has
+    INSTRUMENT ||--o{ HOLDING : "identified by"
+    ORDERS ||--o| POSITION : "creates"
+    ACCOUNT ||--o{ ALERTS : has
+    INSTRUMENT ||--o{ ALERTS : "targets"
+    ACCOUNT ||--o| WATCHLIST : has
+    WATCHLIST ||--o{ WATCH_LIST_ITEMS : contains
+    INSTRUMENT ||--o{ WATCH_LIST_ITEMS : "is watched"
+    ACCOUNT ||--o{ PERFORMANCE : records
+
+    CLIENT {
+        BIGINT client_id PK
+        VARCHAR name
+        VARCHAR username UK
+        VARCHAR password
+    }
+
+    ACCOUNT {
+        BIGINT account_id PK
+        VARCHAR account_name UK
+        BIGINT client_id FK
+        CHAR currency
+        NUMERIC cash_balance
+        VARCHAR status
+        BIGINT version
+        TIMESTAMP closed_at
+    }
+
+    INSTRUMENT {
+        BIGINT instrument_id PK
+        VARCHAR symbol UK
+        VARCHAR ticker UK
+        VARCHAR asset_class
+        CHAR quote_currency
+        VARCHAR status
+        TIMESTAMP delisted_at
+    }
+
+    ORDERS {
+        BIGINT order_id PK
+        BIGINT account_id FK
+        BIGINT instrument_id FK
+        VARCHAR side
+        NUMERIC quantity
+        NUMERIC price
+        VARCHAR status
+        TIMESTAMP received_at
+        VARCHAR idempotency_key UK
+    }
+
+    HOLDING {
+        BIGINT holding_id PK
+        BIGINT account_id FK
+        VARCHAR ticker FK
+        NUMERIC quantity
+        NUMERIC average_price
+        DATE as_of_date
+    }
+
+    POSITION {
+        BIGINT order_id PK, FK
+        TIMESTAMP timestamp
+    }
+
+    ALERTS {
+        BIGINT alert_id PK
+        BIGINT account_id FK
+        VARCHAR ticker FK
+        NUMERIC targeted_quantity
+        VARCHAR alert_type
+        TEXT message
+    }
+
+    WATCHLIST {
+        BIGINT watch_list_id PK
+        BIGINT account_id FK
+    }
+
+    WATCH_LIST_ITEMS {
+        BIGINT watch_list_id PK, FK
+        VARCHAR ticker PK, FK
+    }
+
+    PERFORMANCE {
+        BIGINT account_id PK, FK
+        DATE date PK
+        NUMERIC networth
+        NUMERIC gain
+    }
