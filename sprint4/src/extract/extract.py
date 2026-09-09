@@ -1,0 +1,179 @@
+import os
+import sys
+import logging
+import shutil
+from pathlib import Path
+from dotenv import load_dotenv
+import pandas as pd
+
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.api.apiClient import (
+    FauxnanceClient,
+    FauxnanceRateLimitError,
+    FauxnanceClientError,
+    FauxnanceAPIError,
+    FauxnanceConnectionError,
+)
+
+logger = logging.getLogger(__name__)
+
+
+def load_env(path: str = ".env"):
+    dotenv_file = Path(path)
+
+    if dotenv_file.exists():
+        logger.info(f"Loading environment variables from {dotenv_file.resolve()}")
+        try:
+            load_dotenv(dotenv_path=dotenv_file, override=False)
+        except Exception as e:
+            logger.error(f"Failed to load .env file: {e}")
+
+
+def extract_data(symbols: list, start_date: str = None, end_date: str = None, cache_dir: str = None) -> dict:
+
+    load_env()
+
+    logger.info(f"Starting extraction for {len(symbols)} symbols...")
+    
+    try:
+        client = FauxnanceClient(cache_dir=cache_dir)
+    except ValueError as ve:
+        logger.critical(f"Client initialization failed: {ve}")
+        return {
+            "success": {},
+            "failed": {s: "Configuration error (API key missing)" for s in symbols},
+            "status": "failed"
+        }
+
+    try:
+        health = client.get_health()
+        status = health.get("data", {}).get("status", "unknown")
+        logger.info(f"Fauxnance API status: {status}")
+    except Exception as e:
+        logger.warning(f"Failed to check Fauxnance API health: {e}. Attempting connection anyway.")
+
+    results = {
+        "success": {},
+        "failed": {},
+        "status": "completed"
+    }
+
+    for symbol in symbols:
+        symbol = symbol.strip().upper()
+        if not symbol:
+            continue
+            
+        try:
+            logger.info(f"Processing symbol: {symbol}")
+            raw_data = client.get_candles(symbol, start_date=start_date, end_date=end_date)
+            
+            if not isinstance(raw_data, dict) or "data" not in raw_data:
+                logger.error(f"Response for {symbol} is empty or invalid structure.")
+                results["failed"][symbol] = "Invalid response envelope (missing 'data' field)"
+                continue
+                
+            results["success"][symbol] = raw_data
+            candles_count = len(raw_data.get("data", {}).get("candles", []))
+            logger.info(f"Successfully extracted {candles_count} candles for {symbol}")
+
+        except FauxnanceRateLimitError as rle:
+            logger.critical(
+                f"RATE LIMIT ERROR on symbol {symbol}. Stopping extraction immediately! "
+                f"Suggested wait: {rle.retry_after} seconds."
+            )
+            results["status"] = "interrupted"
+            results["failed"][symbol] = f"Rate limit exceeded. Retry after {rle.retry_after}s."
+            break
+
+        except FauxnanceClientError as ce:
+            logger.error(f"Client error on symbol {symbol}: {ce.message}")
+            results["failed"][symbol] = f"Client error ({ce.status_code}): {ce.message}"
+
+        except FauxnanceConnectionError as cone:
+            logger.error(f"Connection failure on symbol {symbol}: {cone.message}")
+            results["failed"][symbol] = f"Connection failure: {cone.message}"
+
+        except FauxnanceAPIError as ae:
+            logger.error(f"API error on symbol {symbol}: {ae.message}")
+            results["failed"][symbol] = f"API error ({ae.status_code}): {ae.message}"
+
+        except Exception as e:
+            logger.error(f"Unexpected error on symbol {symbol}: {e}")
+            results["failed"][symbol] = f"Unexpected error: {str(e)}"
+
+    logger.info(
+        f"Extraction run complete. "
+        f"Success: {len(results['success'])} symbols. "
+        f"Failed: {len(results['failed'])} symbols."
+    )
+    return results
+
+
+def candles_to_dataframe(candles_response: dict) -> pd.DataFrame:
+
+    if not candles_response or "data" not in candles_response or "candles" not in candles_response["data"]:
+        logger.warning("Empty or invalid candles response provided. Returning empty DataFrame.")
+        return pd.DataFrame()
+    
+    candles = candles_response["data"]["candles"]
+    df = pd.DataFrame(candles)
+    
+    if not df.empty:
+        df["date"] = pd.to_datetime(df["date"])
+        df = df.sort_values("date").reset_index(drop=True)
+        numeric_cols = ["open", "high", "low", "close", "adjclose", "volume"]
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+                
+    return df
+
+from pathlib import Path
+import shutil
+
+
+def save_extracted_data(success_data, output_dir="data"):
+
+    output_path = Path(output_dir)
+
+    if output_path.exists():
+        shutil.rmtree(output_path)
+
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    all_frames = []
+    saved_files = []
+    total_rows = 0
+
+    for sym, raw_response in success_data.items():
+
+        df = candles_to_dataframe(raw_response)
+
+        if df.empty:
+            continue
+
+        df.insert(0, "symbol", sym)
+
+        all_frames.append(df)
+        total_rows += len(df)
+
+        safe_sym = sym.replace(".", "_")
+
+        file_path = output_path / f"{safe_sym}.csv"
+
+        df.to_csv(file_path, index=False)
+
+        saved_files.append({
+            "symbol": sym,
+            "file": str(file_path),
+            "rows": len(df)
+        })
+
+    return {
+        "files": saved_files,
+        "total_rows": total_rows
+    }
