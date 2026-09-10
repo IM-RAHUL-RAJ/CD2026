@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile
     container_name: trading-trade-api
     ports:
-      - "8080:8080"
+      - "8082:8082"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -46,6 +46,48 @@ services:
       timeout: 5s
       retries: 3
       start_period: 40s
+
+  auth-server:
+    build:
+      context: ./auth_server
+      dockerfile: Dockerfile
+    container_name: trading-auth-server
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    container_name: trading-frontend
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: production
+      BACKEND_URL: http://trade-api:8082
+      AUTH_URL: http://auth-server:3000
+    networks:
+      - trading-network
+    depends_on:
+      - trade-api
+      - auth-server
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 networks:
   trading-network:
