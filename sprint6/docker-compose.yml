@@ -10,7 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ../sprint3/migrations:/docker-entrypoint-initdb.d
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./db/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql
     networks:
       - trading-network
     healthcheck:

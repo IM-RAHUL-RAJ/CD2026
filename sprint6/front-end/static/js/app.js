@@ -189,11 +189,11 @@ function showPlaceOrder(){
       <div class="row">
         <div>
           <label>Quantity</label>
-          <input id="quantity" type="number" step="1" min="1" required>
+          <input id="quantity" type="number" step="1" required>
         </div>
         <div>
           <label>Price</label>
-          <input id="price" type="number" step="0.01" min="0.01" required>
+          <input id="price" type="number" step="0.01" required>
         </div>
       </div>
 
