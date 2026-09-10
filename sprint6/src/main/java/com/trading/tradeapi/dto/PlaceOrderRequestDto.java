@@ -1,6 +1,6 @@
 package com.trading.tradeapi.dto;
 
-import com.trading.domain.order.OrderSide;
+import com.trading.tradeapi.enums.OrderSide;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

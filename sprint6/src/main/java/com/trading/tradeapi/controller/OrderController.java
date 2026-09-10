@@ -1,6 +1,6 @@
 package com.trading.tradeapi.controller;
 
-import com.trading.domain.exception.AccountNotActiveException;
+import com.trading.tradeapi.exception.AccountNotActiveException;
 import com.trading.tradeapi.dto.OrderResponseDto;
 import com.trading.tradeapi.dto.PlaceOrderRequestDto;
 import com.trading.tradeapi.security.JwtAuthenticationFilter;

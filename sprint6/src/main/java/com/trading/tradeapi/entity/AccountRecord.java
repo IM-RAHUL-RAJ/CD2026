@@ -1,6 +1,6 @@
 package com.trading.tradeapi.entity;
 
-import com.trading.domain.account.AccountStatus;
+import com.trading.tradeapi.enums.AccountStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

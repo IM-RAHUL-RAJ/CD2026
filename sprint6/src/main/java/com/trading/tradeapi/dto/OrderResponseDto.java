@@ -1,7 +1,7 @@
 package com.trading.tradeapi.dto;
 
-import com.trading.domain.order.OrderSide;
-import com.trading.domain.order.OrderStatus;
+import com.trading.tradeapi.enums.OrderSide;
+import com.trading.tradeapi.enums.OrderStatus;
 
 import java.math.BigDecimal;
 

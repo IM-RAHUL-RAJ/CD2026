@@ -1,13 +1,13 @@
 package com.trading.tradeapi.exception;
 
-import com.trading.domain.exception.AccountNotActiveException;
-import com.trading.domain.exception.AccountNotFoundException;
-import com.trading.domain.exception.DomainException;
-import com.trading.domain.exception.DuplicateOrderException;
-import com.trading.domain.exception.InstrumentNotFoundException;
-import com.trading.domain.exception.InsufficientFundsException;
-import com.trading.domain.exception.InsufficientHoldingsException;
-import com.trading.domain.exception.OrderValidationException;
+import com.trading.tradeapi.exception.AccountNotActiveException;
+import com.trading.tradeapi.exception.AccountNotFoundException;
+import com.trading.tradeapi.exception.DomainException;
+import com.trading.tradeapi.exception.DuplicateOrderException;
+import com.trading.tradeapi.exception.InstrumentNotFoundException;
+import com.trading.tradeapi.exception.InsufficientFundsException;
+import com.trading.tradeapi.exception.InsufficientHoldingsException;
+import com.trading.tradeapi.exception.OrderValidationException;
 import com.trading.tradeapi.dto.ErrorResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

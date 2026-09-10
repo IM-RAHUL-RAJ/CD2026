@@ -1,6 +1,6 @@
 package com.trading.tradeapi.controller;
 
-import com.trading.domain.exception.AccountNotActiveException;
+import com.trading.tradeapi.exception.AccountNotActiveException;
 import com.trading.tradeapi.dto.AccountResponseDto;
 import com.trading.tradeapi.dto.BalanceResponseDto;
 import com.trading.tradeapi.dto.OrderHistoryEntryDto;

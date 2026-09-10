@@ -1,6 +1,6 @@
 package com.trading.tradeapi.exception;
 
-import com.trading.domain.exception.DomainException;
+import com.trading.tradeapi.exception.DomainException;
 
 public class OrderNotFoundException extends DomainException {
     public OrderNotFoundException() {

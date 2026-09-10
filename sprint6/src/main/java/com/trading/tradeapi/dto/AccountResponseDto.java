@@ -1,7 +1,7 @@
 package com.trading.tradeapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.trading.domain.account.AccountStatus;
+import com.trading.tradeapi.enums.AccountStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
