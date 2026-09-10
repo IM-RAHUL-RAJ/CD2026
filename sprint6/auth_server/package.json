@@ -1,0 +1,12 @@
+{
+  "name": "chennai-capstone-se1-team3-jwt-auth",
+  "private": true,
+  "main": "auth-server.js",
+  "scripts": {
+    "start": "node auth-server.js",
+    "dev": "node auth-server.js"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3"
+  }
+}

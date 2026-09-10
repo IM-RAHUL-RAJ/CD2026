@@ -1,14 +1,14 @@
 package com.trading.tradeapi;
 
-import com.trading.domain.account.AccountStatus;
-import com.trading.domain.exception.AccountNotActiveException;
-import com.trading.domain.exception.AccountNotFoundException;
-import com.trading.domain.exception.DuplicateOrderException;
-import com.trading.domain.exception.InstrumentNotFoundException;
-import com.trading.domain.exception.InsufficientFundsException;
-import com.trading.domain.exception.InsufficientHoldingsException;
-import com.trading.domain.order.OrderSide;
-import com.trading.domain.order.OrderStatus;
+import com.trading.tradeapi.enums.AccountStatus;
+import com.trading.tradeapi.exception.AccountNotActiveException;
+import com.trading.tradeapi.exception.AccountNotFoundException;
+import com.trading.tradeapi.exception.DuplicateOrderException;
+import com.trading.tradeapi.exception.InstrumentNotFoundException;
+import com.trading.tradeapi.exception.InsufficientFundsException;
+import com.trading.tradeapi.exception.InsufficientHoldingsException;
+import com.trading.tradeapi.enums.OrderSide;
+import com.trading.tradeapi.enums.OrderStatus;
 import com.trading.tradeapi.dto.OrderResponseDto;
 import com.trading.tradeapi.entity.AccountRecord;
 import com.trading.tradeapi.entity.HoldingRecord;

@@ -1,7 +1,7 @@
 package com.trading.tradeapi;
 
-import com.trading.domain.account.AccountStatus;
-import com.trading.domain.exception.AccountNotFoundException;
+import com.trading.tradeapi.enums.AccountStatus;
+import com.trading.tradeapi.exception.AccountNotFoundException;
 import com.trading.tradeapi.controller.AccountController;
 import com.trading.tradeapi.dto.AccountResponseDto;
 import com.trading.tradeapi.dto.BalanceResponseDto;

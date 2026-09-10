@@ -15,9 +15,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.validation.FieldError;
+import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleAccountNotFound(AccountNotFoundException ex) {
@@ -68,10 +72,31 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto("VAL-422", "Invalid input"));
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class, HandlerMethodValidationException.class, IllegalArgumentException.class})
-    public ResponseEntity<ErrorResponseDto> handleValidationErrors(Exception ex) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        StringBuilder sb = new StringBuilder();
+        for (FieldError fe : ex.getBindingResult().getFieldErrors()) {
+            sb.append(fe.getField()).append(": ").append(fe.getDefaultMessage()).append("; ");
+        }
+        String message = sb.length() > 0 ? sb.toString() : "Invalid input";
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(new ErrorResponseDto("VAL-422", "Invalid input"));
+                .body(new ErrorResponseDto("VAL-422", message));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponseDto> handleConstraintViolations(ConstraintViolationException ex) {
+        StringBuilder sb = new StringBuilder();
+        ex.getConstraintViolations().forEach(v -> sb.append(v.getPropertyPath()).append(": ").append(v.getMessage()).append("; "));
+        String message = sb.length() > 0 ? sb.toString() : "Invalid input";
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErrorResponseDto("VAL-422", message));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException ex) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "Invalid input";
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErrorResponseDto("VAL-422", msg));
     }
 
     @ExceptionHandler(DomainException.class)
@@ -91,7 +116,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGenericException(Exception ex) {
+        log.error("Unhandled exception caught in controller", ex);
+        String msg = ex.getMessage() != null ? ex.getMessage() : "Internal server error";
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponseDto("VAL-422", "Invalid input"));
+            .body(new ErrorResponseDto("SRV-500", msg));
     }
 }
