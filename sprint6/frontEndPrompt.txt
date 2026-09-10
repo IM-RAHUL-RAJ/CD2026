@@ -1,0 +1,74 @@
+Your task is create a simple front end using python and html css to test out spring boot backend application
+
+The spring boot backend application is already built and we are only building this simple front end to test our backend application
+
+
+The application is a simple trading platform which allows users to place orders and view their effects
+
+The front end will talk to two backend applications
+1. The auth server
+	running on port 3000
+	takes the username password as input and gives the JWT token
+	the server is in url /auth/login
+
+2. The spring boot backend
+	this is has many endpoints exposed to perform various CRUD operation
+	runs on localhost port 8082
+
+The front end has the following 2 main pages:
+1. login
+2. dashboard
+
+login page
+1. this is a simple page which has two inputs: username and password
+2. the url to access is /login
+3. this is a public url so it does not require any JWT token to acess this url
+3. task: the front end needs to access /login, give it username and password, retrieve the JWT token and save it for acessing the remaining endpoints
+4. if the username and password is correct and the front end received the JWT token move to the /dashboard URL
+
+dashboard page
+The dashboard will have 4 sub pages
+The navigation panel will have 4 buttons: profile, place order, holdings, orders
+all these urls are provided in the springboot backend application
+
+base url for accountController: /api/v1/accounts
+base url for orderController: /api/v1/orders
+
+profile page
+allows the user to see their account details
+the url to access: GET /{id}
+default the account number to be 1
+handled by the ResponseEntity<AccountResponseDto> getAccount method of accountController
+display the contents of AccountResponseDto
+
+place order page
+this allows the user to place an order
+the url to acess is: POST /api/v1/orders
+default the account id to 1
+refer to /dto/placeOrderRequestDto.java for the format of request body expected
+send the JWT along with the request as header
+read the response and give a success or error message based on the response of the backend
+refer the errorResponseDTO for error message format
+
+holdings page
+the allows the user to see their current holdings
+the url to acess is: GET /{id}/positions
+handled by: public ResponseEntity<List<PositionResponseDto>> getPositions method of AccounController
+default account id to 1
+display the contents of list of type PositionResponseDto from backend
+
+orderHistory page
+this allows the user to view all of their orders
+url to access: /{id}/orders
+handled buy: ResponseEntity<List<OrderHistoryEntryDto>> getOrders method of AccountController
+default account id to 1
+display contents of list<OrderHistoryEntryDto>
+
+
+
+create a new folder called front end
+add the necessary files
+use python flask, html, css and js for building this
+
+
+

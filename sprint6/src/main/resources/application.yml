@@ -1,13 +1,13 @@
 server:
-  port: 8080
+  port: 8082
 
 spring:
   application:
     name: trade-api
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:trading_db}}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:trading_db}}
     username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    password: ${DB_PASSWORD:n3u3d4!}
     driver-class-name: org.postgresql.Driver
 
 mybatis:
@@ -17,4 +17,5 @@ mybatis:
     map-underscore-to-camel-case: true
 
 jwt:
-  secret: ${JWT_SECRET:}
+  # Default JWT secret — override by setting the JWT_SECRET environment variable
+  secret: ${JWT_SECRET:DXZ04nGm4LnE5AzTKOD99OlgezynS3iJ}

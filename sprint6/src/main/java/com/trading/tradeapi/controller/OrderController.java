@@ -33,6 +33,7 @@ public class OrderController {
             throw new AccountNotActiveException();
         }
 
+        System.out.println("Placing order for accountId: " + requestDto.accountId() + ", symbol: " + requestDto.symbol() + ", side: " + requestDto.side() + ", quantity: " + requestDto.quantity() + ", price: " + requestDto.price());
         OrderResponseDto response = tradeService.placeOrder(
                 requestDto.accountId(),
                 requestDto.symbol(),

@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Akatsuki Trading Platform — Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <img src="/static/img/icon.jpeg" alt="Akatsuki logo">
+      <div>
+        <div class="brand"><span class="accent-dot"></span>Akatsuki Trading Platform</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="nav">
+          <button id="btnProfile" class="btn secondary" onclick="showProfile()">Profile</button>
+          <button id="btnPlaceOrder" class="btn secondary" onclick="showPlaceOrder()">Place Order</button>
+          <button id="btnHoldings" class="btn secondary" onclick="showHoldings()">Holdings</button>
+          <button id="btnOrders" class="btn secondary" onclick="showOrders()">Orders</button>
+        </div>
+        <div>
+          <button class="btn" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <div id="content" style="margin-top:18px">Select a section</div>
+    </section>
+  </main>
+
+  <script>
+    const BACKEND_URL = "{{ BACKEND_URL }}";
+  </script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

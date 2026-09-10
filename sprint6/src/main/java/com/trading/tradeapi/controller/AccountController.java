@@ -40,6 +40,7 @@ public class AccountController {
     public ResponseEntity<AccountResponseDto> getAccount(@PathVariable("id") Long id,
                                                          HttpServletRequest request) {
         checkAccountAccess(id, request);
+        System.out.println("Accessing account with ID: " + id);
         return ResponseEntity.ok(tradeService.getAccount(id));
     }
 
