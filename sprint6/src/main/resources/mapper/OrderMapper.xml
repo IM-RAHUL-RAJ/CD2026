@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trading.tradeapi.mapper.OrderMapper">
+
+    <insert id="insertOrder" useGeneratedKeys="true" keyProperty="orderId" keyColumn="order_id">
+        INSERT INTO orders (account_id, instrument_id, side, quantity, price, status, received_at, idempotency_key)
+        VALUES (#{accountId}, #{instrumentId}, #{side}, #{quantity}, #{price}, #{status}, #{receivedAt}, #{idempotencyKey})
+    </insert>
+
+    <select id="findByIdempotencyKey" resultType="com.trading.tradeapi.entity.OrderRecord">
+        SELECT order_id AS orderId,
+               account_id AS accountId,
+               instrument_id AS instrumentId,
+               side,
+               quantity,
+               price,
+               status,
+               received_at AS receivedAt,
+               idempotency_key AS idempotencyKey
+        FROM orders
+        WHERE idempotency_key = #{idempotencyKey}
+    </select>
+
+    <select id="findById" resultType="com.trading.tradeapi.entity.OrderRecord">
+        SELECT order_id AS orderId,
+               account_id AS accountId,
+               instrument_id AS instrumentId,
+               side,
+               quantity,
+               price,
+               status,
+               received_at AS receivedAt,
+               idempotency_key AS idempotencyKey
+        FROM orders
+        WHERE idempotency_key = #{id}
+    </select>
+
+    <update id="cancelOrder">
+        UPDATE orders
+        SET status = 'CANCELLED'
+        WHERE idempotency_key = #{id}
+          AND status = 'NEW'
+    </update>
+
+    <select id="findByAccountAndFilters" resultType="com.trading.tradeapi.dto.OrderHistoryEntryDto">
+        SELECT 'ORD-' || o.idempotency_key AS orderId,
+               o.account_id AS accountId,
+               i.symbol AS symbol,
+               o.side AS side,
+               CAST(o.quantity AS BIGINT) AS quantity,
+               o.price AS price,
+               CASE WHEN o.status = 'FILLED' THEN o.price ELSE NULL END AS executedPrice,
+               o.status AS status,
+               o.idempotency_key AS idempotencyKey,
+               o.received_at AS createdOn
+        FROM orders o
+        JOIN instrument i ON o.instrument_id = i.instrument_id
+        WHERE o.account_id = #{accountId}
+        <if test="status != null and status != ''">
+            AND o.status = #{status}
+        </if>
+        <if test="from != null">
+            AND o.received_at &gt;= #{from}
+        </if>
+        <if test="to != null">
+            AND o.received_at &lt;= #{to}
+        </if>
+        ORDER BY o.received_at DESC, o.order_id DESC
+    </select>
+
+</mapper>
