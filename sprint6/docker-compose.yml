@@ -3,9 +3,9 @@ services:
     image: postgres:16
     container_name: trading-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-trading_db}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -31,9 +31,9 @@ services:
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-trading_db}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
     networks:
       - trading-network
@@ -41,7 +41,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/health || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -53,10 +53,13 @@ services:
       dockerfile: Dockerfile
     container_name: trading-auth-server
     ports:
-      - "3000:3000"
+      - "${AUTH_SERVER_PORT}:${AUTH_SERVER_PORT}"
     environment:
       NODE_ENV: production
-      PORT: 3000
+      PORT: ${AUTH_SERVER_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TTL_SECONDS: ${JWT_TTL_SECONDS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
     networks:
       - trading-network
     healthcheck:
@@ -74,9 +77,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      FLASK_ENV: production
+      FLASK_ENV: ${FLASK_ENV}
+      FLASK_APP: ${FLASK_APP}
       BACKEND_URL: http://trade-api:8082
-      AUTH_URL: http://auth-server:3000
+      AUTH_URL: http://auth-server:${AUTH_SERVER_PORT}
     networks:
       - trading-network
     depends_on:

@@ -3,19 +3,20 @@ const jwt = require('jsonwebtoken');
 
 const ALGORITHM = 'HS256';
 const ISSUER = 'auth-service';
-const DEFAULT_JWT_SECRET = 'DXZ04nGm4LnE5AzTKOD99OlgezynS3iJ';
-const DEFAULT_PORT = Number.parseInt(process.env.PORT || '3000', 10);
-const DEFAULT_TTL_SECONDS = Number.parseInt(process.env.JWT_TTL_SECONDS || '900', 10);
-const DEFAULT_ALLOWED_ORIGINS = [
-  'http://localhost:5000',
-  'http://127.0.0.1:5000',
-];
+// JWT secret is required - no default for security
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('FATAL: JWT_SECRET environment variable is required');
+}
+const PORT = Number.parseInt(process.env.PORT || '3000', 10);
+const TTL_SECONDS = Number.parseInt(process.env.JWT_TTL_SECONDS || '900', 10);
 
 function getAllowedOrigins() {
   const configuredOrigins = process.env.CORS_ALLOWED_ORIGINS;
 
   if (!configuredOrigins) {
-    return DEFAULT_ALLOWED_ORIGINS;
+    // Default CORS origins if not configured
+    return ['http://localhost:5000', 'http://127.0.0.1:5000', 'http://frontend:5000'];
   }
 
   return configuredOrigins
@@ -25,13 +26,9 @@ function getAllowedOrigins() {
 }
 
 function getSecret() {
-  const secret =
-    process.env.SECURITY_JWT_SECRET ||
-    process.env.JWT_SECRET ||
-    process.env['security.jwt.secret'] ||
-    DEFAULT_JWT_SECRET;
-
-  return secret;
+  // JWT_SECRET is already set at module level
+  // No fallback to hardcoded value for security
+  return JWT_SECRET;
 }
 
 function applyCorsHeaders(req, res) {
