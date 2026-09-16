@@ -2,13 +2,6 @@ package com.trading.tradeapi.service;
 
 import com.trading.tradeapi.domain.Account;
 import com.trading.tradeapi.enums.AccountStatus;
-import com.trading.tradeapi.exception.AccountNotActiveException;
-import com.trading.tradeapi.exception.AccountNotFoundException;
-import com.trading.tradeapi.exception.DuplicateOrderException;
-import com.trading.tradeapi.exception.InstrumentNotFoundException;
-import com.trading.tradeapi.exception.InsufficientFundsException;
-import com.trading.tradeapi.exception.InsufficientHoldingsException;
-import com.trading.tradeapi.exception.OrderValidationException;
 import com.trading.tradeapi.enums.OrderSide;
 import com.trading.tradeapi.enums.OrderStatus;
 import com.trading.tradeapi.dto.AccountResponseDto;
@@ -20,18 +13,27 @@ import com.trading.tradeapi.entity.AccountRecord;
 import com.trading.tradeapi.entity.HoldingRecord;
 import com.trading.tradeapi.entity.InstrumentRecord;
 import com.trading.tradeapi.entity.OrderRecord;
+import com.trading.tradeapi.exception.AccountNotActiveException;
+import com.trading.tradeapi.exception.AccountNotFoundException;
+import com.trading.tradeapi.exception.DuplicateOrderException;
+import com.trading.tradeapi.exception.InstrumentNotFoundException;
+import com.trading.tradeapi.exception.InsufficientFundsException;
+import com.trading.tradeapi.exception.InsufficientHoldingsException;
 import com.trading.tradeapi.exception.OrderNotFoundException;
+import com.trading.tradeapi.exception.OrderValidationException;
+import com.trading.tradeapi.kafka.KafkaOrderPublisher;
 import com.trading.tradeapi.mapper.AccountMapper;
 import com.trading.tradeapi.mapper.HoldingMapper;
 import com.trading.tradeapi.mapper.InstrumentMapper;
 import com.trading.tradeapi.mapper.OrderMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -41,15 +43,18 @@ public class TradeService {
     private final InstrumentMapper instrumentMapper;
     private final OrderMapper orderMapper;
     private final HoldingMapper holdingMapper;
+    private final KafkaOrderPublisher kafkaOrderPublisher;
 
     public TradeService(AccountMapper accountMapper,
                         InstrumentMapper instrumentMapper,
                         OrderMapper orderMapper,
-                        HoldingMapper holdingMapper) {
+                        HoldingMapper holdingMapper,
+                        KafkaOrderPublisher kafkaOrderPublisher) {
         this.accountMapper = accountMapper;
         this.instrumentMapper = instrumentMapper;
         this.orderMapper = orderMapper;
         this.holdingMapper = holdingMapper;
+        this.kafkaOrderPublisher = kafkaOrderPublisher;
     }
 
     @Transactional
@@ -81,7 +86,7 @@ public class TradeService {
             throw new OrderValidationException("Price must be greater than zero");
         }
 
-        // Rule 8: Check idempotency key uniqueness before insert
+        // Rule 8: Check idempotency key uniqueness
         OrderRecord existingOrder = orderMapper.findByIdempotencyKey(idempotencyKey);
         if (existingOrder != null) {
             throw new DuplicateOrderException();
@@ -97,77 +102,66 @@ public class TradeService {
         String ticker = instRecord.getTicker() != null ? instRecord.getTicker() : instRecord.getSymbol();
 
         if (side == OrderSide.BUY) {
-            // Rule 6: BUY - cash balance must be at least quantity * price
             BigDecimal totalCost = price.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
             if (!domainAccount.canAfford(totalCost)) {
                 throw new InsufficientFundsException();
             }
-            domainAccount.debit(totalCost);
-
-            // Update holdings for BUY
-            HoldingRecord holding = holdingMapper.findByAccountAndTicker(accountId, ticker);
-            if (holding == null) {
-                HoldingRecord newHolding = new HoldingRecord(
-                        null, accountId, ticker, BigDecimal.valueOf(quantity), price, LocalDate.now()
-                );
-                holdingMapper.insertHolding(newHolding);
-            } else {
-                BigDecimal currentQty = holding.getQuantity();
-                BigDecimal currentAvg = holding.getAveragePrice();
-                BigDecimal addedQty = BigDecimal.valueOf(quantity);
-                BigDecimal newQty = currentQty.add(addedQty);
-                BigDecimal totalCostBasis = currentAvg.multiply(currentQty).add(totalCost);
-                BigDecimal newAvg = totalCostBasis.divide(newQty, 2, RoundingMode.HALF_UP);
-
-                holding.setQuantity(newQty);
-                holding.setAveragePrice(newAvg);
-                holding.setAsOfDate(LocalDate.now());
-                holdingMapper.updateHolding(holding);
-            }
         } else if (side == OrderSide.SELL) {
-            // Rule 7: SELL - held quantity must be at least order quantity
             HoldingRecord holding = holdingMapper.findByAccountAndTicker(accountId, ticker);
             if (holding == null || holding.getQuantity().compareTo(BigDecimal.valueOf(quantity)) < 0) {
                 throw new InsufficientHoldingsException();
             }
-
-            BigDecimal totalCredit = price.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
-            domainAccount.credit(totalCredit);
-
-            BigDecimal newQty = holding.getQuantity().subtract(BigDecimal.valueOf(quantity));
-            if (newQty.compareTo(BigDecimal.ZERO) == 0) {
-                holdingMapper.deleteHolding(holding.getHoldingId());
-            } else {
-                holding.setQuantity(newQty);
-                holding.setAsOfDate(LocalDate.now());
-                holdingMapper.updateHolding(holding);
-            }
         }
 
-        // Optimistic locking update on account version
-        int rows = accountMapper.updateCashBalanceAndVersion(
-                accountId, domainAccount.getAccountBalance(), accRecord.getVersion()
-        );
-        if (rows == 0) {
-            throw new DuplicateOrderException(); // Yields ORD-409 on optimistic lock failure
-        }
-
-        // Persist order with status FILLED (Sprint 6 synchronous execution)
+        Instant createdOn = Instant.now();
         OrderRecord orderRecord = new OrderRecord(
                 null, accountId, instRecord.getInstrumentId(), side,
-                BigDecimal.valueOf(quantity), price, OrderStatus.FILLED,
-                Instant.now(), idempotencyKey
+                BigDecimal.valueOf(quantity), price, OrderStatus.NEW,
+                createdOn, idempotencyKey
         );
+
         try {
             orderMapper.insertOrder(orderRecord);
         } catch (Exception e) {
             throw new DuplicateOrderException();
         }
 
+        final Long generatedOrderId = orderRecord.getOrderId();
+
+        // Publish event AFTER database commit (Never publish inside transaction)
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    kafkaOrderPublisher.publishOrderPlacedEvent(
+                            generatedOrderId,
+                            accountId,
+                            symbol,
+                            side.name(),
+                            quantity,
+                            price,
+                            idempotencyKey,
+                            createdOn
+                    );
+                }
+            });
+        } else {
+            kafkaOrderPublisher.publishOrderPlacedEvent(
+                    generatedOrderId,
+                    accountId,
+                    symbol,
+                    side.name(),
+                    quantity,
+                    price,
+                    idempotencyKey,
+                    createdOn
+            );
+        }
+
         return new OrderResponseDto(
                 "ORD-" + idempotencyKey,
-                OrderStatus.FILLED,
-                "Order executed",
+                OrderStatus.NEW,
+                "Order recorded awaiting execution",
                 symbol,
                 side,
                 quantity,

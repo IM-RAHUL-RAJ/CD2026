@@ -52,6 +52,9 @@ public class TradeServiceUnitTest {
     @Mock
     private HoldingMapper holdingMapper;
 
+    @Mock
+    private com.trading.tradeapi.kafka.KafkaOrderPublisher kafkaOrderPublisher;
+
     @InjectMocks
     private TradeService tradeService;
 
@@ -63,12 +66,11 @@ public class TradeServiceUnitTest {
         when(accountMapper.findById(1L)).thenReturn(acc);
         when(instrumentMapper.findBySymbol("ACME")).thenReturn(inst);
         when(orderMapper.findByIdempotencyKey("idemp-key-12345")).thenReturn(null);
-        when(accountMapper.updateCashBalanceAndVersion(eq(1L), any(), eq(1L))).thenReturn(1);
 
         OrderResponseDto resp = tradeService.placeOrder(1L, "ACME", OrderSide.BUY, 10L, new BigDecimal("25.50"), "idemp-key-12345");
 
         assertThat(resp.orderId()).isEqualTo("ORD-idemp-key-12345");
-        assertThat(resp.status()).isEqualTo(OrderStatus.FILLED);
+        assertThat(resp.status()).isEqualTo(OrderStatus.NEW);
         verify(orderMapper).insertOrder(any());
     }
 
@@ -124,19 +126,6 @@ public class TradeServiceUnitTest {
 
         assertThatThrownBy(() -> tradeService.placeOrder(1L, "ACME", OrderSide.BUY, 10L, new BigDecimal("25.50"), "idemp-key-12345"))
                 .isInstanceOf(InstrumentNotFoundException.class);
-    }
-
-    @Test
-    public void placeOrderOptimisticLockingFailureThrowsOrd409() {
-        AccountRecord acc = new AccountRecord(1L, "ACC-001", 100L, "Client 1", "USD", new BigDecimal("1000.00"), AccountStatus.ACTIVE, 1L, null);
-        InstrumentRecord inst = new InstrumentRecord(10L, "ACME", "ACME.US", "EQUITY", "USD", "ACTIVE", null);
-
-        when(accountMapper.findById(1L)).thenReturn(acc);
-        when(instrumentMapper.findBySymbol("ACME")).thenReturn(inst);
-        when(accountMapper.updateCashBalanceAndVersion(eq(1L), any(), eq(1L))).thenReturn(0); // 0 rows updated
-
-        assertThatThrownBy(() -> tradeService.placeOrder(1L, "ACME", OrderSide.BUY, 10L, new BigDecimal("25.50"), "idemp-key-12345"))
-                .isInstanceOf(DuplicateOrderException.class);
     }
 
     @Test

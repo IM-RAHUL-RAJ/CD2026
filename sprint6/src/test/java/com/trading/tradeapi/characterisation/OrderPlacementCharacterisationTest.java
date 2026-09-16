@@ -99,8 +99,8 @@ public class OrderPlacementCharacterisationTest {
     public void pinOrderPlacementSuccessBehavior() throws Exception {
         OrderResponseDto expectedResponse = new OrderResponseDto(
                 "ORD-6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e",
-                OrderStatus.FILLED,
-                "Order executed successfully",
+                OrderStatus.NEW,
+                "Order recorded awaiting execution",
                 "AAPL",
                 OrderSide.BUY,
                 100L,
@@ -118,7 +118,7 @@ public class OrderPlacementCharacterisationTest {
                         .requestAttr("authenticatedAccountId", 101L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value("ORD-6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e"))
-                .andExpect(jsonPath("$.status").value("FILLED"))
+                .andExpect(jsonPath("$.status").value("NEW"))
                 .andExpect(jsonPath("$.symbol").value("AAPL"))
                 .andExpect(jsonPath("$.side").value("BUY"))
                 .andExpect(jsonPath("$.quantity").value(100))

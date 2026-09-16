@@ -13,12 +13,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.test.context.TestPropertySource;
+
 /**
  * Integration tests that exercise the JWT filter through the full Spring context.
  * Uses H2 in-memory database (configured in src/test/resources/application.yml).
  * Tokens are minted by TestTokenFactory using the test JWT_SECRET.
  */
 @SpringBootTest
+@TestPropertySource(properties = {
+        "jwt.secret=test-secret-key-that-is-at-least-32-bytes-long",
+        "spring.kafka.bootstrap-servers=localhost:9092"
+})
 public class JwtAuthenticationTest {
 
     @Autowired

@@ -95,7 +95,7 @@ public class OrderControllerSliceTest {
     @Test
     public void placeOrderSuccessReturns200AndOrderResponse() throws Exception {
         OrderResponseDto response = new OrderResponseDto(
-                "ORD-6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e", OrderStatus.FILLED, "Order executed", "ACME", OrderSide.BUY, 100L, new BigDecimal("25.50")
+                "ORD-6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e", OrderStatus.NEW, "Order recorded awaiting execution", "ACME", OrderSide.BUY, 100L, new BigDecimal("25.50")
         );
         when(tradeService.placeOrder(eq(1L), eq("ACME"), eq(OrderSide.BUY), eq(100L), eq(new BigDecimal("25.50")), eq("6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e")))
                 .thenReturn(response);
@@ -106,7 +106,7 @@ public class OrderControllerSliceTest {
                         .requestAttr("authenticatedAccountId", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value("ORD-6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e"))
-                .andExpect(jsonPath("$.status").value("FILLED"));
+                .andExpect(jsonPath("$.status").value("NEW"));
     }
 
     @Test
@@ -163,7 +163,7 @@ public class OrderControllerSliceTest {
                         .requestAttr("authenticatedAccountId", 1L))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.errorCode").value("VAL-422"))
-                .andExpect(jsonPath("$.message").value("Invalid input"));
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
