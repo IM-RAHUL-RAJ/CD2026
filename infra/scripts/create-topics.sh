@@ -6,11 +6,11 @@
 
 set -euo pipefail
 
-BOOTSTRAP_SERVER="${KAFKA_BOOTSTRAP_SERVERS:-localhost:9092}"
+CONTAINER_NAME="trading-kafka"
+BOOTSTRAP_SERVER="localhost:9092"
 
-echo "Connecting to Kafka at ${BOOTSTRAP_SERVER}..."
+echo "Connecting to Kafka container '${CONTAINER_NAME}'..."
 
-# Helper function to execute kafka-topics command
 create_topic() {
     local topic=$1
     local partitions=$2
@@ -19,21 +19,24 @@ create_topic() {
 
     echo "Creating topic '${topic}' (partitions=${partitions}, retention.ms=${retention_ms}, replication-factor=${rep_factor})..."
     
-    if command -v kafka-topics &> /dev/null; then
+    if command -v kafka-topics.sh &> /dev/null; then
+        kafka-topics.sh --bootstrap-server "${BOOTSTRAP_SERVER}" --create --if-not-exists \
+            --topic "${topic}" \
+            --partitions "${partitions}" \
+            --replication-factor "${rep_factor}" \
+            --config retention.ms="${retention_ms}"
+    elif command -v kafka-topics &> /dev/null; then
         kafka-topics --bootstrap-server "${BOOTSTRAP_SERVER}" --create --if-not-exists \
             --topic "${topic}" \
             --partitions "${partitions}" \
             --replication-factor "${rep_factor}" \
             --config retention.ms="${retention_ms}"
-    elif command -v docker &> /dev/null && docker ps | grep -q trading-kafka; then
-        docker exec trading-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --if-not-exists \
+    else
+        docker exec "${CONTAINER_NAME}" /opt/kafka/bin/kafka-topics.sh --bootstrap-server "${BOOTSTRAP_SERVER}" --create --if-not-exists \
             --topic "${topic}" \
             --partitions "${partitions}" \
             --replication-factor "${rep_factor}" \
             --config retention.ms="${retention_ms}"
-    else
-        echo "Error: Neither 'kafka-topics' CLI nor running 'trading-kafka' docker container found."
-        exit 1
     fi
 }
 
