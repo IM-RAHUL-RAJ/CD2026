@@ -95,6 +95,31 @@ services:
       kafka:
         condition: service_healthy
 
+
+  etl:
+    build:
+      context: ./etl
+      dockerfile: Dockerfile
+    container_name: trading-etl
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      TRADE_EVENTS_TOPIC: trade-events
+      MARKET_DATA_TOPIC: market-data
+      CONSUMER_GROUP_ID: trade-etl
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-trading_db}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      BATCH_FLUSH_INTERVAL_SECONDS: 30
+    networks:
+      - trading-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
 networks:
   trading-network:
     driver: bridge
