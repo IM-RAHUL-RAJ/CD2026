@@ -1,2 +1,1 @@
-mock-maker=inline
-enable-inlining=true
+mock-maker-inline
