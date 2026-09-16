@@ -1,0 +1,22 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: trade-executor
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:trading_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: trade-executor
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+
+fauxnance:
+  api-key: ${FAUXNANCE_API_KEY:mock_api_key}
+  base-url: ${FAUXNANCE_BASE_URL:http://localhost:8080}
+  poll-interval-seconds: ${POLL_INTERVAL_SECONDS:60}
