@@ -23,7 +23,7 @@ services:
     image: apache/kafka:3.8.0
     container_name: trading-kafka
     ports:
-      - "9092:8082"
+      - "9092:9092"
       - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
