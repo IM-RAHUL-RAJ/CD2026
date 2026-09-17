@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
-      - "5432:5432"
+      - "5432:8081"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./sprint3/migrations:/docker-entrypoint-initdb.d
@@ -23,7 +23,7 @@ services:
     image: apache/kafka:3.8.0
     container_name: trading-kafka
     ports:
-      - "9092:9092"
+      - "9092:8082"
       - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
@@ -52,7 +52,7 @@ services:
       dockerfile: Dockerfile
     container_name: trading-trade-api
     ports:
-      - "3000:8080"
+      - "3000:8083"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -76,7 +76,7 @@ services:
       dockerfile: Dockerfile
     container_name: trading-executor
     ports:
-      - "8083:8083"
+      - "8084:8084"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
