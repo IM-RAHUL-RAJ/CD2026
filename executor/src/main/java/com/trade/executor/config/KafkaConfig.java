@@ -60,8 +60,9 @@ public class KafkaConfig {
         
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
-        // Dead Letter Recoverer for orders.DLT
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
+        // Dead Letter Recoverer explicitly targeting <topic>.DLT (e.g. orders.DLT)
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
+                (record, ex) -> new org.apache.kafka.common.TopicPartition(record.topic() + ".DLT", record.partition()));
 
         // Exponential backoff for transient issues (1s, 2s, 4s, 8s, 16s)
         ExponentialBackOff backOff = new ExponentialBackOff(1_000L, 2.0);

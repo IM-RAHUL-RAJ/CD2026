@@ -49,9 +49,12 @@ create_topic "trade-events" 3 2592000000
 # 3. market-data: Partitions=6, Retention=1 day (86,400,000 ms)
 create_topic "market-data" 6 86400000
 
-# Dead-Letter Topics (.DLT)
+# Dead-Letter Topics (.DLT and -dlt)
 create_topic "orders.DLT" 3 604800000
+create_topic "orders-dlt" 3 604800000
 create_topic "trade-events.DLT" 3 2592000000
+create_topic "trade-events-dlt" 3 2592000000
 create_topic "market-data.DLT" 6 86400000
+create_topic "market-data-dlt" 6 86400000
 
 echo "=== All contracted topics created successfully ==="
