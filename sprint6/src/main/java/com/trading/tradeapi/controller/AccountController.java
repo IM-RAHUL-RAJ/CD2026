@@ -1,17 +1,22 @@
 package com.trading.tradeapi.controller;
 
-import com.trading.tradeapi.exception.AccountNotActiveException;
+import com.trading.tradeapi.exception.UnauthorizedAccountAccessException;
 import com.trading.tradeapi.dto.AccountResponseDto;
 import com.trading.tradeapi.dto.BalanceResponseDto;
+import com.trading.tradeapi.dto.CreateAccountRequestDto;
 import com.trading.tradeapi.dto.OrderHistoryEntryDto;
 import com.trading.tradeapi.dto.PositionResponseDto;
 import com.trading.tradeapi.security.JwtAuthenticationFilter;
-import com.trading.tradeapi.service.TradeService;
+import com.trading.tradeapi.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,38 +28,39 @@ import java.util.List;
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
 
-    private final TradeService tradeService;
+    private final AccountService accountService;
 
-    public AccountController(TradeService tradeService) {
-        this.tradeService = tradeService;
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
     }
 
-    private void checkAccountAccess(Long targetAccountId, HttpServletRequest request) {
+    private void validateAccountAccess(Long targetAccountId, HttpServletRequest request) {
         Long authAccountId = (Long) request.getAttribute(JwtAuthenticationFilter.AUTHENTICATED_ACCOUNT_ID_ATTR);
         if (authAccountId != null && !authAccountId.equals(targetAccountId)) {
-            throw new AccountNotActiveException();
+            throw new UnauthorizedAccountAccessException();
         }
+        
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AccountResponseDto> getAccount(@PathVariable("id") Long id,
                                                          HttpServletRequest request) {
-        checkAccountAccess(id, request);
-        return ResponseEntity.ok(tradeService.getAccount(id));
+        validateAccountAccess(id, request);
+        return ResponseEntity.ok(accountService.getAccount(id));
     }
 
     @GetMapping("/{id}/balance")
     public ResponseEntity<BalanceResponseDto> getBalance(@PathVariable("id") Long id,
                                                          HttpServletRequest request) {
-        checkAccountAccess(id, request);
-        return ResponseEntity.ok(tradeService.getBalance(id));
+        validateAccountAccess(id, request);
+        return ResponseEntity.ok(accountService.getBalance(id));
     }
 
     @GetMapping("/{id}/positions")
     public ResponseEntity<List<PositionResponseDto>> getPositions(@PathVariable("id") Long id,
                                                                  HttpServletRequest request) {
-        checkAccountAccess(id, request);
-        return ResponseEntity.ok(tradeService.getPositions(id));
+        validateAccountAccess(id, request);
+        return ResponseEntity.ok(accountService.getHoldings(id));
     }
 
     @GetMapping("/{id}/orders")
@@ -64,7 +70,21 @@ public class AccountController {
             @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
             HttpServletRequest request) {
-        checkAccountAccess(id, request);
-        return ResponseEntity.ok(tradeService.getOrders(id, status, from, to));
+        validateAccountAccess(id, request);
+        return ResponseEntity.ok(accountService.getOrders(id, status, from, to));
+    }
+
+    @PostMapping
+    public ResponseEntity<AccountResponseDto> createAccount(@RequestBody CreateAccountRequestDto request) {
+        AccountResponseDto newAccount = accountService.createAccount(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newAccount);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable("id") Long id,
+                                             HttpServletRequest request) {
+        validateAccountAccess(id, request);
+        accountService.deleteAccount(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -8,12 +8,11 @@ import com.trading.tradeapi.dto.BalanceResponseDto;
 import com.trading.tradeapi.dto.PositionResponseDto;
 import com.trading.tradeapi.exception.GlobalExceptionHandler;
 import com.trading.tradeapi.security.JwtAuthenticationFilter;
-import com.trading.tradeapi.service.TradeService;
+import com.trading.tradeapi.service.AccountService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,7 +42,7 @@ public class AccountControllerSliceTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private TradeService tradeService;
+    private AccountService accountService;
 
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -58,6 +57,9 @@ public class AccountControllerSliceTest {
     private com.trading.tradeapi.mapper.OrderMapper orderMapper;
     @MockitoBean
     private com.trading.tradeapi.mapper.HoldingMapper holdingMapper;
+
+    // Factories must be mocked to prevent Spring from trying to auto-wire them
+
 
     @org.junit.jupiter.api.BeforeEach
     public void setup() throws Exception {
@@ -78,7 +80,7 @@ public class AccountControllerSliceTest {
         AccountResponseDto acc = new AccountResponseDto(
                 1L, "ACC-000001", "Priya Menon", new BigDecimal("24500.75"), AccountStatus.ACTIVE, 7L, Instant.now()
         );
-        when(tradeService.getAccount(1L)).thenReturn(acc);
+        when(accountService.getAccount(1L)).thenReturn(acc);
 
         mockMvc.perform(get("/api/v1/accounts/1")
                         .requestAttr("authenticatedAccountId", 1L))
@@ -93,7 +95,7 @@ public class AccountControllerSliceTest {
 
     @Test
     public void getAccountNotFoundReturns404Acc404() throws Exception {
-        when(tradeService.getAccount(999L)).thenThrow(new AccountNotFoundException());
+        when(accountService.getAccount(999L)).thenThrow(new AccountNotFoundException());
 
         mockMvc.perform(get("/api/v1/accounts/999")
                         .requestAttr("authenticatedAccountId", 999L))
@@ -105,7 +107,7 @@ public class AccountControllerSliceTest {
     @Test
     public void getBalanceSuccessReturns200AndBalanceResponse() throws Exception {
         BalanceResponseDto bal = new BalanceResponseDto(1L, new BigDecimal("24500.75"), "USD", Instant.now());
-        when(tradeService.getBalance(1L)).thenReturn(bal);
+        when(accountService.getBalance(1L)).thenReturn(bal);
 
         mockMvc.perform(get("/api/v1/accounts/1/balance")
                         .requestAttr("authenticatedAccountId", 1L))
@@ -119,7 +121,7 @@ public class AccountControllerSliceTest {
     public void getPositionsSuccessReturns200AndPositionsList() throws Exception {
         PositionResponseDto pos1 = new PositionResponseDto(1L, "ACME", 100L, new BigDecimal("25.50"));
         PositionResponseDto pos2 = new PositionResponseDto(1L, "INFY.NS", 40L, new BigDecimal("1580.25"));
-        when(tradeService.getPositions(1L)).thenReturn(List.of(pos1, pos2));
+        when(accountService.getHoldings(1L)).thenReturn(List.of(pos1, pos2));
 
         mockMvc.perform(get("/api/v1/accounts/1/positions")
                         .requestAttr("authenticatedAccountId", 1L))

@@ -4,7 +4,8 @@ import com.trading.tradeapi.exception.AccountNotActiveException;
 import com.trading.tradeapi.dto.OrderResponseDto;
 import com.trading.tradeapi.dto.PlaceOrderRequestDto;
 import com.trading.tradeapi.security.JwtAuthenticationFilter;
-import com.trading.tradeapi.service.TradeService;
+import com.trading.tradeapi.service.OrderService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/orders")
 public class OrderController {
 
-    private final TradeService tradeService;
+    private final OrderService orderService;
 
-    public OrderController(TradeService tradeService) {
-        this.tradeService = tradeService;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
     @PostMapping
@@ -33,21 +34,14 @@ public class OrderController {
             throw new AccountNotActiveException();
         }
 
-        OrderResponseDto response = tradeService.placeOrder(
-                requestDto.accountId(),
-                requestDto.symbol(),
-                requestDto.side(),
-                requestDto.quantity(),
-                requestDto.price(),
-                requestDto.idempotencyKey()
-        );
+        OrderResponseDto response = orderService.placeOrder(requestDto);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<OrderResponseDto> cancelOrder(@PathVariable("id") String id,
                                                         HttpServletRequest request) {
-        OrderResponseDto response = tradeService.cancelOrder(id);
+        OrderResponseDto response = orderService.cancelOrder(id);
         return ResponseEntity.ok(response);
     }
 }

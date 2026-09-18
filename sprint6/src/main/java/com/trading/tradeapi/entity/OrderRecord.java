@@ -9,7 +9,7 @@ import java.time.Instant;
 public class OrderRecord {
     private Long orderId;
     private Long accountId;
-    private Long instrumentId;
+    private String ticker;
     private OrderSide side;
     private BigDecimal quantity;
     private BigDecimal price;
@@ -19,12 +19,12 @@ public class OrderRecord {
 
     public OrderRecord() {}
 
-    public OrderRecord(Long orderId, Long accountId, Long instrumentId, OrderSide side,
+    public OrderRecord(Long orderId, Long accountId, String ticker, OrderSide side,
                        BigDecimal quantity, BigDecimal price, OrderStatus status,
                        Instant receivedAt, String idempotencyKey) {
         this.orderId = orderId;
         this.accountId = accountId;
-        this.instrumentId = instrumentId;
+        this.ticker = ticker;
         this.side = side;
         this.quantity = quantity;
         this.price = price;
@@ -39,8 +39,8 @@ public class OrderRecord {
     public Long getAccountId() { return accountId; }
     public void setAccountId(Long accountId) { this.accountId = accountId; }
 
-    public Long getInstrumentId() { return instrumentId; }
-    public void setInstrumentId(Long instrumentId) { this.instrumentId = instrumentId; }
+    public String getTicker() { return ticker; }
+    public void setTicker(String ticker) { this.ticker = ticker; }
 
     public OrderSide getSide() { return side; }
     public void setSide(OrderSide side) { this.side = side; }

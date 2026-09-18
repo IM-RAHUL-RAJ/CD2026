@@ -27,4 +27,14 @@
           AND version = #{version}
     </update>
 
+    <insert id="insertAccount" keyProperty="accountId" useGeneratedKeys="true" parameterType="com.trading.tradeapi.entity.AccountRecord">
+        INSERT INTO account (account_name, client_id, currency, cash_balance, status, version)
+        VALUES (#{accountName}, #{clientId}, #{currency}, #{cashBalance}, #{status}, 0)
+    </insert>
+
+    <delete id="deleteAccount">
+        DELETE FROM account
+        WHERE account_id = #{accountId}
+    </delete>
+
 </mapper>

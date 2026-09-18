@@ -1,34 +1,25 @@
 package com.trade.executor.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.util.backoff.FixedBackOff;
-
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.util.backoff.ExponentialBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Kafka consumer + producer configuration for the executor.
- *
- * Consumer uses MANUAL_IMMEDIATE acknowledgement so we ack only after
- * successful settlement. On failure the DefaultErrorHandler retries 3 times
- * then routes to the <topic>.DLT dead-letter topic.
  */
 @EnableKafka
 @Configuration
@@ -40,7 +31,7 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.group-id:trade-executor}")
     private String groupId;
 
-    // ---- Consumer ----
+    // ---- Consumer Factory ----
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
@@ -63,17 +54,26 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
+        
+        // Listen across all 3 partitions concurrently
+        factory.setConcurrency(3);
+        
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
-        // Retry 3 times with 1s gap, then route to orders.DLT
+        // Dead Letter Recoverer for orders.DLT
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(1000L, 3));
+
+        // Exponential backoff for transient issues (1s, 2s, 4s, 8s, 16s)
+        ExponentialBackOff backOff = new ExponentialBackOff(1_000L, 2.0);
+        backOff.setMaxAttempts(5);
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
         factory.setCommonErrorHandler(errorHandler);
 
         return factory;
     }
 
-    // ---- Producer (for trade-events and DLT publishing) ----
+    // ---- Producer Factory ----
 
     @Bean
     public ProducerFactory<String, String> producerFactory() {

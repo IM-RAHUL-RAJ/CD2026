@@ -13,4 +13,8 @@ public interface AccountMapper {
     int updateCashBalanceAndVersion(@Param("id") Long id,
                                    @Param("cashBalance") BigDecimal cashBalance,
                                    @Param("version") Long version);
+
+    void insertAccount(AccountRecord account);
+
+    int deleteAccount(@Param("accountId") Long accountId);
 }

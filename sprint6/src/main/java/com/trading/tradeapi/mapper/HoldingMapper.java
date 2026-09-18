@@ -18,5 +18,5 @@ public interface HoldingMapper {
 
     int deleteHolding(@Param("holdingId") Long holdingId);
 
-    List<PositionResponseDto> findPositionsByAccountId(@Param("accountId") Long accountId);
+    List<PositionResponseDto> findHoldingsByAccountId(@Param("accountId") Long accountId);
 }
