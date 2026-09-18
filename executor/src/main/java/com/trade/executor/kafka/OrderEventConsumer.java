@@ -211,18 +211,24 @@ public class OrderEventConsumer {
         if (quote == null) {
             log.warn("[*] No quote from API, falling back to QuoteCache for {}", symbol);
             quote = quoteCache.get(symbol);
+            if (quote != null) {
+                log.info("[OK] Quote from cache: price={}, bid={}, ask={}, stale={}", 
+                        quote.price(), quote.bid(), quote.ask(), quote.stale());
+            } else {
+                log.error("[ERROR] No quote available from API or cache for symbol {}", symbol);
+            }
         } else {
             log.info("[OK] Quote from API: price={}, bid={}, ask={}, stale={}", 
                     quote.price(), quote.bid(), quote.ask(), quote.stale());
         }
         
-        if (quote == null || quote.stale()) {
-            if (quote == null) {
-                log.error("[ERROR] No quote available in cache either for {}", symbol);
-            } else {
-                log.warn("[*] Quote from cache is stale, will still use it: price={}, bid={}, ask={}", 
-                        quote.price(), quote.bid(), quote.ask());
-            }
+        // Log quote availability status
+        if (quote == null) {
+            log.error("[CRITICAL] Quote is NULL for symbol {} - will be evaluated by FillRuleEvaluator", symbol);
+        } else if (quote.stale()) {
+            log.warn("[WARN] Quote is STALE for symbol {} - MARKET orders will use stale price", symbol);
+        } else {
+            log.info("[GOOD] Quote is fresh for symbol {}", symbol);
         }
 
         // 5. Fetch account & holding state

@@ -47,18 +47,27 @@ public class FillRuleEvaluator {
         boolean isMarketOrder = "MARKET".equals(normalizedOrderType);
 
         // For LIMIT orders with unavailable/stale quotes, return PENDING so poller can retry
-        // For MARKET orders, reject since we can't execute without current price
-        if (quote == null || quote.stale()) {
+        // For MARKET orders: use stale quote if available (better than rejecting), only reject if completely null
+        if (quote == null) {
+            if (isMarketOrder) {
+                log.error("[ERROR] MARKET order with NO quote available - cannot execute without any price");
+                return FillDecision.rejected("PRICE_NOT_AVAILABLE");
+            }
+            log.info("[*] LIMIT order with no quote - returning PENDING for poller retry");
+            return FillDecision.pending("QUOTE_UNAVAILABLE - waiting for price update");
+        }
+        
+        if (quote.stale()) {
             if (!isMarketOrder) {
-                log.info("[*] LIMIT order with unavailable/stale quote - returning PENDING for poller retry");
-                log.info("    Quote details: quote={}, stale={}", (quote != null ? "present" : "NULL"), (quote != null ? quote.stale() : "N/A"));
-                return FillDecision.pending("QUOTE_UNAVAILABLE - waiting for price update");
+                log.info("[*] LIMIT order with stale quote - returning PENDING for fresh price");
+                log.info("    Stale quote: symbol={}, price={}, bid={}, ask={}", 
+                        quote.symbol(), quote.price(), quote.bid(), quote.ask());
+                return FillDecision.pending("PRICE_STALE - waiting for fresh update");
             }
-            log.warn("[*] MARKET order with unavailable/stale quote - REJECTING (cannot execute without price)");
-            if (quote != null) {
-                log.warn("    Quote stale: {}", quote.stale());
-            }
-            return FillDecision.rejected("PRICE_NOT_AVAILABLE");
+            log.warn("[*] MARKET order with STALE quote - proceeding with execution (better than rejecting)");
+            log.warn("    Stale quote: symbol={}, price={}, bid={}, ask={}", 
+                    quote.symbol(), quote.price(), quote.bid(), quote.ask());
+            // Continue to execution with stale quote for MARKET orders
         }
         
         log.info("[*] Quote available and fresh: symbol={}, price={}, bid={}, ask={}", 
@@ -68,9 +77,14 @@ public class FillRuleEvaluator {
             BigDecimal ask = quote.ask() != null ? quote.ask() : quote.price();
             log.info("[*] BUY order: ask={}, price={}, limitPrice={}, isMarketOrder={}", 
                     quote.ask(), quote.price(), limitPrice, isMarketOrder);
-            if (ask == null || ask.compareTo(BigDecimal.ZERO) <= 0) {
-                log.error("[ERROR] BUY: ask/price is null or zero! ask={}, price={}", quote.ask(), quote.price());
-                return FillDecision.rejected("PRICE_NOT_AVAILABLE - ask/price is null or zero");
+            if (ask == null) {
+                log.error("[ERROR] BUY: both ask and price are null! quote.ask={}, quote.price={}", 
+                        quote.ask(), quote.price());
+                return FillDecision.rejected("PRICE_NOT_AVAILABLE");
+            }
+            if (ask.compareTo(BigDecimal.ZERO) <= 0) {
+                log.error("[ERROR] BUY: ask/price is zero or negative! ask={}", ask);
+                return FillDecision.rejected("PRICE_NOT_AVAILABLE");
             }
             
             // For limit orders, check if ask price meets the limit
@@ -111,9 +125,14 @@ public class FillRuleEvaluator {
             BigDecimal bid = quote.bid() != null ? quote.bid() : quote.price();
             log.info("[*] SELL order: bid={}, price={}, limitPrice={}, isMarketOrder={}", 
                     quote.bid(), quote.price(), limitPrice, isMarketOrder);
-            if (bid == null || bid.compareTo(BigDecimal.ZERO) <= 0) {
-                log.error("[ERROR] SELL: bid/price is null or zero! bid={}, price={}", quote.bid(), quote.price());
-                return FillDecision.rejected("PRICE_NOT_AVAILABLE - bid/price is null or zero");
+            if (bid == null) {
+                log.error("[ERROR] SELL: both bid and price are null! quote.bid={}, quote.price={}", 
+                        quote.bid(), quote.price());
+                return FillDecision.rejected("PRICE_NOT_AVAILABLE");
+            }
+            if (bid.compareTo(BigDecimal.ZERO) <= 0) {
+                log.error("[ERROR] SELL: bid/price is zero or negative! bid={}", bid);
+                return FillDecision.rejected("PRICE_NOT_AVAILABLE");
             }
             
             // For limit orders, check if bid price meets the limit
