@@ -13,9 +13,9 @@ public record PlaceOrderRequestDto(
         @Min(value = 1, message = "Account ID must be at least 1")
         Long accountId,
 
-        @NotNull(message = "Symbol is required")
-        @Size(min = 1, max = 20, message = "Symbol must be between 1 and 20 characters")
-        String symbol,
+        @NotNull(message = "Ticker is required")
+        @Size(min = 1, max = 20, message = "Ticker must be between 1 and 20 characters")
+        String ticker,
 
         @NotNull(message = "Side is required")
         OrderSide side,

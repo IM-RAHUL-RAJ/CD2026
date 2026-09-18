@@ -7,10 +7,18 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:trading_db}
     username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    password: ${DB_PASSWORD:n3u3d4!}
     driver-class-name: org.postgresql.Driver
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.8.68.169:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        linger.ms: 10
+        batch.size: 16384
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
@@ -19,7 +27,7 @@ mybatis:
     map-underscore-to-camel-case: true
 
 jwt:
-  # JWT secret from environment variable (required - must match auth-server secret)
   secret: ${JWT_SECRET:super_secret_jwt_key_at_least_32_characters_long}
+  ttl-seconds: ${JWT_TTL_SECONDS:900}
   expiration:
-    ms: 3600000
+    ms: 900000

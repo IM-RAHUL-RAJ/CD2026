@@ -34,7 +34,7 @@
         WHERE holding_id = #{holdingId}
     </delete>
 
-    <select id="findPositionsByAccountId" resultType="com.trading.tradeapi.dto.PositionResponseDto">
+    <select id="findHoldingsByAccountId" resultType="com.trading.tradeapi.dto.PositionResponseDto">
         SELECT account_id AS accountId,
                ticker AS symbol,
                CAST(quantity AS BIGINT) AS quantity,

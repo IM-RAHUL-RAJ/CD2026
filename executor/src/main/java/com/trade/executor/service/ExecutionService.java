@@ -1,6 +1,7 @@
 package com.trade.executor.service;
 
 import com.trade.executor.domain.FillDecision;
+import com.trade.executor.exception.RetryableOrderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -36,6 +37,20 @@ public class ExecutionService {
 
     // ----- Read helpers -----
 
+    public Map<String, Object> fetchOrder(Long orderId) {
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT order_id, account_id, instrument_id, side, quantity, price, status FROM orders WHERE order_id = ?",
+                orderId);
+        return rows.isEmpty() ? null : rows.get(0);
+    }
+
+    public String fetchInstrumentStatus(String symbol) {
+        List<String> rows = jdbc.queryForList(
+                "SELECT status FROM instrument WHERE symbol = ? OR ticker = ?",
+                String.class, symbol, symbol);
+        return rows.isEmpty() ? null : rows.get(0);
+    }
+
     public Map<String, Object> fetchAccount(Long accountId) {
         List<Map<String, Object>> rows = jdbc.queryForList(
                 "SELECT account_id, status, cash_balance, version FROM account WHERE account_id = ?",
@@ -49,8 +64,8 @@ public class ExecutionService {
                 "SELECT h.quantity, h.average_price AS avg_cost " +
                 "FROM holding h " +
                 "JOIN instrument i ON i.ticker = h.ticker " +
-                "WHERE h.account_id = ? AND i.symbol = ?",
-                accountId, symbol);
+                "WHERE h.account_id = ? AND (i.symbol = ? OR i.ticker = ?)",
+                accountId, symbol, symbol);
         return rows.isEmpty() ? null : rows.get(0);
     }
 
@@ -68,8 +83,7 @@ public class ExecutionService {
                 decision.executedPrice(), OffsetDateTime.now(), orderId);
 
         if (updated == 0) {
-            // Already processed (duplicate delivery)
-            log.warn("Order {} already settled, skipping duplicate settlement", orderId);
+            log.warn("Order {} already settled or not in NEW state, skipping settlement", orderId);
             return;
         }
 
@@ -84,14 +98,15 @@ public class ExecutionService {
                 newBalance, accountId, currentVersion);
 
         if (cashUpdated == 0) {
-            throw new IllegalStateException(
+            throw new RetryableOrderException(
                     "Optimistic lock failure updating cash for account " + accountId +
-                    " (version mismatch — concurrent modification)");
+                    " (concurrent modification — will retry with fresh state)");
         }
 
         // 3. Upsert holding — look up the ticker for this symbol
-        String ticker = jdbc.queryForObject(
-                "SELECT ticker FROM instrument WHERE symbol = ?", String.class, symbol);
+        List<String> tickers = jdbc.queryForList(
+                "SELECT ticker FROM instrument WHERE symbol = ? OR ticker = ?", String.class, symbol, symbol);
+        String ticker = tickers.isEmpty() ? symbol : tickers.get(0);
 
         if ("BUY".equalsIgnoreCase(side)) {
             jdbc.update(
