@@ -18,11 +18,11 @@ public class JwtService {
     private final SecretKey secretKey;
     private final long tokenExpirationMs;
 
-    public JwtService(@Value("${jwt.secret:default-secret-key-that-is-at-least-32-bytes-long}") String secret,
+    public JwtService(@Value("${jwt.secret:super_secret_jwt_key_at_least_32_characters_long}") String secret,
                       @Value("${jwt.expiration.ms:3600000}") long tokenExpirationMs) {
         if (secret == null || secret.isBlank()) {
             // Fallback for environment where JWT_SECRET is not explicitly provided during startup testing
-            secret = "default-secret-key-that-is-at-least-32-bytes-long";
+            secret = "super_secret_jwt_key_at_least_32_characters_long";
         }
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.tokenExpirationMs = tokenExpirationMs;

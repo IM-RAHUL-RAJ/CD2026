@@ -61,6 +61,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void sendUnauthorized(HttpServletResponse response) throws IOException {
+        // Add CORS headers to error responses so browser can see the error message
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5000");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+        response.setHeader("Access-Control-Allow-Headers", "*");
+        response.setHeader("Access-Control-Expose-Headers", "Content-Type, Authorization");
+        
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write("{\"errorCode\":\"AUTH-401\",\"message\":\"Unauthorised\"}");

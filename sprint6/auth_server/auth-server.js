@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const http = require('http');
 const jwt = require('jsonwebtoken');
 
@@ -90,7 +92,7 @@ function normalizeRoles(roles) {
 
 function normalizeTtlSeconds(ttlSeconds) {
   if (ttlSeconds === undefined || ttlSeconds === null || ttlSeconds === '') {
-    return DEFAULT_TTL_SECONDS;
+    return TTL_SECONDS;
   }
 
   const value = Number(ttlSeconds);
@@ -274,8 +276,8 @@ function createServer() {
 if (require.main === module) {
   try {
     const server = createServer();
-    server.listen(DEFAULT_PORT, () => {
-      console.log(`JWT auth server listening on http://localhost:${DEFAULT_PORT}`);
+    server.listen(PORT, () => {
+      console.log(`JWT auth server listening on http://localhost:${PORT}`);
       console.log('POST /api/auth to create a token');
       console.log('GET /api/auth/verify with Authorization: Bearer <token> to validate it');
     });

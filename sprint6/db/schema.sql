@@ -63,3 +63,8 @@ CREATE INDEX idx_orders_account ON orders(account_id);
 CREATE INDEX idx_orders_instrument ON orders(instrument_id);
 
 -- Optional: ensure sequences are set to start at an appropriate minimum if needed
+
+ALTER TABLE orders
+    ADD COLUMN IF NOT EXISTS executed_price NUMERIC(18,8),
+    ADD COLUMN IF NOT EXISTS executed_on TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS rejection_reason VARCHAR(255);

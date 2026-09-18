@@ -10,7 +10,7 @@ spring:
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.8.68.169:9092}
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
@@ -19,5 +19,7 @@ mybatis:
     map-underscore-to-camel-case: true
 
 jwt:
-  # JWT secret from environment variable (required - no default)
-  secret: ${JWT_SECRET}
+  # JWT secret from environment variable (required - must match auth-server secret)
+  secret: ${JWT_SECRET:super_secret_jwt_key_at_least_32_characters_long}
+  expiration:
+    ms: 3600000

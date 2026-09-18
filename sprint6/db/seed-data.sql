@@ -24,6 +24,6 @@ VALUES (1, 1, 'AAPL', 50.00000000, 150.00, CURRENT_DATE)
 ON CONFLICT (holding_id) DO NOTHING;
 
 -- Example order
-INSERT INTO orders (order_id, account_id, instrument_id, side, quantity, price, status, received_at, idempotency_key)
-VALUES (1, 1, 1, 'BUY', 10.00000000, 150.00, 'FILLED', now(), 'seed-1')
+INSERT INTO orders (order_id, account_id, instrument_id, side, quantity, price, status, received_at, idempotency_key, executed_price, executed_on, rejection_reason)
+VALUES (1, 1, 1, 'BUY', 10.00000000, 150.00, 'FILLED', now(), 'seed-1', 150.00, now(), NULL)
 ON CONFLICT (order_id) DO NOTHING;
