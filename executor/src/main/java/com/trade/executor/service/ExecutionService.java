@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class ExecutionService {
 
     public Map<String, Object> fetchOrder(Long orderId) {
         List<Map<String, Object>> rows = jdbc.queryForList(
-                "SELECT order_id, account_id, instrument_id, side, quantity, price, status FROM orders WHERE order_id = ?",
+                "SELECT order_id, account_id, ticker, side, quantity, price, order_type, status FROM orders WHERE order_id = ?",
                 orderId);
         return rows.isEmpty() ? null : rows.get(0);
     }
@@ -76,11 +77,39 @@ public class ExecutionService {
                        Long quantity, FillDecision decision, Map<String, Object> account) {
 
         // 1. Update order to FILLED (idempotency guard: only if still NEW)
+        log.info("[*] UPDATE query: executed_price={}, executed_on={}, orderId={}", 
+                decision.executedPrice(), OffsetDateTime.now(), orderId);
+        log.info("[*] executedPrice type: {}, value: {}, scale: {}", 
+                decision.executedPrice().getClass().getName(), 
+                decision.executedPrice(), 
+                decision.executedPrice().scale());
+        
+        // Ensure BigDecimal has correct scale for NUMERIC(18,8)
+        BigDecimal executedPrice = decision.executedPrice().setScale(8, RoundingMode.HALF_UP);
+        log.info("[*] After setScale: value={}, scale={}, toPlainString={}", 
+                executedPrice, executedPrice.scale(), executedPrice.toPlainString());
+        
         int updated = jdbc.update(
                 "UPDATE orders SET status = 'FILLED', " +
                 "executed_price = ?, executed_on = ? " +
                 "WHERE order_id = ? AND status = 'NEW'",
-                decision.executedPrice(), OffsetDateTime.now(), orderId);
+                executedPrice, OffsetDateTime.now(), orderId);
+        
+        log.info("[OK] Update result: {} rows affected", updated);
+        
+        // Verify what was actually stored
+        try {
+            List<Map<String, Object>> verifyRows = jdbc.queryForList(
+                    "SELECT executed_price, status FROM orders WHERE order_id = ?", orderId);
+            if (!verifyRows.isEmpty()) {
+                Map<String, Object> row = verifyRows.get(0);
+                log.info("[VERIFY] Order {} in DB: status={}, executed_price={}, type={}", 
+                        orderId, row.get("status"), row.get("executed_price"), 
+                        row.get("executed_price") != null ? row.get("executed_price").getClass().getName() : "null");
+            }
+        } catch (Exception e) {
+            log.error("[ERROR] Failed to verify order: {}", e.getMessage());
+        }
 
         if (updated == 0) {
             log.warn("Order {} already settled or not in NEW state, skipping settlement", orderId);
@@ -91,6 +120,9 @@ public class ExecutionService {
         BigDecimal newBalance = ((BigDecimal) account.get("cash_balance"))
                 .add(decision.cashDelta());
         Long currentVersion = ((Number) account.get("version")).longValue();
+        
+        log.info("[*] Updating account cash: current={}, delta={}, new={}, version={}", 
+                 account.get("cash_balance"), decision.cashDelta(), newBalance, currentVersion);
 
         int cashUpdated = jdbc.update(
                 "UPDATE account SET cash_balance = ?, version = version + 1 " +
@@ -102,14 +134,17 @@ public class ExecutionService {
                     "Optimistic lock failure updating cash for account " + accountId +
                     " (concurrent modification — will retry with fresh state)");
         }
+        log.info("[OK] Account cash updated: {} rows affected", cashUpdated);
 
         // 3. Upsert holding — look up the ticker for this symbol
         List<String> tickers = jdbc.queryForList(
                 "SELECT ticker FROM instrument WHERE symbol = ? OR ticker = ?", String.class, symbol, symbol);
         String ticker = tickers.isEmpty() ? symbol : tickers.get(0);
+        log.info("[*] Upserting holding: accountId={}, ticker={}, newQty={}, newAvgCost={}", 
+                 accountId, ticker, decision.newHoldingQty(), decision.newAvgCost());
 
         if ("BUY".equalsIgnoreCase(side)) {
-            jdbc.update(
+            int holdingRows = jdbc.update(
                     "INSERT INTO holding (account_id, ticker, quantity, average_price, as_of_date) " +
                     "VALUES (?, ?, ?, ?, CURRENT_DATE) " +
                     "ON CONFLICT (account_id, ticker) DO UPDATE " +
@@ -118,17 +153,20 @@ public class ExecutionService {
                     decision.newHoldingQty(), decision.newAvgCost(),   // INSERT values
                     decision.newHoldingQty(), decision.newAvgCost()    // UPDATE values
             );
+            log.info("[OK] Holding upserted: {} rows affected", holdingRows);
         } else {
             // SELL: decrease quantity; if zero, remove holding row
             if (decision.newHoldingQty() == 0) {
-                jdbc.update(
+                int deleteRows = jdbc.update(
                         "DELETE FROM holding WHERE account_id = ? AND ticker = ?",
                         accountId, ticker);
+                log.info("[OK] Holding deleted: {} rows removed", deleteRows);
             } else {
-                jdbc.update(
+                int updateRows = jdbc.update(
                         "UPDATE holding SET quantity = ?, as_of_date = CURRENT_DATE " +
                         "WHERE account_id = ? AND ticker = ?",
                         decision.newHoldingQty(), accountId, ticker);
+                log.info("[OK] Holding updated: {} rows affected", updateRows);
             }
         }
 

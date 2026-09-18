@@ -3,7 +3,7 @@ package com.trade.executor.domain;
 import java.math.BigDecimal;
 
 public record FillDecision(
-        String status, // FILLED or REJECTED
+        String status, // FILLED, REJECTED, or PENDING
         BigDecimal executedPrice,
         String reason,
         BigDecimal cashDelta,
@@ -18,9 +18,18 @@ public record FillDecision(
         return new FillDecision("REJECTED", null, reason, BigDecimal.ZERO, 0L, BigDecimal.ZERO);
     }
 
-    /** Returns true if this decision is a fill (not a rejection). */
+    public static FillDecision pending(String reason) {
+        return new FillDecision("PENDING", null, reason, BigDecimal.ZERO, 0L, BigDecimal.ZERO);
+    }
+
+    /** Returns true if this decision is a fill (not a rejection or pending). */
     public boolean filled() {
         return "FILLED".equals(status);
+    }
+
+    /** Returns true if this decision is pending (limit order waiting for price). */
+    public boolean pending() {
+        return "PENDING".equals(status);
     }
 
     /** Alias for reason — the rejection reason code. */

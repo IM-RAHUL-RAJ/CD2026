@@ -12,5 +12,6 @@ public record OrderResponseDto(
         String symbol,
         OrderSide side,
         Long quantity,
-        BigDecimal price
+        BigDecimal price,
+        BigDecimal executedPrice
 ) {}

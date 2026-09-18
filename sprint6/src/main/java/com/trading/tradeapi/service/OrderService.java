@@ -63,7 +63,8 @@ public class OrderService {
                 request.ticker(),
                 request.side(),
                 request.quantity(),
-                request.price()
+                request.price(),
+                null  // executedPrice not available yet - executor will fill it
         );
     }
 
@@ -77,6 +78,7 @@ public class OrderService {
                 BigDecimal.valueOf(request.quantity()),
                 request.price(),
                 OrderStatus.NEW,
+                request.orderType(),
                 receivedAt,
                 request.idempotencyKey()
         );
@@ -148,7 +150,8 @@ public class OrderService {
                 order.getTicker(),
                 order.getSide(),
                 order.getQuantity().longValue(),
-                order.getPrice()
+                order.getPrice(),
+                order.getExecutedPrice()
         );
     }
 

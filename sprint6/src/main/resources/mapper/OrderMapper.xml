@@ -5,8 +5,8 @@
 <mapper namespace="com.trading.tradeapi.mapper.OrderMapper">
 
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="orderId" keyColumn="order_id">
-        INSERT INTO orders (account_id, ticker, side, quantity, price, status, received_at, idempotency_key)
-        VALUES (#{accountId}, #{ticker}, #{side}, #{quantity}, #{price}, #{status}, #{receivedAt}, #{idempotencyKey})
+        INSERT INTO orders (account_id, ticker, side, quantity, price, order_type, status, received_at, idempotency_key)
+        VALUES (#{accountId}, #{ticker}, #{side}, #{quantity}, #{price}, #{orderType}, #{status}, #{receivedAt}, #{idempotencyKey})
     </insert>
 
     <select id="findByIdempotencyKey" resultType="com.trading.tradeapi.entity.OrderRecord">
@@ -16,9 +16,12 @@
                side,
                quantity,
                price,
+               order_type AS orderType,
                status,
                received_at AS receivedAt,
-               idempotency_key AS idempotencyKey
+               idempotency_key AS idempotencyKey,
+               executed_price AS executedPrice,
+               executed_on AS executedOn
         FROM orders
         WHERE idempotency_key = #{idempotencyKey}
     </select>
@@ -30,9 +33,12 @@
                side,
                quantity,
                price,
+               order_type AS orderType,
                status,
                received_at AS receivedAt,
-               idempotency_key AS idempotencyKey
+               idempotency_key AS idempotencyKey,
+               executed_price AS executedPrice,
+               executed_on AS executedOn
         FROM orders
         WHERE idempotency_key = #{id}
     </select>
@@ -51,7 +57,7 @@
                o.side AS side,
                CAST(o.quantity AS BIGINT) AS quantity,
                o.price AS price,
-               CASE WHEN o.status = 'FILLED' THEN o.price ELSE NULL END AS executedPrice,
+               CASE WHEN o.status = 'FILLED' THEN o.executed_price ELSE NULL END AS executedPrice,
                o.status AS status,
                o.idempotency_key AS idempotencyKey,
                o.received_at AS createdOn

@@ -53,7 +53,7 @@ class FillRuleEvaluatorTest {
     void buyFillsWhenLimitPriceAtOrAboveAsk() {
         FillDecision decision = evaluator.evaluate(
                 "BUY", 10L, new BigDecimal("151.00"), ACTIVE_QUOTE,
-                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("2000.00"));
+                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("2000.00"), "LIMIT");
 
         assertThat(decision.filled()).isTrue();
         assertThat(decision.executedPrice()).isEqualByComparingTo("150.50"); // executed at ask
@@ -66,7 +66,7 @@ class FillRuleEvaluatorTest {
     void buyRejectedWhenLimitPriceBelowAsk() {
         FillDecision decision = evaluator.evaluate(
                 "BUY", 10L, new BigDecimal("149.00"), ACTIVE_QUOTE,
-                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"));
+                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"), "LIMIT");
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("PRICE_NOT_MET");
@@ -77,7 +77,7 @@ class FillRuleEvaluatorTest {
     void buyRejectedWhenInsufficientFunds() {
         FillDecision decision = evaluator.evaluate(
                 "BUY", 100L, new BigDecimal("151.00"), ACTIVE_QUOTE,
-                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("100.00")); // only $100
+                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("100.00"), "LIMIT"); // only $100
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("INSUFFICIENT_FUNDS");
@@ -89,7 +89,7 @@ class FillRuleEvaluatorTest {
         // Already hold 10 shares at avg cost $140. Buying 10 more at $150.50 ask.
         FillDecision decision = evaluator.evaluate(
                 "BUY", 10L, new BigDecimal("151.00"), ACTIVE_QUOTE,
-                "ACTIVE", 10L, new BigDecimal("140.00"), new BigDecimal("5000.00"));
+                "ACTIVE", 10L, new BigDecimal("140.00"), new BigDecimal("5000.00"), "LIMIT");
 
         assertThat(decision.filled()).isTrue();
         assertThat(decision.newHoldingQty()).isEqualTo(20L);
@@ -104,7 +104,7 @@ class FillRuleEvaluatorTest {
     void sellFillsWhenLimitPriceAtOrBelowBid() {
         FillDecision decision = evaluator.evaluate(
                 "SELL", 5L, new BigDecimal("149.00"), ACTIVE_QUOTE,
-                "ACTIVE", 10L, new BigDecimal("140.00"), new BigDecimal("0.00"));
+                "ACTIVE", 10L, new BigDecimal("140.00"), new BigDecimal("0.00"), "LIMIT");
 
         assertThat(decision.filled()).isTrue();
         assertThat(decision.executedPrice()).isEqualByComparingTo("149.50"); // executed at bid
@@ -117,7 +117,7 @@ class FillRuleEvaluatorTest {
     void sellRejectedWhenLimitPriceAboveBid() {
         FillDecision decision = evaluator.evaluate(
                 "SELL", 5L, new BigDecimal("152.00"), ACTIVE_QUOTE,
-                "ACTIVE", 10L, new BigDecimal("140.00"), BigDecimal.ZERO);
+                "ACTIVE", 10L, new BigDecimal("140.00"), BigDecimal.ZERO, "LIMIT");
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("PRICE_NOT_MET");
@@ -128,7 +128,7 @@ class FillRuleEvaluatorTest {
     void sellRejectedWhenInsufficientHoldings() {
         FillDecision decision = evaluator.evaluate(
                 "SELL", 20L, new BigDecimal("149.00"), ACTIVE_QUOTE,
-                "ACTIVE", 5L, new BigDecimal("140.00"), BigDecimal.ZERO); // only 5 held
+                "ACTIVE", 5L, new BigDecimal("140.00"), BigDecimal.ZERO, "LIMIT"); // only 5 held
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("INSUFFICIENT_HOLDINGS");
@@ -139,7 +139,7 @@ class FillRuleEvaluatorTest {
     void sellEntireHoldingResultsInZeroQty() {
         FillDecision decision = evaluator.evaluate(
                 "SELL", 10L, new BigDecimal("149.00"), ACTIVE_QUOTE,
-                "ACTIVE", 10L, new BigDecimal("140.00"), BigDecimal.ZERO);
+                "ACTIVE", 10L, new BigDecimal("140.00"), BigDecimal.ZERO, "LIMIT");
 
         assertThat(decision.filled()).isTrue();
         assertThat(decision.newHoldingQty()).isEqualTo(0L);
@@ -152,7 +152,7 @@ class FillRuleEvaluatorTest {
     void rejectedWhenAccountNotActive() {
         FillDecision decision = evaluator.evaluate(
                 "BUY", 10L, new BigDecimal("151.00"), ACTIVE_QUOTE,
-                "SUSPENDED", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"));
+                "SUSPENDED", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"), "LIMIT");
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("ACCOUNT_NOT_ACTIVE");
@@ -163,7 +163,7 @@ class FillRuleEvaluatorTest {
     void rejectedWhenQuoteIsNull() {
         FillDecision decision = evaluator.evaluate(
                 "BUY", 10L, new BigDecimal("151.00"), null,
-                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"));
+                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"), "LIMIT");
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("PRICE_NOT_AVAILABLE");
@@ -174,7 +174,7 @@ class FillRuleEvaluatorTest {
     void rejectedWhenQuoteIsStale() {
         FillDecision decision = evaluator.evaluate(
                 "BUY", 10L, new BigDecimal("151.00"), STALE_QUOTE,
-                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"));
+                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"), "LIMIT");
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("PRICE_NOT_AVAILABLE");
@@ -185,7 +185,7 @@ class FillRuleEvaluatorTest {
     void rejectedWhenSideIsInvalid() {
         FillDecision decision = evaluator.evaluate(
                 "HOLD", 10L, new BigDecimal("151.00"), ACTIVE_QUOTE,
-                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"));
+                "ACTIVE", 0L, BigDecimal.ZERO, new BigDecimal("5000.00"), "LIMIT");
 
         assertThat(decision.filled()).isFalse();
         assertThat(decision.rejectionReason()).isEqualTo("INVALID_SIDE");

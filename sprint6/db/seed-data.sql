@@ -24,6 +24,13 @@ VALUES (1, 1, 'AAPL', 50.00000000, 150.00, CURRENT_DATE)
 ON CONFLICT (holding_id) DO NOTHING;
 
 -- Example order
-INSERT INTO orders (order_id, account_id, instrument_id, side, quantity, price, status, received_at, idempotency_key, executed_price, executed_on, rejection_reason)
-VALUES (1, 1, 1, 'BUY', 10.00000000, 150.00, 'FILLED', now(), 'seed-1', 150.00, now(), NULL)
+INSERT INTO orders (order_id, account_id, ticker, side, quantity, price, order_type, status, received_at, idempotency_key, executed_price, executed_on, rejection_reason)
+VALUES (1, 1, 'AAPL', 'BUY', 10.00000000, 150.00, 'LIMIT', 'FILLED', now(), 'seed-1', 150.00, now(), NULL)
 ON CONFLICT (order_id) DO NOTHING;
+
+-- Reset sequences to avoid conflicts with seed data
+SELECT setval('client_client_id_seq', 1002, false);
+SELECT setval('account_account_id_seq', 2, false);
+SELECT setval('instrument_instrument_id_seq', 3, false);
+SELECT setval('holding_holding_id_seq', 2, false);
+SELECT setval('orders_order_id_seq', 2, false);

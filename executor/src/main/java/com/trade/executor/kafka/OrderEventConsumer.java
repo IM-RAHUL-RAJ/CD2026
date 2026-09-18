@@ -64,74 +64,127 @@ public class OrderEventConsumer {
                    containerFactory = "kafkaListenerContainerFactory")
     public void onOrderPlaced(String message, Acknowledgment ack) {
 
+        log.info("===== CONSUMER RECEIVED MESSAGE =====");
+        log.info("Raw message: {}", message);
+
+        try {
         // 1. Parse JSON payload
+        log.info("→ Parsing JSON...");
         JsonNode root;
         try {
             root = objectMapper.readTree(message);
+            
+            // Handle double-encoded JSON (if root is a TextNode, parse it again)
+            if (root.isTextual()) {
+                log.info("✓ Detected double-encoded JSON, parsing again...");
+                root = objectMapper.readTree(root.asText());
+            }
+            
+            log.info("✓ JSON parsed");
+            log.info("  Root is ObjectNode: {}", root.isObject());
+            log.info("  Root keys: {}", root.fieldNames());
+            log.info("  Root JSON: {}", root.toPrettyString());
         } catch (JsonProcessingException e) {
+            log.error("✗ JSON PARSE FAILED: {}", e.getMessage());
             throw new NonRetryableOrderException("Malformed JSON in order event: " + e.getMessage(), e);
         }
 
+        log.info("→ Checking eventType...");
         String eventType = root.path("eventType").asText("");
+        log.info("  eventType='{}'", eventType);
         if (!"ORDER_PLACED".equals(eventType)) {
             log.debug("Skipping non-ORDER_PLACED eventType: {}", eventType);
             ack.acknowledge();
             return;
         }
 
+        log.info("→ Extracting payload...");
         JsonNode payload = root.path("payload");
-        Long orderId = payload.path("orderId").asLong(0);
+        log.info("✓ Payload extracted");
+        
+        log.info("→ Parsing orderId...");
+        String orderIdStr = payload.path("orderId").asText("");
+        log.info("  orderIdStr='{}'", orderIdStr);
+        Long orderId = 0L;
+        try {
+            orderId = Long.parseLong(orderIdStr);
+            log.info("✓ orderId parsed: {}", orderId);
+        } catch (NumberFormatException e) {
+            log.error("✗ PARSE FAILED: orderId is not a number: '{}'", orderIdStr);
+            throw new NonRetryableOrderException("orderId must be a number, got: " + orderIdStr);
+        }
+        
         if (orderId == 0) {
+            log.error("✗ FAILED: orderId is 0 or missing");
             throw new NonRetryableOrderException("ORDER_PLACED event missing orderId: " + message);
         }
+        
+        log.info("✓ Parsed orderId={}", orderId);
 
+        log.info("→ Parsing accountId...");
         Long accountId = payload.path("accountId").asLong(0);
+        log.info("  accountId={}", accountId);
         if (accountId == 0) {
+            log.error("✗ FAILED: accountId is 0 or missing");
             throw new NonRetryableOrderException("ORDER_PLACED event missing accountId for orderId=" + orderId);
         }
+        log.info("✓ accountId parsed: {}", accountId);
 
         // Support both "symbol" and "ticker" keys
+        log.info("→ Parsing symbol...");
         String symbol = payload.has("symbol") && !payload.path("symbol").isNull() 
                 ? payload.path("symbol").asText() 
                 : payload.path("ticker").asText(null);
+        log.info("  symbol={}", symbol);
 
+        log.info("→ Parsing side, quantity, price...");
         String side = payload.path("side").asText(null);
         Long quantity = payload.path("quantity").asLong(0);
+        log.info("  side={}, quantity={}", side, quantity);
 
         // Support both "price" and "limitPrice" keys
         String limitStr = payload.has("price") && !payload.path("price").isNull()
                 ? payload.path("price").asText()
                 : payload.path("limitPrice").asText(null);
+        log.info("  price={}", limitStr);
 
         if (symbol == null || side == null || quantity == 0 || limitStr == null) {
+            log.error("✗ FAILED: Incomplete payload - symbol={}, side={}, qty={}, price={}", symbol, side, quantity, limitStr);
             throw new NonRetryableOrderException("ORDER_PLACED payload incomplete for orderId=" + orderId);
         }
 
         BigDecimal limitPrice;
         try {
             limitPrice = new BigDecimal(limitStr);
+            log.info("✓ limitPrice parsed: {}", limitPrice);
         } catch (NumberFormatException e) {
+            log.error("✗ FAILED: Invalid price: {}", limitStr);
             throw new NonRetryableOrderException("Invalid price '" + limitStr + "' for orderId=" + orderId);
         }
 
-        log.info("Consumer processing ORDER_PLACED: orderId={} accountId={} symbol={} side={} qty={} limit={}",
-                 orderId, accountId, symbol, side, quantity, limitPrice);
+        log.info("✓ All fields parsed successfully");
 
         // 2. Load order record from Postgres — idempotency check
         Map<String, Object> orderRecord;
         try {
+            log.info("→ Fetching order {} from DB", orderId);
             orderRecord = executionService.fetchOrder(orderId);
+            log.info("✓ Successfully fetched order {}", orderId);
         } catch (TransientDataAccessException e) {
+            log.error("FAILED: DB unavailable fetching order {}", orderId);
             throw new RetryableOrderException("DB unavailable fetching order " + orderId, e);
         }
 
         if (orderRecord != null) {
             String currentStatus = (String) orderRecord.get("status");
+            log.info("  Order {} current status: {}", orderId, currentStatus);
             if (!"NEW".equalsIgnoreCase(currentStatus)) {
                 log.info("Order {} already in state '{}', skipping processing", orderId, currentStatus);
                 ack.acknowledge();
                 return;
             }
+        } else {
+            log.error("FAILED: Order {} not found in database!", orderId);
         }
 
         // 3. Check instrument tradability status
@@ -145,9 +198,23 @@ public class OrderEventConsumer {
         }
 
         // 4. Fetch quote — try single quote API GET /quotes/{symbol}, fallback to QuoteCache
+        log.info("[*] Fetching quote for symbol {} from Fauxnance API...", symbol);
         Quote quote = fauxnanceClient.fetchSingleQuote(symbol);
-        if (quote == null || quote.stale()) {
+        if (quote == null) {
+            log.warn("[*] No quote from API, falling back to QuoteCache for {}", symbol);
             quote = quoteCache.get(symbol);
+        } else {
+            log.info("[OK] Quote from API: price={}, bid={}, ask={}, stale={}", 
+                    quote.price(), quote.bid(), quote.ask(), quote.stale());
+        }
+        
+        if (quote == null || quote.stale()) {
+            if (quote == null) {
+                log.error("[ERROR] No quote available in cache either for {}", symbol);
+            } else {
+                log.warn("[*] Quote from cache is stale, will still use it: price={}, bid={}, ask={}", 
+                        quote.price(), quote.bid(), quote.ask());
+            }
         }
 
         // 5. Fetch account & holding state
@@ -174,29 +241,69 @@ public class OrderEventConsumer {
         Long currentQty = holding != null ? ((Number) holding.get("quantity")).longValue() : 0L;
         BigDecimal currentAvgCost = holding != null ? (BigDecimal) holding.get("avg_cost") : BigDecimal.ZERO;
 
+        // Extract order_type (default to LIMIT for backward compatibility)
+        String orderType = orderRecord != null ? (String) orderRecord.get("order_type") : "LIMIT";
+        if (orderType == null || orderType.trim().isEmpty()) {
+            orderType = "LIMIT";
+        }
+        orderType = orderType.trim().toUpperCase();
+        log.info("  Order type: {} (trimmed & uppercase)", orderType);
+
         // 6. Evaluate fill/reject rules (including limit price logic)
+        log.info("[*] Evaluating fill decision: side={}, qty={}, limitPrice={}, orderType={}", 
+                side, quantity, limitPrice, orderType);
+        if (quote != null) {
+            log.info("    Quote: price={}, bid={}, ask={}, stale={}", 
+                    quote.price(), quote.bid(), quote.ask(), quote.stale());
+        } else {
+            log.error("[ERROR] Quote is NULL!");
+        }
+        
         FillDecision decision = fillRuleEvaluator.evaluate(
                 side, quantity, limitPrice, quote,
-                accountStatus, currentQty, currentAvgCost, cashBalance);
+                accountStatus, currentQty, currentAvgCost, cashBalance, orderType);
 
         // 7. DB settlement & event publication
         try {
-            if (decision.filled()) {
+            log.info("[*] Fill decision result: status={}, executedPrice={}, reason={}", 
+                    decision.status(), decision.executedPrice(), decision.reason());
+            log.info("[*] Settling order {}...", orderId);
+            if (decision.pending()) {
+                log.info("  → PENDING decision: limit order price not met yet");
+                log.info("Order {} PENDING - waiting for price condition: {}", orderId, decision.rejectionReason());
+                // Don't update DB, just ack - order stays in NEW status for future matching
+            } else if (decision.filled()) {
+                log.info("  → FILL decision, executing settle()");
                 executionService.settle(orderId, accountId, symbol, side, quantity, decision, account);
+                log.info("✓ Order {} settled in DB", orderId);
                 tradeEventPublisher.publishExecuted(orderId, accountId, symbol, side, quantity, decision.executedPrice());
                 log.info("Order {} FILLED at price {}", orderId, decision.executedPrice());
             } else {
+                log.info("  → REJECT decision: {}", decision.rejectionReason());
                 executionService.reject(orderId, decision.rejectionReason());
+                log.info("✓ Order {} rejected in DB", orderId);
                 tradeEventPublisher.publishRejected(orderId, accountId, symbol, decision.rejectionReason());
                 log.info("Order {} REJECTED reason={}", orderId, decision.rejectionReason());
             }
         } catch (RetryableOrderException e) {
+            log.error("FAILED: Retryable error settling order {}: {}", orderId, e.getMessage());
             throw e;
         } catch (TransientDataAccessException e) {
+            log.error("FAILED: Transient DB failure settling orderId={}", orderId);
             throw new RetryableOrderException("Transient DB failure settling orderId=" + orderId, e);
+        } catch (Exception e) {
+            log.error("FAILED: Unexpected error settling order {}: {}", orderId, e.getMessage(), e);
+            throw new NonRetryableOrderException("Unexpected error settling orderId=" + orderId, e);
         }
 
         // 8. Acknowledge offset
+        log.info("→ Acknowledging offset for orderId {}", orderId);
         ack.acknowledge();
+        log.info("✓✓✓ ORDER {} COMPLETE ✓✓✓\n", orderId);
+        
+        } catch (Exception e) {
+            log.error("!!! CRITICAL: Unhandled exception in OrderEventConsumer: {}", e.getClass().getName(), e);
+            throw e;
+        }
     }
 }

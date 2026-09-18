@@ -5,6 +5,7 @@ import com.trading.tradeapi.exception.InsufficientFundsException;
 import com.trading.tradeapi.exception.InsufficientHoldingsException;
 import com.trading.tradeapi.enums.OrderSide;
 import com.trading.tradeapi.enums.OrderStatus;
+import com.trading.tradeapi.enums.OrderType;
 import com.trading.tradeapi.controller.OrderController;
 import com.trading.tradeapi.dto.OrderResponseDto;
 import com.trading.tradeapi.dto.PlaceOrderRequestDto;
@@ -85,14 +86,14 @@ public class OrderControllerSliceTest {
         );
 
         validRequest = new PlaceOrderRequestDto(
-                1L, "ACME", OrderSide.BUY, 100L, new BigDecimal("25.50"), "6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e"
+                1L, "ACME", OrderSide.BUY, 100L, new BigDecimal("25.50"), OrderType.LIMIT, "6f2b1c2a-6a1e-4a4f-9c0d-2f7a1b3c4d5e"
         );
     }
 
     @Test
     public void placeOrderFieldValidationReturns422Val422() throws Exception {
         PlaceOrderRequestDto invalidReq = new PlaceOrderRequestDto(
-                1L, "", OrderSide.BUY, 0L, new BigDecimal("-5.00"), "short"
+                1L, "", OrderSide.BUY, 0L, new BigDecimal("-5.00"), OrderType.LIMIT, "short"
         );
 
         mockMvc.perform(post("/api/v1/orders")

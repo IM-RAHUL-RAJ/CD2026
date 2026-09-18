@@ -181,6 +181,18 @@ function showPlaceOrder(){
   const optionsHtml = symbols.map(s => `<option value="${s}">${s}</option>`).join('\n');
   highlightTab('btnPlaceOrder');
   document.getElementById('content').innerHTML = `<form id="orderForm" class="compact-form" onsubmit="submitOrder(event)">
+      <label>Order Type</label>
+      <div style="display:flex;gap:12px;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:6px">
+          <input type="radio" name="orderType" value="MARKET" checked onchange="togglePriceField()">
+          Market Order
+        </label>
+        <label style="display:flex;align-items:center;gap:6px">
+          <input type="radio" name="orderType" value="LIMIT" onchange="togglePriceField()">
+          Limit Order
+        </label>
+      </div>
+
       <label>Symbol</label>
       <select id="symbol" required>
         ${optionsHtml}
@@ -191,9 +203,9 @@ function showPlaceOrder(){
           <label>Quantity</label>
           <input id="quantity" type="number" step="1" required>
         </div>
-        <div>
-          <label>Price</label>
-          <input id="price" type="number" step="0.01" required>
+        <div id="priceContainer" style="display:none">
+          <label>Limit Price</label>
+          <input id="price" type="number" step="0.01">
         </div>
       </div>
 
@@ -204,10 +216,25 @@ function showPlaceOrder(){
       </select>
       <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
         <button class="btn" type="submit">Place Order</button>
-        <button type="button" class="btn secondary" onclick="document.getElementById('orderForm').reset()">Reset</button>
+        <button type="button" class="btn secondary" onclick="document.getElementById('orderForm').reset();togglePriceField();">Reset</button>
       </div>
     </form>
     <div id="orderResult" class="order-result"></div>`;
+}
+
+function togglePriceField(){
+  const orderType = document.querySelector('input[name="orderType"]:checked').value;
+  const priceContainer = document.getElementById('priceContainer');
+  const priceInput = document.getElementById('price');
+  
+  if(orderType === 'LIMIT'){
+    priceContainer.style.display = 'block';
+    priceInput.required = true;
+  } else {
+    priceContainer.style.display = 'none';
+    priceInput.required = false;
+    priceInput.value = '';
+  }
 }
 
 async function submitOrder(e){
@@ -216,23 +243,28 @@ async function submitOrder(e){
   const accountEl = document.getElementById('accountId');
   const accountId = accountEl ? parseInt(accountEl.value || '1', 10) : 1;
   const symbol = document.getElementById('symbol').value;
-  const instrumentId = INSTRUMENT_MAP[symbol];
   const quantity = parseInt(document.getElementById('quantity').value, 10);
   const price = parseFloat(document.getElementById('price').value);
   const side = document.getElementById('side').value;
+  const orderType = document.querySelector('input[name="orderType"]:checked').value;
 
-  if (!instrumentId || !quantity || !price || !side) {
+  if (!symbol || !quantity || !side) {
     document.getElementById('orderResult').innerText = 'Please fill all required fields.';
+    return;
+  }
+
+  if (orderType === 'LIMIT' && (!price || isNaN(price))) {
+    document.getElementById('orderResult').innerText = 'Limit price is required for limit orders.';
     return;
   }
 
   const body = {
     accountId: accountId,
-    instrumentId: instrumentId,
     symbol: symbol,
     quantity: quantity,
-    price: price,
+    price: orderType === 'MARKET' ? 0 : price,
     side: side,
+    orderType: orderType,
     idempotencyKey: generateIdempotencyKey()
   };
 
@@ -242,6 +274,25 @@ async function submitOrder(e){
   if(res.ok){
     const safe = sanitizeForDisplay(data,'orderSuccess');
     document.getElementById('orderResult').innerHTML = renderData(safe,'Order Success');
+    
+    // Auto-refresh order details after 2 seconds to get executed_price from executor
+    setTimeout(async () => {
+      try {
+        const ordersUrl = `${BACKEND_URL}/api/v1/accounts/${accountId}/orders`;
+        const ordersRes = await apiFetch(ordersUrl);
+        if (ordersRes.ok) {
+          const orders = await ordersRes.json();
+          // Find the order we just placed by symbol and side
+          const newOrder = orders.find(o => o.symbol === symbol && o.side === side && o.quantity === quantity);
+          if (newOrder) {
+            const safeSummary = sanitizeForDisplay(newOrder, 'orderDetails');
+            document.getElementById('orderResult').innerHTML = renderData(safeSummary, 'Order Details (Refreshed)');
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to refresh order details:', err);
+      }
+    }, 2000);
   } else {
     const safe = sanitizeForDisplay(data,'orders');
     document.getElementById('orderResult').innerHTML = renderData(safe,'Order Error');

@@ -49,10 +49,11 @@ CREATE INDEX idx_holding_account ON holding(account_id);
 CREATE TABLE orders (
   order_id BIGSERIAL PRIMARY KEY,
   account_id BIGINT NOT NULL REFERENCES account(account_id) ON DELETE CASCADE,
-  instrument_id BIGINT REFERENCES instrument(instrument_id),
+  ticker VARCHAR(64),
   side VARCHAR(16) NOT NULL,
   quantity NUMERIC(30,8) NOT NULL,
   price NUMERIC(19,2) NOT NULL,
+  order_type VARCHAR(16) NOT NULL DEFAULT 'LIMIT',
   status VARCHAR(32) NOT NULL,
   received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   idempotency_key VARCHAR(255)
@@ -60,11 +61,12 @@ CREATE TABLE orders (
 
 CREATE UNIQUE INDEX uq_orders_idempotency ON orders(idempotency_key);
 CREATE INDEX idx_orders_account ON orders(account_id);
-CREATE INDEX idx_orders_instrument ON orders(instrument_id);
 
 -- Optional: ensure sequences are set to start at an appropriate minimum if needed
 
 ALTER TABLE orders
+    ADD COLUMN IF NOT EXISTS ticker VARCHAR(64),
+    ADD COLUMN IF NOT EXISTS order_type VARCHAR(16) DEFAULT 'LIMIT',
     ADD COLUMN IF NOT EXISTS executed_price NUMERIC(18,8),
     ADD COLUMN IF NOT EXISTS executed_on TIMESTAMP WITH TIME ZONE,
     ADD COLUMN IF NOT EXISTS rejection_reason VARCHAR(255);
