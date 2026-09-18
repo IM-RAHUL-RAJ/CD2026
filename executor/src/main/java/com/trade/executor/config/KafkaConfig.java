@@ -4,6 +4,8 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,8 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class KafkaConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(KafkaConfig.class);
 
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
@@ -62,7 +66,14 @@ public class KafkaConfig {
 
         // Dead Letter Recoverer explicitly targeting <topic>.DLT (e.g. orders.DLT)
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
-                (record, ex) -> new org.apache.kafka.common.TopicPartition(record.topic() + ".DLT", record.partition()));
+                (record, ex) -> {
+                    String dltTopic = record.topic() + ".DLT";
+                    log.error("[DLT-SEND] Sending message to Dead Letter Topic: {} | Partition: {} | Offset: {} | Error: {}",
+                            dltTopic, record.partition(), record.offset(), ex.getMessage());
+                    log.error("[DLT-SEND] Message content: {}", record.value());
+                    log.error("[DLT-SEND] Exception details: ", ex);
+                    return new org.apache.kafka.common.TopicPartition(dltTopic, record.partition());
+                });
 
         // Exponential backoff for transient issues (1s, 2s, 4s, 8s, 16s)
         ExponentialBackOff backOff = new ExponentialBackOff(1_000L, 2.0);

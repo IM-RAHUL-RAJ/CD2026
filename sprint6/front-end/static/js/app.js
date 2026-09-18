@@ -102,7 +102,8 @@ const INSTRUMENT_MAP = {
   'MSFT': 2,
   'GOOG': 3,
   'AMZN': 4,
-  'TSLA': 5
+  'TSLA': 5,
+  'ABC': 999  // Invalid instrument for testing DLT
 };
 
 function generateIdempotencyKey(){

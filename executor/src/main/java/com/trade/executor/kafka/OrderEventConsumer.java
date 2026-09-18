@@ -189,8 +189,16 @@ public class OrderEventConsumer {
 
         // 3. Check instrument tradability status
         String instStatus = executionService.fetchInstrumentStatus(symbol);
-        if (instStatus != null && !"ACTIVE".equalsIgnoreCase(instStatus)) {
-            log.warn("Instrument {} is {}, rejecting order {}", symbol, instStatus, orderId);
+        if (instStatus == null) {
+            log.error("[ERROR] Instrument {} not found in database for order {}", symbol, orderId);
+            log.error("[REJECT] Marking order {} as REJECTED due to invalid instrument", orderId);
+            // Reject the order in the database first
+            executionService.reject(orderId, "INSTRUMENT_NOT_FOUND");
+            log.error("[DLT] Order {} will be sent to Dead Letter Topic - instrument not found: {}", orderId, symbol);
+            throw new NonRetryableOrderException("Instrument " + symbol + " not found - sending to DLT for order " + orderId);
+        }
+        if (!"ACTIVE".equalsIgnoreCase(instStatus)) {
+            log.warn("[*] Instrument {} is {}, rejecting order {}", symbol, instStatus, orderId);
             executionService.reject(orderId, "INSTRUMENT_NOT_ACTIVE");
             tradeEventPublisher.publishRejected(orderId, accountId, symbol, "INSTRUMENT_NOT_ACTIVE");
             ack.acknowledge();
