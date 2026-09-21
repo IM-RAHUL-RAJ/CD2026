@@ -20,3 +20,9 @@ fauxnance:
   api-key: ${FAUXNANCE_API_KEY:mock_api_key}
   base-url: ${FAUXNANCE_BASE_URL:http://localhost:8080}
   poll-interval-seconds: ${POLL_INTERVAL_SECONDS:60}
+
+# ETL Configuration (Sprint 7)
+etl:
+  enabled: ${ETL_ENABLED:true}
+  python-script-path: ${ETL_PYTHON_SCRIPT_PATH:etl_trigger_service.py}
+  python-executable: ${ETL_PYTHON_EXECUTABLE:python}

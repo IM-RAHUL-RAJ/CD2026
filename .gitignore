@@ -37,6 +37,8 @@ __pycache__/
 
 # Databases and local data dumps
 *.duckdb
+analytics.duckdb
+*.duckdb.wal
 *.sqlite
 *.sqlite3
 *.db

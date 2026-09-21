@@ -1,0 +1,409 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Akatsuki Trading Platform — Analytics</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+  <style>
+    body { background: #f5f6f8; overflow-x: hidden; }
+    .container.wide { max-width: 1060px; }
+
+    .banner {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px 20px;
+      margin: 16px 0 0; padding: 12px 16px;
+      background: #ffffff; border: 1px solid #ececef; border-radius: 10px;
+    }
+    .banner-left, .banner-right { display: flex; align-items: center; gap: 10px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #d32f2f; display: inline-block; }
+    .dot.live { animation: pulse 1.6s ease-in-out infinite; }
+    .dot.warn { background: #f59e0b; animation: pulse 0.9s ease-in-out infinite; }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(211,47,47,0.35); }
+      50% { box-shadow: 0 0 0 7px rgba(211,47,47,0); }
+    }
+    .status { font-size: 0.9rem; font-weight: 600; color: #111; }
+    .muted { font-size: 0.8rem; color: #6b7280; }
+
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+    .seg { display: inline-flex; background: #ffffff; border: 1px solid #ececef; border-radius: 9px; padding: 3px; }
+    .seg-btn {
+      padding: 7px 14px; border: none; border-radius: 7px; background: transparent;
+      color: #111; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+    }
+    .seg-btn:hover { background: #f5f6f8; }
+    .seg-btn.active { background: #111; color: #fff; }
+    select.interval {
+      padding: 7px 10px; background: #ffffff; border: 1px solid #ececef; border-radius: 9px;
+      color: #111; font-size: 0.85rem; cursor: pointer;
+    }
+    .hint { width: 100%; margin-top: 2px; font-size: 0.75rem; color: #9aa0a8; }
+
+    .stats-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+    .stat-card {
+      flex: 1; min-width: 150px; background: #ffffff; border: 1px solid #ececef;
+      border-radius: 12px; padding: 16px;
+      box-shadow: 0 1px 2px rgba(16,24,40,0.04);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(16,24,40,0.08); }
+    .stat-card .label { font-size: 0.72rem; letter-spacing: 0.6px; text-transform: uppercase; color: #7d8490; }
+    .stat-card .value { font-size: 1.6rem; font-weight: 700; margin-top: 6px; color: #111; }
+
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .chart-card { background: #ffffff; border: 1px solid #ececef; border-radius: 12px; padding: 14px 14px 6px; }
+    .chart-card.full { grid-column: 1 / -1; }
+    @media (max-width: 860px) { .chart-grid { grid-template-columns: 1fr; } }
+    .loading { color: #9aa0a8; font-size: 0.85rem; padding: 28px; text-align: center; }
+
+    .trades-card { background: #ffffff; border: 1px solid #ececef; border-radius: 12px; padding: 16px; margin-top: 16px; }
+    .section-label { font-size: 0.72rem; letter-spacing: 0.6px; text-transform: uppercase; color: #7d8490; padding-bottom: 10px; }
+    table.trades { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    table.trades th { text-align: left; font-size: 0.72rem; letter-spacing: 0.6px; text-transform: uppercase; color: #7d8490; padding: 8px 10px; border-bottom: 1px solid #efeff1; }
+    table.trades td { padding: 10px; border-bottom: 1px solid #f4f4f6; color: #1f2430; }
+    table.trades tr:last-child td { border-bottom: none; }
+    table.trades td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    table.trades th.num { text-align: right; }
+    table.trades tbody tr:hover { background: #fafbfc; }
+    .side.buy { color: #16a34a; font-weight: 600; }
+    .side.sell { color: #d32f2f; font-weight: 600; }
+    .pill { padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+    .pill.filled { background: #e8f6ee; color: #15803d; }
+    .pill.rejected { background: #fdecec; color: #c02020; }
+    .pill.pending { background: #e8f0fe; color: #1d4fd7; }
+    .pill.cancelled { background: #f0f1f3; color: #6b7280; }
+    .pill.new { background: #fdf3e0; color: #b45309; }
+
+    .new-trade { animation: slideIn .5s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <img src="/static/img/icon.jpeg" alt="Akatsuki logo">
+      <div>
+        <div class="brand"><span class="accent-dot"></span>Akatsuki Trading Platform</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container wide">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px">
+      <div class="nav">
+        <a href="/dashboard" class="btn secondary">Dashboard</a>
+        <a href="/analytics" class="btn secondary active">Analytics</a>
+      </div>
+      <a href="/" class="btn">Logout</a>
+    </div>
+
+    <div class="banner">
+      <span class="banner-left">
+        <span id="liveDot" class="dot live"></span>
+        <span id="dataBanner" class="status">Connecting…</span>
+      </span>
+      <span class="banner-right">
+        <span class="muted">last load <span id="statLastLoaded">—</span></span>
+        <span id="countdownText" class="muted">refresh in 0s</span>
+      </span>
+    </div>
+
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Chart control">
+        <button class="seg-btn" data-mode="zoom" onclick="setDragMode('zoom')">Zoom</button>
+        <button class="seg-btn" data-mode="pan" onclick="setDragMode('pan')">Pan</button>
+        <button class="seg-btn" onclick="resetViews()">Reset</button>
+      </div>
+      <div class="seg" role="group" aria-label="Refresh">
+        <button class="seg-btn" onclick="refreshAll()">Refresh now</button>
+        <select id="refreshSelect" class="interval" onchange="changeInterval(this.value)">
+          <option value="30">30 sec</option>
+          <option value="60">60 sec</option>
+          <option value="120">2 min</option>
+          <option value="300">5 min</option>
+        </select>
+      </div>
+      <span class="hint">Scroll to zoom &middot; drag to zoom or pan &middot; double-click to reset</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="label">Total trades</div><div class="value" id="statTotal">0</div></div>
+      <div class="stat-card"><div class="label">Total notional</div><div class="value" id="statNotional">$0</div></div>
+      <div class="stat-card"><div class="label">Filled trades</div><div class="value" id="statFilled">0</div></div>
+      <div class="stat-card"><div class="label">Fill rate</div><div class="value" id="statFillRate">0%</div></div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card full"><div class="loading" id="volChart">Loading trade volume…</div></div>
+      <div class="chart-card"><div class="loading" id="fillChart">Loading status mix…</div></div>
+      <div class="chart-card"><div class="loading" id="expChart">Loading exposure…</div></div>
+      <div class="chart-card full"><div class="loading" id="actChart">Loading activity…</div></div>
+    </div>
+
+    <div class="trades-card">
+      <div class="section-label">Recent trades</div>
+      <table class="trades">
+        <thead>
+          <tr>
+            <th>Time</th><th>Symbol</th><th>Side</th><th class="num">Qty</th><th class="num">Price</th><th>Status</th><th class="num">Value</th>
+          </tr>
+        </thead>
+        <tbody id="tradesBody"><tr><td colspan="7" class="loading">Waiting for trades…</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const POLL_DEFAULT = {{ refresh_seconds }};
+
+    const THEME = {
+      paper: '#ffffff', bg: '#fafbfc', font: '#15181d',
+      grid: '#edeff2', tick: '#8a90a0', axis: '#e6e8ea',
+      red: '#d32f2f', black: '#1f2430', blue: '#2563eb', green: '#16a34a', amber: '#b58a1f'
+    };
+    const STATUS_COLORS = { FILLED: '#16a34a', REJECTED: '#d32f2f', PENDING: '#2563eb', CANCELLED: '#8a90a0', NEW: '#f59e0b' };
+    const PALETTE = ['#d32f2f', '#1f2430', '#2563eb', '#16a34a'];
+    const CONFIG = {
+      scrollZoom: true, displayModeBar: false, responsive: true, displaylogo: false, doubleClick: 'reset'
+    };
+
+    const CHART_IDS = ['volChart', 'fillChart', 'expChart', 'actChart'];
+    const VOL_HEIGHT = 320, SIDE_HEIGHT = 300;
+
+    function axis() {
+      return { gridcolor: THEME.grid, zerolinecolor: THEME.grid, tickfont: { color: THEME.tick }, linecolor: THEME.axis };
+    }
+
+    // Legend rendered below the plot inside the empty bottom margin (no overlap).
+    function belowLegend() {
+      return { orientation: 'h', xanchor: 'center', x: 0.5, yanchor: 'top', y: -0.35, font: { color: THEME.font } };
+    }
+
+    function baseLayout(title, overrides) {
+      return Object.assign({
+        title: { text: title, font: { size: 15, color: THEME.font } },
+        paper_bgcolor: THEME.paper, plot_bgcolor: THEME.bg,
+        font: { family: 'Poppins, system-ui, sans-serif', color: THEME.font },
+        margin: { l: 56, r: 60, t: 56, b: 46 },
+        dragmode: 'zoom',
+        hovermode: 'closest',
+        hoverlabel: { bgcolor: '#ffffff', bordercolor: '#e6e8ea', font: { color: '#111' } },
+        xaxis: axis(), yaxis: axis()
+      }, overrides || {});
+    }
+
+    function renderVolume(gd, data) {
+      const traces = [
+        { type: 'bar', x: data.dates, y: data.notional, name: 'Notional',
+          marker: { color: 'rgba(211,47,47,0.85)' },
+          hovertemplate: '%{x}<br>$%{y:,.2f}<extra>Notional</extra>' },
+        { type: 'scatter', mode: 'lines+markers', x: data.dates, y: data.trades, name: 'Orders', yaxis: 'y2',
+          line: { color: THEME.black, width: 2.5 }, marker: { size: 6, color: THEME.red },
+          hovertemplate: '%{x}<br>%{y} orders<extra></extra>' }
+      ];
+      const layout = baseLayout('Trade value by day', {
+        height: VOL_HEIGHT, margin: { l: 60, r: 60, t: 56, b: 72 },
+        showlegend: true, legend: belowLegend(),
+        yaxis: Object.assign(axis(), { tickprefix: '$' }),
+        yaxis2: { overlaying: 'y', side: 'right', showgrid: false, tickfont: { color: THEME.black } }
+      });
+      Plotly.react(gd, traces, layout, CONFIG);
+    }
+
+    function renderFillRate(gd, data) {
+      const colors = data.statuses.map(s => STATUS_COLORS[s] || '#8a90a0');
+      const traces = [{
+        type: 'pie', labels: data.statuses, values: data.counts, hole: 0.55,
+        marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
+        textinfo: 'percent', textposition: 'inside', textfont: { color: '#ffffff' },
+        hovertemplate: '%{label}: %{value} (<b>%{percent}</b>)<extra></extra>'
+      }];
+      const layout = baseLayout('Order status mix', {
+        height: SIDE_HEIGHT, margin: { l: 20, r: 20, t: 56, b: 72 },
+        showlegend: true, legend: belowLegend()
+      });
+      Plotly.react(gd, traces, layout, CONFIG);
+    }
+
+    function renderExposure(gd, data) {
+      const max = Math.max(...data.exposure, 1);
+      const colors = data.exposure.map(v => 'rgba(211,47,47,' + (0.25 + 0.75 * v / max).toFixed(2) + ')');
+      const traces = [{
+        type: 'bar', x: data.exposure, y: data.symbols, orientation: 'h',
+        marker: { color: colors }, texttemplate: '$%{x:,.0f}', textposition: 'outside',
+        textfont: { color: '#1f2430' },
+        hovertemplate: '%{y}: $%{x:,.2f}<extra></extra>'
+      }];
+      const layout = baseLayout('Instrument exposure', {
+        height: SIDE_HEIGHT, margin: { l: 72, r: 84, t: 56, b: 40 },
+        xaxis: Object.assign(axis(), { tickprefix: '$', showgrid: false }),
+        yaxis: Object.assign(axis(), { showgrid: false })
+      });
+      Plotly.react(gd, traces, layout, CONFIG);
+    }
+
+    function renderActivity(gd, data) {
+      const traces = data.series.map((s, i) => ({
+        type: 'scatter', mode: 'lines+markers', name: s.name,
+        x: s.dates, y: s.trades,
+        line: { color: PALETTE[i % PALETTE.length], width: 2.5 }, marker: { size: 6 },
+        hovertemplate: '%{x}<br>%{y} trades<extra>%{fullData.name}</extra>'
+      }));
+      const layout = baseLayout('Account activity', {
+        height: VOL_HEIGHT, margin: { l: 60, r: 40, t: 56, b: 72 },
+        showlegend: true, legend: belowLegend()
+      });
+      Plotly.react(gd, traces, layout, CONFIG);
+    }
+
+    function animateStat(el, target, fmt) {
+      const start = parseFloat(el.dataset.value || '0');
+      el.dataset.value = target;
+      if (target === start) { el.textContent = fmt(target); return; }
+      const duration = 650, begin = performance.now();
+      function step(now) {
+        const p = Math.min(1, (now - begin) / duration);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(start + (target - start) * eased);
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function money(v) { return '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+    function renderStats(stats) {
+      animateStat(document.getElementById('statTotal'), stats.total_trades, v => Math.round(v).toLocaleString());
+      animateStat(document.getElementById('statNotional'), stats.total_notional, money);
+      animateStat(document.getElementById('statFilled'), stats.filled_trades, v => Math.round(v).toLocaleString());
+      animateStat(document.getElementById('statFillRate'), stats.fill_rate, v => v.toFixed(1) + '%');
+      const lastLoaded = document.getElementById('statLastLoaded');
+      if (lastLoaded) lastLoaded.textContent = stats.last_loaded || '—';
+    }
+
+    let tradesInitialized = false;
+    function renderTrades(rows) {
+      const tbody = document.getElementById('tradesBody');
+      const known = tbody.getAttribute('data-ids') ? tbody.getAttribute('data-ids').split(',') : [];
+      const ids = [];
+      let html = '';
+      for (const t of rows) {
+        ids.push(t.order_id);
+        const isNew = tradesInitialized && !known.includes(t.order_id);
+        html += '<tr class="' + (isNew ? 'new-trade' : '') + '">' +
+          '<td>' + t.time + '</td>' +
+          '<td class="sym">' + t.symbol + '</td>' +
+          '<td class="side ' + t.side.toLowerCase() + '">' + t.side + '</td>' +
+          '<td class="num">' + t.quantity + '</td>' +
+          '<td class="num">' + money(t.price) + '</td>' +
+          '<td><span class="pill ' + t.status.toLowerCase() + '">' + t.status + '</span></td>' +
+          '<td class="num">' + money(t.value) + '</td>' +
+          '</tr>';
+      }
+      tbody.innerHTML = html;
+      tbody.setAttribute('data-ids', ids.join(','));
+      tradesInitialized = true;
+    }
+
+    async function refreshAll() {
+      let errors = 0;
+      const banner = document.getElementById('dataBanner');
+      const dot = document.getElementById('liveDot');
+      banner.textContent = 'Refreshing…';
+
+      try {
+        const res = await fetch('/api/analytics/stats');
+        if (res.ok) { renderStats(await res.json()); } else { errors++; }
+      } catch (e) { errors++; }
+
+      const jobs = [
+        ['volChart', '/api/analytics/trade-volume', renderVolume],
+        ['fillChart', '/api/analytics/fill-rate', renderFillRate],
+        ['expChart', '/api/analytics/instrument-exposure', renderExposure],
+        ['actChart', '/api/analytics/account-activity', renderActivity]
+      ];
+      for (const [id, url, render] of jobs) {
+        const gd = document.getElementById(id);
+        if (!gd) continue;
+        try {
+          const res = await fetch(url);
+          if (res.ok) { render(gd, await res.json()); }
+          else { gd.innerHTML = '<div class="loading">No data yet.</div>'; errors++; }
+        } catch (e) { errors++; }
+      }
+
+      try {
+        const res = await fetch('/api/analytics/recent-trades');
+        if (res.ok) {
+          const payload = await res.json();
+          if (payload.trades) renderTrades(payload.trades);
+        } else { errors++; }
+      } catch (e) { errors++; }
+
+      if (errors) {
+        banner.textContent = 'Live — waiting on the ETL to load more data';
+        dot.classList.add('warn'); dot.classList.remove('live');
+      } else {
+        banner.textContent = 'All systems live';
+        dot.classList.add('live'); dot.classList.remove('warn');
+      }
+    }
+
+    let refreshSeconds = parseInt(localStorage.getItem('analyticsRefreshSeconds')) || POLL_DEFAULT;
+    let countdown = refreshSeconds;
+    let timer = null;
+
+    function syncIntervalSelect() {
+      document.getElementById('refreshSelect').value = String(refreshSeconds);
+      countdown = refreshSeconds;
+    }
+
+    function startTimer() {
+      timer = setInterval(() => {
+        countdown -= 1;
+        if (countdown <= 0) { countdown = refreshSeconds; refreshAll(); }
+        document.getElementById('countdownText').textContent = 'refresh in ' + countdown + 's';
+      }, 1000);
+    }
+
+    function changeInterval(value) {
+      refreshSeconds = parseInt(value, 10);
+      localStorage.setItem('analyticsRefreshSeconds', String(refreshSeconds));
+      clearInterval(timer);
+      syncIntervalSelect();
+      startTimer();
+      refreshAll();
+    }
+
+    function setDragMode(mode) {
+      for (const id of CHART_IDS) {
+        const gd = document.getElementById(id);
+        if (gd && gd._fullLayout) Plotly.relayout(gd, { dragmode: mode });
+      }
+      document.querySelectorAll('.seg-btn[data-mode]').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+      });
+    }
+
+    function resetViews() {
+      for (const id of CHART_IDS) {
+        const gd = document.getElementById(id);
+        if (gd && gd._fullLayout) {
+          Plotly.relayout(gd, {
+            'xaxis.autorange': true, 'yaxis.autorange': true, 'yaxis2.autorange': true
+          });
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      syncIntervalSelect();
+      document.querySelector('.seg-btn[data-mode=zoom]').classList.add('active');
+      refreshAll();
+      startTimer();
+    });
+  </script>
+</body>
+</html>
