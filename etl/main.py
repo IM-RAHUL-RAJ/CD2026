@@ -63,12 +63,12 @@ def main() -> None:
 
             event_type = message.get("eventType", "")
 
-            if event_type == "TRADE_EXECUTED":
+            if event_type in ("TRADE_EXECUTED", "ORDER_FILLED"):
                 payload = message.get("payload", {})
-                account_id = payload.get("accountId")
-                if account_id:
+                account_id = payload.get("accountId") or payload.get("account_id")
+                if account_id is not None:
                     aggregator.record_trade(int(account_id))
-                    log.debug("Recorded TRADE_EXECUTED for account %s", account_id)
+                    log.info("Recorded %s event for account %s", event_type, account_id)
 
             # Flush periodically
             now = time.monotonic()
