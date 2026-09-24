@@ -5,12 +5,12 @@ spring:
   application:
     name: trade-executor
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:trading_db}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:trading_system_db}?currentSchema=trading
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.8.68.169:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.8.71.240:9092}
     consumer:
       group-id: trade-executor
       enable-auto-commit: false

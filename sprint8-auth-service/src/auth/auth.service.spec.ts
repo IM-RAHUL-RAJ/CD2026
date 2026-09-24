@@ -81,7 +81,7 @@ describe('AuthService', () => {
       });
     });
 
-    it('creates the user and trading account in one transaction and returns tokens', async () => {
+    it('creates the user and trading account in one transaction but returns NO tokens', async () => {
       const client = {
         query: jest.fn(),
         release: jest.fn(),
@@ -126,9 +126,15 @@ describe('AuthService', () => {
         expect.stringContaining('INSERT INTO trading.account'),
         expect.any(Array),
       );
-      expect(result.accessToken).toBeTruthy();
+      expect(result.message).toContain('sign in');
       expect(result.user.accountId).toBe(42);
       expect(result.user.roles).toEqual(['CUSTOMER']);
+      expect(result).not.toHaveProperty('accessToken');
+      expect(result).not.toHaveProperty('refreshToken');
+      expect(client.query).not.toHaveBeenCalledWith(
+        expect.stringContaining('INSERT INTO auth.refresh_token'),
+        expect.any(Array),
+      );
     });
   });
 

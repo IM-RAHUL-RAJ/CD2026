@@ -1,0 +1,647 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.3)
+
+2026-09-24T08:46:33.239Z  INFO 11372 --- [trade-executor] [           main] c.t.executor.TradeExecutorApplication    : Starting TradeExecutorApplication v1.0-SNAPSHOT using Java 21.0.12.1 with PID 11372 (C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\executor\target\trade-executor-1.0-SNAPSHOT.jar started by Administrator in C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\executor)
+2026-09-24T08:46:33.247Z  INFO 11372 --- [trade-executor] [           main] c.t.executor.TradeExecutorApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-09-24T08:46:35.075Z  INFO 11372 --- [trade-executor] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8083 (http)
+2026-09-24T08:46:35.095Z  INFO 11372 --- [trade-executor] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-24T08:46:35.098Z  INFO 11372 --- [trade-executor] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-09-24T08:46:35.143Z  INFO 11372 --- [trade-executor] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-24T08:46:35.147Z  INFO 11372 --- [trade-executor] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1826 ms
+2026-09-24T08:46:36.188Z  INFO 11372 --- [trade-executor] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8083 (http) with context path '/'
+2026-09-24T08:46:36.286Z  INFO 11372 --- [trade-executor] [           main] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [10.8.71.240:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-trade-executor-1
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = trade-executor
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_committed
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+
+2026-09-24T08:46:36.366Z  INFO 11372 --- [trade-executor] [           main] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-09-24T08:46:36.670Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
+2026-09-24T08:46:36.674Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
+2026-09-24T08:46:36.677Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1790239596669
+2026-09-24T08:46:36.685Z  INFO 11372 --- [trade-executor] [           main] o.a.k.c.c.internals.LegacyKafkaConsumer  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Subscribed to topic(s): orders
+2026-09-24T08:46:36.695Z  INFO 11372 --- [trade-executor] [           main] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [10.8.71.240:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-trade-executor-2
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = trade-executor
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_committed
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+
+2026-09-24T08:46:36.698Z  INFO 11372 --- [trade-executor] [           main] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-09-24T08:46:36.717Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
+2026-09-24T08:46:36.719Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
+2026-09-24T08:46:36.721Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1790239596717
+2026-09-24T08:46:36.724Z  INFO 11372 --- [trade-executor] [           main] o.a.k.c.c.internals.LegacyKafkaConsumer  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Subscribed to topic(s): orders
+2026-09-24T08:46:36.727Z  INFO 11372 --- [trade-executor] [           main] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [10.8.71.240:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-trade-executor-3
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = trade-executor
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_committed
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+
+2026-09-24T08:46:36.730Z  INFO 11372 --- [trade-executor] [           main] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-09-24T08:46:36.747Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
+2026-09-24T08:46:36.750Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
+2026-09-24T08:46:36.752Z  INFO 11372 --- [trade-executor] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1790239596747
+2026-09-24T08:46:36.754Z  INFO 11372 --- [trade-executor] [           main] o.a.k.c.c.internals.LegacyKafkaConsumer  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Subscribed to topic(s): orders
+2026-09-24T08:46:36.781Z  INFO 11372 --- [trade-executor] [           main] c.t.executor.TradeExecutorApplication    : Started TradeExecutorApplication in 4.352 seconds (process running for 5.113)
+2026-09-24T08:46:36.795Z  INFO 11372 --- [trade-executor] [           main] c.t.executor.config.EtlStartupRunner     : Starting ETL trigger service: python C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\executor\etl_trigger_service.py (logs -> C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\executor\etl_trigger_service.log)
+2026-09-24T08:46:36.801Z  INFO 11372 --- [trade-executor] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-24T08:46:36.817Z  INFO 11372 --- [trade-executor] [           main] c.t.executor.config.EtlStartupRunner     : ETL trigger service started (pid 4240)
+2026-09-24T08:46:37.497Z  INFO 11372 --- [trade-executor] [   scheduling-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@186a4999
+2026-09-24T08:46:37.501Z  INFO 11372 --- [trade-executor] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-24T08:46:37.532Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.poller.MarketDataPoller     : [*] Polling Fauxnance for 1 tickers with NEW orders
+2026-09-24T08:46:37.567Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Cluster ID: 5L6g3nShT-eMCtK--X86sw
+2026-09-24T08:46:37.571Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Discovered group coordinator 10.8.71.240:9092 (id: 2147483646 rack: null)
+2026-09-24T08:46:37.567Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Cluster ID: 5L6g3nShT-eMCtK--X86sw
+2026-09-24T08:46:37.568Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Cluster ID: 5L6g3nShT-eMCtK--X86sw
+2026-09-24T08:46:37.586Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] (Re-)joining group
+2026-09-24T08:46:37.585Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Discovered group coordinator 10.8.71.240:9092 (id: 2147483646 rack: null)
+2026-09-24T08:46:37.587Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Discovered group coordinator 10.8.71.240:9092 (id: 2147483646 rack: null)
+2026-09-24T08:46:37.591Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] (Re-)joining group
+2026-09-24T08:46:37.593Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] (Re-)joining group
+2026-09-24T08:46:37.612Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Request joining group due to: need to re-join with the given member-id: consumer-trade-executor-3-aafdfbc3-21a0-4697-80b7-abd13b40435c
+2026-09-24T08:46:37.614Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Request joining group due to: need to re-join with the given member-id: consumer-trade-executor-1-da74de12-b971-4815-b395-6a3612d15d09
+2026-09-24T08:46:37.614Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] (Re-)joining group
+2026-09-24T08:46:37.616Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Request joining group due to: need to re-join with the given member-id: consumer-trade-executor-2-f3dc46fa-0d27-49e3-87f6-2a7044b0fdf0
+2026-09-24T08:46:37.617Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] (Re-)joining group
+2026-09-24T08:46:37.626Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] (Re-)joining group
+2026-09-24T08:46:38.749Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.domain.FillRuleEvaluator    : [*] FillRuleEvaluator.evaluate() called: side=BUY, qty=100, limitPrice=0.00, orderType=MARKET (normalized=MARKET)
+2026-09-24T08:46:38.751Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.domain.FillRuleEvaluator    :     Full Quote: symbol=AAPL, price=337.02, bid=null, ask=null, stale=false
+2026-09-24T08:46:38.753Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.domain.FillRuleEvaluator    : [*] Quote available and fresh: symbol=AAPL, price=337.02, bid=null, ask=null
+2026-09-24T08:46:38.755Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.domain.FillRuleEvaluator    : [*] BUY order: ask=null, price=337.02, limitPrice=0.00, isMarketOrder=true
+2026-09-24T08:46:38.757Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.poller.MarketDataPoller     : [*] Order 3 price condition MET during polling, executing at 337.02 (ticker=AAPL)
+2026-09-24T08:46:38.771Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [*] UPDATE query: executed_price=337.02, executed_on=2026-09-24T08:46:38.770890Z, orderId=3
+2026-09-24T08:46:38.773Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [*] executedPrice type: java.math.BigDecimal, value: 337.02, scale: 2
+2026-09-24T08:46:38.775Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [*] After setScale: value=337.02000000, scale=8, toPlainString=337.02000000
+2026-09-24T08:46:38.788Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [OK] Update result: 1 rows affected
+2026-09-24T08:46:38.791Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [VERIFY] Order 3 in DB: status=FILLED, executed_price=337.02000000, type=java.math.BigDecimal
+2026-09-24T08:46:38.793Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [*] Updating account cash: current=100000.00, delta=-33702.00, new=66298.00, version=1
+2026-09-24T08:46:38.796Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [OK] Account cash updated: 1 rows affected
+2026-09-24T08:46:38.799Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [*] Upserting holding: accountId=6, ticker=AAPL, newQty=100, newAvgCost=337.02
+2026-09-24T08:46:38.802Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : [OK] Holding upserted: 1 rows affected
+2026-09-24T08:46:38.804Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.service.ExecutionService    : Settled order 3 for account 6: side=BUY qty=100 price=337.02
+2026-09-24T08:46:38.813Z ERROR 11372 --- [trade-executor] [   scheduling-1] c.t.executor.poller.MarketDataPoller     : [ERROR] Failed to publish market-data event for symbol AAPL: null
+2026-09-24T08:46:38.815Z  INFO 11372 --- [trade-executor] [   scheduling-1] c.t.executor.poller.MarketDataPoller     : [OK] Polling complete: updated cache, attempted to execute 1 pending orders
+2026-09-24T08:46:40.624Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Successfully joined group with generation Generation{generationId=3, memberId='consumer-trade-executor-3-aafdfbc3-21a0-4697-80b7-abd13b40435c', protocol='range'}
+2026-09-24T08:46:40.624Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Successfully joined group with generation Generation{generationId=3, memberId='consumer-trade-executor-2-f3dc46fa-0d27-49e3-87f6-2a7044b0fdf0', protocol='range'}
+2026-09-24T08:46:40.624Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Successfully joined group with generation Generation{generationId=3, memberId='consumer-trade-executor-1-da74de12-b971-4815-b395-6a3612d15d09', protocol='range'}
+2026-09-24T08:46:40.635Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Finished assignment for group at generation 3: {consumer-trade-executor-2-f3dc46fa-0d27-49e3-87f6-2a7044b0fdf0=Assignment(partitions=[orders-1]), consumer-trade-executor-3-aafdfbc3-21a0-4697-80b7-abd13b40435c=Assignment(partitions=[orders-2]), consumer-trade-executor-1-da74de12-b971-4815-b395-6a3612d15d09=Assignment(partitions=[orders-0])}
+2026-09-24T08:46:40.643Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Successfully synced group in generation Generation{generationId=3, memberId='consumer-trade-executor-3-aafdfbc3-21a0-4697-80b7-abd13b40435c', protocol='range'}
+2026-09-24T08:46:40.643Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Successfully synced group in generation Generation{generationId=3, memberId='consumer-trade-executor-2-f3dc46fa-0d27-49e3-87f6-2a7044b0fdf0', protocol='range'}
+2026-09-24T08:46:40.643Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Successfully synced group in generation Generation{generationId=3, memberId='consumer-trade-executor-1-da74de12-b971-4815-b395-6a3612d15d09', protocol='range'}
+2026-09-24T08:46:40.645Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Notifying assignor about the new Assignment(partitions=[orders-2])
+2026-09-24T08:46:40.647Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Notifying assignor about the new Assignment(partitions=[orders-1])
+2026-09-24T08:46:40.649Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Notifying assignor about the new Assignment(partitions=[orders-0])
+2026-09-24T08:46:40.653Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Adding newly assigned partitions: orders-2
+2026-09-24T08:46:40.653Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Adding newly assigned partitions: orders-1
+2026-09-24T08:46:40.654Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Adding newly assigned partitions: orders-0
+2026-09-24T08:46:40.671Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Found no committed offset for partition orders-0
+2026-09-24T08:46:40.671Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Found no committed offset for partition orders-2
+2026-09-24T08:46:40.674Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.a.k.c.c.internals.ConsumerUtils        : Setting offset for partition orders-1 to the committed offset FetchPosition{offset=1, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[10.8.71.240:9092 (id: 1 rack: null)], epoch=2}}
+2026-09-24T08:46:40.679Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] o.s.k.l.KafkaMessageListenerContainer    : trade-executor: partitions assigned: [orders-1]
+2026-09-24T08:46:40.688Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Resetting offset for partition orders-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[10.8.71.240:9092 (id: 1 rack: null)], epoch=2}}.
+2026-09-24T08:46:40.690Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] o.s.k.l.KafkaMessageListenerContainer    : trade-executor: partitions assigned: [orders-2]
+2026-09-24T08:46:40.688Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Resetting offset for partition orders-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[10.8.71.240:9092 (id: 1 rack: null)], epoch=2}}.
+2026-09-24T08:46:40.695Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : trade-executor: partitions assigned: [orders-0]
+2026-09-24T08:50:27.438Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ===== CONSUMER RECEIVED MESSAGE =====
+2026-09-24T08:50:27.440Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : Raw message: "{\"eventId\":\"90c4f092-f3f7-487a-b54e-cd21c9fb9fa3\",\"eventType\":\"ORDER_PLACED\",\"eventTime\":\"2026-09-24T08:50:27.3913491Z\",\"source\":\"trade-api\",\"schemaVersion\":1,\"payload\":{\"orderId\":\"4\",\"accountId\":1,\"symbol\":\"AAPL\",\"side\":\"BUY\",\"quantity\":5,\"price\":0,\"idempotencyKey\":\"fill-e2e-3de6f3072ac64581ba9ee08f2ed86fb0\",\"createdOn\":\"2026-09-24T08:50:27.3862532Z\"}}"
+2026-09-24T08:50:27.442Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing JSON...
+2026-09-24T08:50:27.444Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Detected double-encoded JSON, parsing again...
+2026-09-24T08:50:27.447Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ JSON parsed
+2026-09-24T08:50:27.449Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Root is ObjectNode: true
+2026-09-24T08:50:27.451Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Root keys: java.util.LinkedHashMap$LinkedKeyIterator@1a93d6fe
+2026-09-24T08:50:27.469Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Root JSON: {
+  "eventId" : "90c4f092-f3f7-487a-b54e-cd21c9fb9fa3",
+  "eventType" : "ORDER_PLACED",
+  "eventTime" : "2026-09-24T08:50:27.3913491Z",
+  "source" : "trade-api",
+  "schemaVersion" : 1,
+  "payload" : {
+    "orderId" : "4",
+    "accountId" : 1,
+    "symbol" : "AAPL",
+    "side" : "BUY",
+    "quantity" : 5,
+    "price" : 0,
+    "idempotencyKey" : "fill-e2e-3de6f3072ac64581ba9ee08f2ed86fb0",
+    "createdOn" : "2026-09-24T08:50:27.3862532Z"
+  }
+}
+2026-09-24T08:50:27.471Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Checking eventType...
+2026-09-24T08:50:27.473Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   eventType='ORDER_PLACED'
+2026-09-24T08:50:27.475Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Extracting payload...
+2026-09-24T08:50:27.478Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Payload extracted
+2026-09-24T08:50:27.479Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing orderId...
+2026-09-24T08:50:27.481Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   orderIdStr='4'
+2026-09-24T08:50:27.483Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ orderId parsed: 4
+2026-09-24T08:50:27.485Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Parsed orderId=4
+2026-09-24T08:50:27.487Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing accountId...
+2026-09-24T08:50:27.489Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   accountId=1
+2026-09-24T08:50:27.492Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ accountId parsed: 1
+2026-09-24T08:50:27.494Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing symbol...
+2026-09-24T08:50:27.496Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   symbol=AAPL
+2026-09-24T08:50:27.498Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing side, quantity, price...
+2026-09-24T08:50:27.500Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   side=BUY, quantity=5
+2026-09-24T08:50:27.501Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   price=0
+2026-09-24T08:50:27.504Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ limitPrice parsed: 0
+2026-09-24T08:50:27.506Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ All fields parsed successfully
+2026-09-24T08:50:27.508Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Fetching order 4 from DB
+2026-09-24T08:50:27.511Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Successfully fetched order 4
+2026-09-24T08:50:27.513Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Order 4 current status: NEW
+2026-09-24T08:50:27.516Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Fetching quote for symbol AAPL from Fauxnance API...
+2026-09-24T08:50:27.601Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [OK] Quote from API: price=337.02, bid=null, ask=null, stale=false
+2026-09-24T08:50:27.603Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [GOOD] Quote is fresh for symbol AAPL
+2026-09-24T08:50:27.607Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Order type: MARKET (trimmed & uppercase)
+2026-09-24T08:50:27.609Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Evaluating fill decision: side=BUY, qty=5, limitPrice=0, orderType=MARKET
+2026-09-24T08:50:27.611Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :     Quote: price=337.02, bid=null, ask=null, stale=false
+2026-09-24T08:50:27.613Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    : [*] FillRuleEvaluator.evaluate() called: side=BUY, qty=5, limitPrice=0, orderType=MARKET (normalized=MARKET)
+2026-09-24T08:50:27.615Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    :     Full Quote: symbol=AAPL, price=337.02, bid=null, ask=null, stale=false
+2026-09-24T08:50:27.617Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    : [*] Quote available and fresh: symbol=AAPL, price=337.02, bid=null, ask=null
+2026-09-24T08:50:27.619Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    : [*] BUY order: ask=null, price=337.02, limitPrice=0, isMarketOrder=true
+2026-09-24T08:50:27.621Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Fill decision result: status=FILLED, executedPrice=337.02, reason=null
+2026-09-24T08:50:27.623Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Settling order 4...
+2026-09-24T08:50:27.625Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   → FILL decision, executing settle()
+2026-09-24T08:50:27.630Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] UPDATE query: executed_price=337.02, executed_on=2026-09-24T08:50:27.630532500Z, orderId=4
+2026-09-24T08:50:27.633Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] executedPrice type: java.math.BigDecimal, value: 337.02, scale: 2
+2026-09-24T08:50:27.634Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] After setScale: value=337.02000000, scale=8, toPlainString=337.02000000
+2026-09-24T08:50:27.637Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [OK] Update result: 1 rows affected
+2026-09-24T08:50:27.640Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [VERIFY] Order 4 in DB: status=FILLED, executed_price=337.02000000, type=java.math.BigDecimal
+2026-09-24T08:50:27.642Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] Updating account cash: current=100000.00, delta=-1685.10, new=98314.90, version=1
+2026-09-24T08:50:27.644Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [OK] Account cash updated: 1 rows affected
+2026-09-24T08:50:27.646Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] Upserting holding: accountId=1, ticker=AAPL, newQty=55, newAvgCost=167.00
+2026-09-24T08:50:27.650Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [OK] Holding upserted: 1 rows affected
+2026-09-24T08:50:27.651Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : Settled order 4 for account 1: side=BUY qty=5 price=337.02
+2026-09-24T08:50:27.655Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Order 4 settled in DB
+2026-09-24T08:50:27.706Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.clients.producer.ProducerConfig    : ProducerConfig values: 
+	acks = -1
+	auto.include.jmx.reporter = true
+	batch.size = 16384
+	bootstrap.servers = [10.8.71.240:9092]
+	buffer.memory = 33554432
+	client.dns.lookup = use_all_dns_ips
+	client.id = trade-executor-producer-1
+	compression.gzip.level = -1
+	compression.lz4.level = 9
+	compression.type = none
+	compression.zstd.level = 3
+	connections.max.idle.ms = 540000
+	delivery.timeout.ms = 120000
+	enable.idempotence = true
+	enable.metrics.push = true
+	interceptor.classes = []
+	key.serializer = class org.apache.kafka.common.serialization.StringSerializer
+	linger.ms = 0
+	max.block.ms = 60000
+	max.in.flight.requests.per.connection = 5
+	max.request.size = 1048576
+	metadata.max.age.ms = 300000
+	metadata.max.idle.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partitioner.adaptive.partitioning.enable = true
+	partitioner.availability.timeout.ms = 0
+	partitioner.class = null
+	partitioner.ignore.keys = false
+	receive.buffer.bytes = 32768
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retries = 2147483647
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	transaction.timeout.ms = 60000
+	transactional.id = null
+	value.serializer = class org.apache.kafka.common.serialization.StringSerializer
+
+2026-09-24T08:50:27.709Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-09-24T08:50:27.724Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.k.clients.producer.KafkaProducer     : [Producer clientId=trade-executor-producer-1] Instantiated an idempotent producer.
+2026-09-24T08:50:27.752Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
+2026-09-24T08:50:27.754Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
+2026-09-24T08:50:27.756Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1790239827752
+2026-09-24T08:50:27.779Z  INFO 11372 --- [trade-executor] [utor-producer-1] org.apache.kafka.clients.Metadata        : [Producer clientId=trade-executor-producer-1] Cluster ID: 5L6g3nShT-eMCtK--X86sw
+2026-09-24T08:50:27.782Z  INFO 11372 --- [trade-executor] [utor-producer-1] o.a.k.c.p.internals.TransactionManager   : [Producer clientId=trade-executor-producer-1] ProducerId set to 1 with epoch 0
+2026-09-24T08:50:27.808Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : Order 4 FILLED at price 337.02
+2026-09-24T08:50:27.816Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Acknowledging offset for orderId 4
+2026-09-24T08:50:27.825Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓✓✓ ORDER 4 COMPLETE ✓✓✓
+
+2026-09-24T08:55:37.651Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Node -1 disconnected.
+2026-09-24T08:55:37.849Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Node -1 disconnected.
+2026-09-24T08:55:37.856Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Node -1 disconnected.
+2026-09-24T08:59:27.785Z  INFO 11372 --- [trade-executor] [utor-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-executor-producer-1] Node -1 disconnected.
+2026-09-24T09:01:45.164Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ===== CONSUMER RECEIVED MESSAGE =====
+2026-09-24T09:01:45.167Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : Raw message: "{\"eventId\":\"ab24c237-80f0-417b-b8d1-9a28c5a42d41\",\"eventType\":\"ORDER_PLACED\",\"eventTime\":\"2026-09-24T09:01:44.268353Z\",\"source\":\"trade-api\",\"schemaVersion\":1,\"payload\":{\"orderId\":\"5\",\"accountId\":1,\"symbol\":\"AAPL\",\"side\":\"SELL\",\"quantity\":2,\"price\":0,\"idempotencyKey\":\"fill-e2e-b95e64f4dab848b6a342da201d679477\",\"createdOn\":\"2026-09-24T09:01:44.2577142Z\"}}"
+2026-09-24T09:01:45.169Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing JSON...
+2026-09-24T09:01:45.171Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Detected double-encoded JSON, parsing again...
+2026-09-24T09:01:45.173Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ JSON parsed
+2026-09-24T09:01:45.175Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Root is ObjectNode: true
+2026-09-24T09:01:45.177Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Root keys: java.util.LinkedHashMap$LinkedKeyIterator@18aa0487
+2026-09-24T09:01:45.179Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Root JSON: {
+  "eventId" : "ab24c237-80f0-417b-b8d1-9a28c5a42d41",
+  "eventType" : "ORDER_PLACED",
+  "eventTime" : "2026-09-24T09:01:44.268353Z",
+  "source" : "trade-api",
+  "schemaVersion" : 1,
+  "payload" : {
+    "orderId" : "5",
+    "accountId" : 1,
+    "symbol" : "AAPL",
+    "side" : "SELL",
+    "quantity" : 2,
+    "price" : 0,
+    "idempotencyKey" : "fill-e2e-b95e64f4dab848b6a342da201d679477",
+    "createdOn" : "2026-09-24T09:01:44.2577142Z"
+  }
+}
+2026-09-24T09:01:45.181Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Checking eventType...
+2026-09-24T09:01:45.184Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   eventType='ORDER_PLACED'
+2026-09-24T09:01:45.186Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Extracting payload...
+2026-09-24T09:01:45.188Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Payload extracted
+2026-09-24T09:01:45.189Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing orderId...
+2026-09-24T09:01:45.191Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   orderIdStr='5'
+2026-09-24T09:01:45.193Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ orderId parsed: 5
+2026-09-24T09:01:45.195Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Parsed orderId=5
+2026-09-24T09:01:45.197Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing accountId...
+2026-09-24T09:01:45.199Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   accountId=1
+2026-09-24T09:01:45.201Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ accountId parsed: 1
+2026-09-24T09:01:45.203Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing symbol...
+2026-09-24T09:01:45.205Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   symbol=AAPL
+2026-09-24T09:01:45.208Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Parsing side, quantity, price...
+2026-09-24T09:01:45.210Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   side=SELL, quantity=2
+2026-09-24T09:01:45.212Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   price=0
+2026-09-24T09:01:45.214Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ limitPrice parsed: 0
+2026-09-24T09:01:45.216Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ All fields parsed successfully
+2026-09-24T09:01:45.217Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Fetching order 5 from DB
+2026-09-24T09:01:45.221Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Successfully fetched order 5
+2026-09-24T09:01:45.222Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Order 5 current status: NEW
+2026-09-24T09:01:45.225Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Fetching quote for symbol AAPL from Fauxnance API...
+2026-09-24T09:01:45.341Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [OK] Quote from API: price=337.02, bid=null, ask=null, stale=false
+2026-09-24T09:01:45.343Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [GOOD] Quote is fresh for symbol AAPL
+2026-09-24T09:01:45.346Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   Order type: MARKET (trimmed & uppercase)
+2026-09-24T09:01:45.348Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Evaluating fill decision: side=SELL, qty=2, limitPrice=0, orderType=MARKET
+2026-09-24T09:01:45.350Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :     Quote: price=337.02, bid=null, ask=null, stale=false
+2026-09-24T09:01:45.352Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    : [*] FillRuleEvaluator.evaluate() called: side=SELL, qty=2, limitPrice=0, orderType=MARKET (normalized=MARKET)
+2026-09-24T09:01:45.354Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    :     Full Quote: symbol=AAPL, price=337.02, bid=null, ask=null, stale=false
+2026-09-24T09:01:45.356Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    : [*] Quote available and fresh: symbol=AAPL, price=337.02, bid=null, ask=null
+2026-09-24T09:01:45.358Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.domain.FillRuleEvaluator    : [*] SELL order: bid=null, price=337.02, limitPrice=0, isMarketOrder=true
+2026-09-24T09:01:45.360Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Fill decision result: status=FILLED, executedPrice=337.02, reason=null
+2026-09-24T09:01:45.362Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : [*] Settling order 5...
+2026-09-24T09:01:45.364Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    :   → FILL decision, executing settle()
+2026-09-24T09:01:45.366Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] UPDATE query: executed_price=337.02, executed_on=2026-09-24T09:01:45.366190200Z, orderId=5
+2026-09-24T09:01:45.368Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] executedPrice type: java.math.BigDecimal, value: 337.02, scale: 2
+2026-09-24T09:01:45.370Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] After setScale: value=337.02000000, scale=8, toPlainString=337.02000000
+2026-09-24T09:01:45.372Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [OK] Update result: 1 rows affected
+2026-09-24T09:01:45.375Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [VERIFY] Order 5 in DB: status=FILLED, executed_price=337.02000000, type=java.math.BigDecimal
+2026-09-24T09:01:45.377Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] Updating account cash: current=98314.90, delta=674.04, new=98988.94, version=2
+2026-09-24T09:01:45.380Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [OK] Account cash updated: 1 rows affected
+2026-09-24T09:01:45.382Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [*] Upserting holding: accountId=1, ticker=AAPL, newQty=53, newAvgCost=167.00
+2026-09-24T09:01:45.385Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : [OK] Holding updated: 1 rows affected
+2026-09-24T09:01:45.386Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.service.ExecutionService    : Settled order 5 for account 1: side=SELL qty=2 price=337.02
+2026-09-24T09:01:45.390Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓ Order 5 settled in DB
+2026-09-24T09:01:45.394Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : Order 5 FILLED at price 337.02
+2026-09-24T09:01:45.396Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : → Acknowledging offset for orderId 5
+2026-09-24T09:01:45.400Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] c.t.executor.kafka.OrderEventConsumer    : ✓✓✓ ORDER 5 COMPLETE ✓✓✓
+
+2026-09-24T09:05:37.704Z  INFO 11372 --- [trade-executor] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-trade-executor-1, groupId=trade-executor] Node -1 disconnected.
+2026-09-24T09:05:37.899Z  INFO 11372 --- [trade-executor] [ntainer#0-2-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-trade-executor-3, groupId=trade-executor] Node -1 disconnected.
+2026-09-24T09:05:37.941Z  INFO 11372 --- [trade-executor] [ntainer#0-1-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-trade-executor-2, groupId=trade-executor] Node -1 disconnected.
+2026-09-24T09:09:27.784Z  INFO 11372 --- [trade-executor] [utor-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-executor-producer-1] Node -1 disconnected.

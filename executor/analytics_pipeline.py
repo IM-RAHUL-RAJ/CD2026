@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -32,13 +33,19 @@ class PostgresSourceAdapter:
         self.password = password
 
     def _connect(self):
-        return psycopg2.connect(
+        conn = psycopg2.connect(
             host=self.host,
             port=self.port,
             database=self.database,
             user=self.username,
             password=self.password,
         )
+        schema = os.getenv("PG_SCHEMA", "trading")
+        if not re.fullmatch(r"[A-Za-z0-9_ ,.\-]+", schema):
+            raise ValueError(f"Unsafe PG_SCHEMA value: {schema!r}")
+        with conn.cursor() as cur:
+            cur.execute(f"SET search_path TO {schema}")
+        return conn
 
     def _table_exists(self, conn, table_name: str) -> bool:
         with conn.cursor() as cur:
@@ -47,7 +54,7 @@ class PostgresSourceAdapter:
                 SELECT EXISTS (
                     SELECT 1
                     FROM information_schema.tables
-                    WHERE table_schema = 'public'
+                    WHERE table_schema = current_schema()
                       AND table_name = %s
                 )
                 """,
@@ -61,7 +68,7 @@ class PostgresSourceAdapter:
                 """
                 SELECT column_name
                 FROM information_schema.columns
-                WHERE table_schema = 'public'
+                WHERE table_schema = current_schema()
                   AND table_name = 'orders'
                 """
             )
@@ -82,7 +89,7 @@ class PostgresSourceAdapter:
                 """
                 SELECT column_name
                 FROM information_schema.columns
-                WHERE table_schema = 'public'
+                WHERE table_schema = current_schema()
                   AND table_name = %s
                 """
                 ,
@@ -165,6 +172,49 @@ class PostgresSourceAdapter:
                     FROM orders o
                     JOIN instrument i
                       ON i.instrument_id = o.instrument_id
+                    WHERE i.{symbol_col} IS NOT NULL
+                """
+            elif self._table_exists(conn, "instrument"):
+                instrument_cols = self._table_columns(conn, "instrument")
+                symbol_col = self._pick_column(instrument_cols, ["symbol", "ticker"], "instrument symbol")
+                orders_symbol_col = self._pick_column(
+                    self._orders_columns(conn), ["ticker", "symbol", "instrument_symbol"], "instrument symbol"
+                )
+
+                name_col = self._optional_column(instrument_cols, ["name", "ticker", "symbol"])
+                name_sql = f"i.{name_col}" if name_col is not None else f"i.{symbol_col}"
+
+                asset_col = self._optional_column(instrument_cols, ["asset_class"])
+                asset_sql = f"i.{asset_col}" if asset_col is not None else "'UNKNOWN'"
+
+                currency_col = self._optional_column(instrument_cols, ["quote_currency", "currency"])
+                currency_sql = f"i.{currency_col}" if currency_col is not None else "'USD'"
+
+                exchange_col = self._optional_column(instrument_cols, ["exchange"])
+                if exchange_col is None:
+                    exchange_sql = f"CASE WHEN i.{symbol_col} LIKE '%.NS' THEN 'NSE' WHEN i.{symbol_col} LIKE '%.BO' THEN 'BSE' WHEN i.{symbol_col} LIKE 'FX:%' THEN 'FX' WHEN i.{symbol_col} LIKE 'X:%' THEN 'CRYPTO' ELSE 'US' END"
+                else:
+                    exchange_sql = f"i.{exchange_col}"
+
+                tradable_col = self._optional_column(instrument_cols, ["tradable"])
+                if tradable_col is not None:
+                    tradable_sql = f"i.{tradable_col}"
+                elif "status" in instrument_cols:
+                    tradable_sql = "COALESCE(i.status, 'ACTIVE') NOT IN ('DELISTED', 'INACTIVE')"
+                else:
+                    tradable_sql = "TRUE"
+
+                query = f"""
+                    SELECT DISTINCT
+                        i.{symbol_col}::varchar AS symbol,
+                        COALESCE({name_sql}::varchar, i.{symbol_col}::varchar) AS name,
+                        COALESCE({asset_sql}::varchar, 'UNKNOWN') AS asset_class,
+                        COALESCE({currency_sql}::varchar, 'USD') AS currency,
+                        {exchange_sql}::varchar AS exchange,
+                        COALESCE({tradable_sql}, TRUE) AS tradable
+                    FROM orders o
+                    JOIN instrument i
+                      ON (i.symbol = o.{orders_symbol_col} OR i.ticker = o.{orders_symbol_col})
                     WHERE i.{symbol_col} IS NOT NULL
                 """
             else:
@@ -1005,7 +1055,7 @@ def build_pipeline() -> Pipeline:
     source = PostgresSourceAdapter(
         host=_get_env("POSTGRES_HOST", "DB_HOST", default="localhost"),
         port=_get_env("POSTGRES_PORT", "DB_PORT", default="5432"),
-        database=_get_env("POSTGRES_DATABASE", "DB_NAME", default="trading_db"),
+        database=_get_env("POSTGRES_DATABASE", "DB_NAME", default="trading_system_db"),
         username=_get_env("POSTGRES_USERNAME", "DB_USER", default="postgres"),
         password=_get_env("POSTGRES_PASSWORD", "DB_PASSWORD", default="postgres"),
     )

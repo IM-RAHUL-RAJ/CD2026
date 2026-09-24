@@ -45,6 +45,11 @@ export interface AuthResponse {
   };
 }
 
+export interface RegistrationResult {
+  message: string;
+  user: AuthResponse['user'];
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -59,7 +64,7 @@ export class AuthService {
     this.refreshTtlSeconds = this.config.get<number>('refresh.ttlSeconds')!;
   }
 
-  async register(dto: RegisterDto): Promise<AuthResponse> {
+  async register(dto: RegisterDto): Promise<RegistrationResult> {
     if (dto.password !== dto.confirmPassword) {
       throw invalidInput('Passwords do not match');
     }
@@ -106,7 +111,11 @@ export class AuthService {
       await client.query('COMMIT');
       this.logger.log(`Registered user id=${user.user_id} with accountId=${accountId}`);
 
-      return this.issueTokens(user, accountId);
+      // Registration never issues tokens: the client must sign in afterwards.
+      return {
+        message: 'Registration successful. Please sign in to continue.',
+        user: this.toPublicUser(user, accountId),
+      };
     } catch (error) {
       await client.query('ROLLBACK');
       if (this.isUniqueViolation(error)) {
@@ -158,6 +167,9 @@ export class AuthService {
   }
 
   async refresh(dto: RefreshGrantDto): Promise<AuthResponse> {
+    if (!dto.refreshToken) {
+      throw unauthorized();
+    }
     const tokenHash = this.tokens.hashRefreshToken(dto.refreshToken);
 
     const result = await this.db.query(
@@ -222,6 +234,17 @@ export class AuthService {
     );
     this.logger.log(`Rotated refresh token for user id=${row.user_id} family=${row.family_id}`);
     return this.issueTokens(user, accountId, row.family_id);
+  }
+
+  async logout(refreshToken: string): Promise<void> {
+    const tokenHash = this.tokens.hashRefreshToken(refreshToken);
+    const result = await this.db.query(
+      'UPDATE auth.refresh_token SET revoked_on = now() WHERE token_hash = $1 AND revoked_on IS NULL',
+      [tokenHash],
+    );
+    if ((result.rowCount ?? 0) > 0) {
+      this.logger.log('Logged out: refresh token revoked');
+    }
   }
 
   async me(uuid: string): Promise<AuthResponse['user']> {

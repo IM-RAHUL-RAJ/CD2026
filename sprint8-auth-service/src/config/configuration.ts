@@ -15,6 +15,13 @@ export const configuration = () => ({
   refresh: {
     ttlSeconds: parseInt(process.env.REFRESH_TTL_SECONDS || '604800', 10),
   },
+  cookie: {
+    name: process.env.COOKIE_NAME || 'refresh_token',
+    // Secure is honoured by browsers even over http://localhost (trusted origin);
+    // set COOKIE_SECURE=false only for plain-HTTP demos on non-local hosts.
+    secure: process.env.COOKIE_SECURE !== 'false',
+    sameSite: (process.env.COOKIE_SAMESITE || 'lax') as 'lax' | 'strict' | 'none',
+  },
   throttle: {
     maxAttempts: parseInt(process.env.THROTTLE_MAX_ATTEMPTS || '5', 10),
     windowMs: parseInt(process.env.THROTTLE_WINDOW_MS || '900000', 10),

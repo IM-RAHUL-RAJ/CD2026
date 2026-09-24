@@ -9,21 +9,32 @@ locally with no network call.
 ## Responsibilities
 
 - `POST /auth/register` — create a customer and, **in the same transaction**,
-  open a `trading.account` (USD, `100000.00`, status `ACTIVE`, version `1`). Returns an access + refresh token pair.
-- `POST /auth/login` — authenticate with username or email + password. Identical body/status for "unknown user" and "wrong password". Throttled and time-uniform.
-- `POST /auth/refresh` — rotate the refresh token; a presented token that was already rotated (replay) revokes its whole family.
+  open a `trading.account` (USD, `100000.00`, status `ACTIVE`, version `1`).
+  **Issues no tokens** — responds `201` `{ message, user }` and sets no cookie;
+  the client must call `POST /auth/login` to get tokens.
+- `POST /auth/login` — authenticate with username or email + password. Identical body/status for "unknown user" and "wrong password". Throttled and time-uniform. Returns the access token and sets the `refresh_token` cookie.
+- `POST /auth/refresh` — rotate the refresh token read from the **cookie** (or, as a fallback, the body); a presented token that was already rotated (replay) revokes its whole family.
+- `POST /auth/logout` — revoke the current refresh token and clear the session cookie.
 - `GET /auth/me` — current user profile + trading `accountId`, requires `Authorization: Bearer <accessToken>`.
+
+The refresh token is **never returned in a JSON body and never stored in
+localStorage** — the browser stores it as an `HttpOnly; Secure;
+SameSite=Lax` cookie scoped to `Path=/`, and JavaScript never reads it.
 
 ## Route table
 
 | Method | Path            | Auth  | Success                                                                                 | Errors                                          |
 | ------ | --------------- | ----- | --------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| POST   | `/auth/register`| none  | `201` `{ accessToken, refreshToken, expiresIn, user: { userId, uuid, firstName, middleName, lastName, username, email, roles, accountId } }` | `409` `AUTH-409`, `422` `VAL-422`              |
-| POST   | `/auth/login`   | none  | `200` same body as register                                                              | `401` `AUTH-401`, `429` `RATE-429`, `422` `VAL-422` |
-| POST   | `/auth/refresh` | none  | `200` same body as register (rotated pair)                                               | `401` `AUTH-401`, `422` `VAL-422`              |
+| POST   | `/auth/register`| none  | `201` `{ message, user: { userId, uuid, firstName, middleName, lastName, username, email, roles, accountId } }` — **no tokens, no cookie**; sign in afterwards | `409` `AUTH-409`, `422` `VAL-422` |
+| POST   | `/auth/login`   | none  | `200` `{ accessToken, expiresIn, user: {...} }` + sets `refresh_token` cookie | `401` `AUTH-401`, `429` `RATE-429`, `422` `VAL-422` |
+| POST   | `/auth/refresh` | cookie| `200` same access body as login + rotated `refresh_token` cookie. Reads the token from the `refresh_token` cookie (body `refreshToken` still accepted as a fallback) | `401` `AUTH-401`, `422` `VAL-422` |
+| POST   | `/auth/logout`  | cookie| `200` `{ message: "Logged out" }`; revokes the refresh token and clears the cookie (body `refreshToken` fallback supported) | `401` `AUTH-401`                               |
 | GET    | `/auth/me`      | Bearer| `200` `{ userId, uuid, firstName, middleName, lastName, username, email, roles, accountId }` | `401` `AUTH-401`                              |
 | GET    | `/docs`         | none  | Swagger UI                                                                               |                                                 |
 | GET    | `/docs/json`    | none  | OpenAPI JSON                                                                             |                                                 |
+
+The `refresh_token` cookie is `HttpOnly; Secure; SameSite=Lax; Path=/` with the
+refresh lifetime (default 7 days), cleared on logout.
 
 Every error is a JSON envelope `{ "errorCode": string, "message": string }`
 with codes `AUTH-401`, `AUTH-409`, `VAL-422`, `RATE-429`, `SRV-500`.
@@ -71,6 +82,9 @@ docker run --rm -p 3000:3000 --env-file .env sprint08-auth-service
 | `JWT_TTL_SECONDS`     | `900` (15 min)                                      | Access-token lifetime                       |
 | `REFRESH_TTL_SECONDS` | `604800` (7 days)                                   | Refresh-token lifetime                      |
 | `THROTTLE_MAX_ATTEMPTS` / `THROTTLE_WINDOW_MS` | `5` / `900000`                       | Login throttle window                       |
+| `COOKIE_NAME`         | `refresh_token`                                   | Name of the refresh-token cookie              |
+| `COOKIE_SECURE`       | `true`                                            | Set `false` only for plain-HTTP demos on non-local hosts (browsers already honour `Secure` over `http://localhost`) |
+| `COOKIE_SAMESITE`     | `lax`                                           | Cookie SameSite: `lax` (recommended), `strict`, or `none` |
 
 ## Security decisions (mapped to `security_template.txt`)
 
@@ -86,6 +100,10 @@ docker run --rm -p 3000:3000 --env-file .env sprint08-auth-service
 - **Refresh rotation + replay protection**: tokens stored as SHA-256 digests.
   A refresh rotates the token (old one revoked, new one in the same `family_id`).
   Presenting an already-rotated token revokes the whole family and returns `AUTH-401`.
+- **Httponly cookies**: the refresh token is set as an `HttpOnly; Secure;
+  SameSite=Lax` cookie (`Path=/`) and is never present in a JSON response,
+  so JavaScript/XSS cannot read or exfiltrate it. The cookie is rotated on
+  every refresh and cleared on logout.
 - **Login timing**: a fixed 150 ms delay is added before every failed response so
   unknown-user and wrong-password cases are indistinguishable in time and body.
 - **Login throttle**: in-memory per-identifier sliding window (default 5 / 15 min)

@@ -1,0 +1,15 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.8.66.190:5000
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 145-859-323
+127.0.0.1 - - [24/Sep/2026 09:02:02] "GET /api/analytics/available HTTP/1.1" 200 -
+127.0.0.1 - - [24/Sep/2026 09:02:02] "GET /api/analytics/stats HTTP/1.1" 200 -
+127.0.0.1 - - [24/Sep/2026 09:02:02] "GET /api/analytics/trade-volume HTTP/1.1" 200 -
+127.0.0.1 - - [24/Sep/2026 09:02:02] "GET /api/analytics/fill-rate HTTP/1.1" 200 -
+127.0.0.1 - - [24/Sep/2026 09:02:03] "GET /api/analytics/instrument-exposure HTTP/1.1" 200 -
+127.0.0.1 - - [24/Sep/2026 09:02:03] "GET /api/analytics/account-activity HTTP/1.1" 200 -
+127.0.0.1 - - [24/Sep/2026 09:02:03] "GET /api/analytics/recent-trades HTTP/1.1" 200 -

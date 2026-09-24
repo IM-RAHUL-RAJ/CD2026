@@ -1,3 +1,18 @@
+// Purge legacy localStorage refresh-token keys (the refresh token is an
+// HttpOnly cookie now; old versions stored it client-side).
+localStorage.removeItem('refreshToken');
+localStorage.removeItem('refresh_token');
+
+// After a successful registration we redirect here with ?registered=1 —
+// tokens are only issued by /auth/login, so ask the user to sign in.
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('registered') === '1'){
+    const el = document.getElementById('message');
+    if(el){ el.textContent = 'Account created — please sign in to continue.'; el.className = 'message success'; }
+  }
+})();
+
 async function handleRegister(e){
   e.preventDefault();
   const body = {
@@ -10,11 +25,10 @@ async function handleRegister(e){
     confirmPassword: document.getElementById('confirmPassword').value
   };
   try{
-    const res = await fetch(AUTH_URL + '/auth/register', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const res = await fetch(AUTH_URL + '/auth/register', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include', body: JSON.stringify(body)});
     const data = await res.json();
     if(res.ok){
-      storeTokens(data);
-      window.location.href = '/dashboard';
+      window.location.href = '/login?registered=1';
     } else {
       document.getElementById('message').innerText = data.message || JSON.stringify(data);
     }
@@ -28,7 +42,7 @@ async function handleLogin(e){
   const identifier = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   try{
-    const res = await fetch(AUTH_URL + '/auth/login', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({identifier, password})});
+    const res = await fetch(AUTH_URL + '/auth/login', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include', body: JSON.stringify({identifier, password})});
     const data = await res.json();
     if(res.ok){
       storeTokens(data);
@@ -41,9 +55,21 @@ async function handleLogin(e){
   }
 }
 
+// The refresh token is an HttpOnly+Secure cookie managed by the auth service;
+// it is never stored in localStorage and never read by JavaScript. This helper
+// asks the auth service to rotate it and returns the new access token.
+async function rotateAccessToken(){
+  const res = await fetch(AUTH_URL + '/auth/refresh', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include'});
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.message || 'Session expired');
+  storeTokens(data);
+  return data.accessToken;
+}
+
 function storeTokens(data){
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('refresh_token');
   localStorage.setItem('jwt', data.accessToken);
-  localStorage.setItem('refreshToken', data.refreshToken);
   if(data.user && data.user.accountId){
     localStorage.setItem('accountId', String(data.user.accountId));
   }
@@ -51,8 +77,9 @@ function storeTokens(data){
 
 function clearTokens(){
   localStorage.removeItem('jwt');
-  localStorage.removeItem('refreshToken');
   localStorage.removeItem('accountId');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('refresh_token');
 }
 
 async function getAccountId(){
@@ -73,6 +100,11 @@ async function getAccountId(){
 
 function logout(){
   clearTokens();
+  try{
+    fetch(AUTH_URL + '/auth/logout', {method: 'POST', credentials: 'include'}).catch(()=>{});
+  }catch(err){
+    console.warn('logout call failed:', err);
+  }
   window.location.href = '/login';
 }
 
@@ -129,8 +161,8 @@ function renderDataInline(obj){
 }
 
 // Wrapper to add Authorization header to requests when a JWT is present.
-// On a 401 the access token is refreshed via /auth/refresh once and the
-// request is retried. If refresh fails the user is sent back to /login.
+// On a 401 the refresh token (HttpOnly cookie) is rotated via /auth/refresh
+// once and the request is retried. If refresh fails the user is redirected.
 async function apiFetch(input, init = {}){
   const doFetch = async (token) => {
     const headers = new Headers(init.headers || {});
@@ -140,16 +172,10 @@ async function apiFetch(input, init = {}){
   };
 
   let res = await doFetch(localStorage.getItem('jwt'));
-  if (res.status === 401 && localStorage.getItem('refreshToken')) {
+  if (res.status === 401) {
     try {
-      const rr = await fetch(AUTH_URL + '/auth/refresh', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({refreshToken: localStorage.getItem('refreshToken')})});
-      const data = await rr.json();
-      if (rr.ok) {
-        storeTokens(data);
-        res = await doFetch(data.accessToken);
-      } else {
-        throw new Error(data.message || 'Session expired');
-      }
+      const newToken = await rotateAccessToken();
+      res = await doFetch(newToken);
     } catch (err) {
       clearTokens();
       window.location.href = '/login';
