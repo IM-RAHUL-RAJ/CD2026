@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Akatsuki Trading Platform — Register</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <img src="/static/img/icon.jpeg" alt="Akatsuki logo">
+      <div>
+        <div class="brand"><span class="accent-dot"></span>Akatsuki Trading Platform</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="center card">
+      <h2 style="margin:0 0 8px 0">Create account</h2>
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <label for="firstName">First name</label>
+        <input id="firstName" name="firstName" type="text" required>
+
+        <label for="middleName">Middle name</label>
+        <input id="middleName" name="middleName" type="text">
+
+        <label for="lastName">Last name</label>
+        <input id="lastName" name="lastName" type="text" required>
+
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" required>
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required>
+
+        <label for="password">Password (min 12 chars, upper/lower/digit/special)</label>
+        <input id="password" name="password" type="password" required>
+
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" required>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn" type="submit">Create account</button>
+        </div>
+      </form>
+      <div id="message" class="message"></div>
+      <div style="margin-top:12px">
+        Already registered? <a href="/login">Click here to login</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const AUTH_URL = "{{ AUTH_URL }}";
+    const BACKEND_URL = "{{ BACKEND_URL }}";
+  </script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

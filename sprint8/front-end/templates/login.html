@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Akatsuki Trading Platform — Login</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <img src="/static/img/icon.jpeg" alt="Akatsuki logo">
+      <div>
+        <div class="brand"><span class="accent-dot"></span>Akatsuki Trading Platform</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="center card">
+      <h2 style="margin:0 0 8px 0">Sign in</h2>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <label for="username">Username or Email</label>
+        <input id="username" name="username" type="text" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn" type="submit">Sign in</button>
+        </div>
+      </form>
+      <div id="message" class="message"></div>
+      <div style="margin-top:12px">
+        New here? <a href="/">Create an account</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const AUTH_URL = "{{ AUTH_URL }}";
+    const BACKEND_URL = "{{ BACKEND_URL }}";
+  </script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

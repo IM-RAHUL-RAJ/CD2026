@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Akatsuki Trading Platform — Analytics</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <img src="/static/img/icon.jpeg" alt="Akatsuki logo">
+      <div>
+        <div class="brand"><span class="accent-dot"></span>Akatsuki Trading Platform</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" style="text-align:center">
+      <h2>Analytics data is not available yet</h2>
+      <p class="message">
+        The DuckDB warehouse has not been loaded with trade data. The ETL trigger
+        service (executor/etl_trigger_service.py) starts together with the executor
+        application and refreshes the warehouse on an interval, so analytics should
+        appear shortly after the system begins processing orders.
+      </p>
+      <p>
+        <a href="/dashboard" class="btn secondary">Back to Dashboard</a>
+      </p>
+    </section>
+  </main>
+
+  <script>
+    setTimeout(function () { location.reload(); }, {{ DASHBOARD_REFRESH_SECONDS }} * 1000);
+  </script>
+</body>
+</html>
