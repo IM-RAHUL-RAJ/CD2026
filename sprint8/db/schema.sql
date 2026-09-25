@@ -35,8 +35,9 @@ CREATE TABLE auth.users (
 CREATE UNIQUE INDEX uq_users_uuid ON auth.users (uuid);
 
 -- Refresh tokens are stored hashed (SHA-256 of the token value) so that read
--- access to the database is not session takeover. Rotated on every refresh and
--- revoked when a presented token has already been exchanged (replay).
+-- access to the database is not session takeover. Non-rotating: a token is
+-- created once at login with a 7-day expiry, stays untouched on every refresh,
+-- and is revoked only by logout or expiry.
 CREATE TABLE auth.refresh_token (
     refresh_token_id BIGSERIAL PRIMARY KEY,
     user_id          BIGINT NOT NULL REFERENCES auth.users (user_id) ON DELETE CASCADE,

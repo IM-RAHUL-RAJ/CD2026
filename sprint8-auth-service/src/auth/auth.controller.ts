@@ -10,13 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { AuthService, AuthResponse, RegistrationResult } from './auth.service';
 import { JwtAuthGuard, AuthenticatedRequest } from './auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RefreshGrantDto } from './dto/refresh-grant.dto';
 import { RegisterDto } from './dto/register.dto';
+import { LoginCryptoService } from '../crypto/login-crypto.service';
 import { unauthorized } from '../common/error.envelope.filter';
 import {
   REFRESH_COOKIE_NAME,
@@ -35,31 +36,40 @@ export class AuthController {
 
   constructor(
     private readonly authService: AuthService,
+    private readonly loginCrypto: LoginCryptoService,
     private readonly config: ConfigService,
   ) {
     this.cookieConfig = this.config.get<RefreshCookieConfig>('cookie')!;
     this.refreshTtlSeconds = this.config.get<number>('refresh.ttlSeconds')!;
   }
 
+  @Get('public-key')
+  @ApiOperation({ summary: 'Return the RSA public key used to seal login/register credentials' })
+  async publicKey(): Promise<{ key: string }> {
+    return { key: this.loginCrypto.getPublicKeyPem() };
+  }
+
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: RegisterDto })
   @ApiOperation({ summary: 'Register a new customer and open a trading account' })
   async register(
-    @Body() dto: RegisterDto,
+    @Body() dto: unknown,
   ): Promise<RegistrationResult> {
     // Registration is account creation only — no tokens are issued and no
     // refresh cookie is set. The client must call /auth/login afterwards.
-    return this.authService.register(dto);
+    return this.authService.register(dto as RegisterDto);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: LoginDto })
   @ApiOperation({ summary: 'Log in with username/email and password' })
   async login(
-    @Body() dto: LoginDto,
+    @Body() dto: unknown,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseBody> {
-    const result = await this.authService.login(dto);
+    const result = await this.authService.login(dto as LoginDto);
     setRefreshCookie(res, result.refreshToken, this.cookieConfig, this.refreshTtlSeconds);
     return this.stripRefreshToken(result);
   }
@@ -77,7 +87,11 @@ export class AuthController {
       throw unauthorized();
     }
     const result = await this.authService.refresh({ refreshToken: token });
-    setRefreshCookie(res, result.refreshToken, this.cookieConfig, this.refreshTtlSeconds);
+    // Non-rotating refresh: the same refresh token keeps its 7-day lifetime, so
+    // the browser cookie is left untouched (only the access token is renewed).
+    if (result.refreshToken !== token) {
+      setRefreshCookie(res, result.refreshToken, this.cookieConfig, this.refreshTtlSeconds);
+    }
     return this.stripRefreshToken(result);
   }
 

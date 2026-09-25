@@ -54,6 +54,10 @@ textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6}
 
 .message{margin-top:12px;color:var(--muted)}
 .message.success{color:var(--accent, #16a34a)}
+.required{color:var(--danger);font-weight:700}
+.hint{font-size:0.78rem;color:var(--muted);margin:0 0 4px 0}
+.pw-req{display:block;font-size:0.82rem;color:#9aa0a8;margin-top:6px}
+.pw-req.ok{color:#16a34a}
 .order-result{margin-top:12px;padding:12px;background:#fff;border-radius:8px;border:1px solid #eee;font-family:monospace;white-space:pre-wrap}
 
 /* Pretty data sections */

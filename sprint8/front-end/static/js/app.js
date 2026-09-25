@@ -1,34 +1,171 @@
-// Purge legacy localStorage refresh-token keys (the refresh token is an
-// HttpOnly cookie now; old versions stored it client-side).
+// The refresh token is an HttpOnly cookie now; legacy versions stored it (and
+// the account id) in localStorage. Purge every legacy key on load — the
+// account is always derived from the authenticated user via /auth/me, never
+// from localStorage.
 localStorage.removeItem('refreshToken');
 localStorage.removeItem('refresh_token');
+localStorage.removeItem('accountId');
+localStorage.removeItem('account_id');
 
-// After a successful registration we redirect here with ?registered=1 —
-// tokens are only issued by /auth/login, so ask the user to sign in.
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  if(params.get('registered') === '1'){
-    const el = document.getElementById('message');
-    if(el){ el.textContent = 'Account created — please sign in to continue.'; el.className = 'message success'; }
+// In-memory account cache (never persisted). Populated from the authenticated
+// user's /auth/me response and from login/refresh responses.
+let cachedAccountId = null;
+
+// Credential sealing (encrypted transport): the browser seals the login and
+// registration payloads with the auth service's RSA public key so the
+// plaintext password never appears in the request body (including the
+// DevTools Network tab). Web Crypto is only available in secure contexts
+// (https, or http://localhost), so on non-secure hosts we gracefully fall back
+// to the plaintext JSON contract; the server accepts both forms.
+let cachedPublicKeyPem = null;
+
+function bufToBase64(buf){
+  let s = '';
+  const CHUNK = 0x8000;
+  for (let i = 0; i < buf.length; i += CHUNK){
+    s += String.fromCharCode.apply(null, buf.subarray(i, i + CHUNK));
+  }
+  return btoa(s);
+}
+
+function base64ToBuf(b64){
+  const s = atob(b64);
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+
+function randomHex(bytes){
+  const a = new Uint8Array(bytes);
+  crypto.getRandomValues(a);
+  return Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function loadLoginPublicKey(){
+  if (cachedPublicKeyPem) return cachedPublicKeyPem;
+  const res = await fetch(AUTH_URL + '/auth/public-key');
+  if (!res.ok) throw new Error('login public key unavailable');
+  const data = await res.json();
+  if (!data || typeof data.key !== 'string') throw new Error('invalid login public key');
+  cachedPublicKeyPem = data.key;
+  return cachedPublicKeyPem;
+}
+
+// Hybrid encryption: RSA-OAEP (SHA-256) wraps an ephemeral AES-256-GCM key;
+// the ciphertext embeds the credentials plus a fresh nonce and a 60 s expiry so
+// the server can reject replays. Returns null when sealing is unavailable.
+async function sealCredentials(fields){
+  if (typeof crypto === 'undefined' || !crypto.subtle || !crypto.getRandomValues) {
+    return null;
+  }
+  try {
+    const pem = await loadLoginPublicKey();
+    const pemBody = pem
+      .replace(/-----BEGIN PUBLIC KEY-----/g, '')
+      .replace(/-----END PUBLIC KEY-----/g, '')
+      .replace(/\s+/g, '');
+    const spki = base64ToBuf(pemBody);
+    const rsaKey = await crypto.subtle.importKey(
+      'spki', spki.buffer,
+      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      false,
+      ['encrypt'],
+    );
+    const aesKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const sealed = Object.assign({}, fields, {
+      nonce: randomHex(16),
+      expiresAt: Date.now() + 60000,
+    });
+    const cipher = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      aesKey,
+      new TextEncoder().encode(JSON.stringify(sealed)),
+    );
+    const rawAes = await crypto.subtle.exportKey('raw', aesKey);
+    const encKey = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, rsaKey, rawAes);
+    return bufToBase64(new Uint8Array(encKey)) + '.' + bufToBase64(iv) + '.' + bufToBase64(new Uint8Array(cipher));
+  } catch (err) {
+    console.warn('Credential sealing unavailable; falling back to plaintext', err);
+    return null;
+  }
+}
+
+const PUBLIC_PATHS = new Set(['/', '/login', '/register', '/analytics']);
+
+// Route guard: protected pages (dashboard, and anything else) redirect
+// to /login when the user is not authenticated. The access token is verified
+// against /auth/me; if it is expired the access token is renewed once,
+// and if that also fails apiFetch bounces to /login. /analytics is PUBLIC and
+// separate from the session (login/register too).
+async function requireAuth(){
+  if (PUBLIC_PATHS.has(window.location.pathname)) return;
+  const jwt = localStorage.getItem('jwt');
+  if (!jwt) {
+    window.location.replace('/login');
+    return;
+  }
+  try {
+    const res = await apiFetch(AUTH_URL + '/auth/me');
+    const data = await res.json();
+    if (res.ok && data && data.accountId !== undefined && data.accountId !== null) {
+      cachedAccountId = parseInt(data.accountId, 10);
+      return;
+    }
+    window.location.replace('/login');
+  } catch {
+    window.location.replace('/login');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', requireAuth);
+
+// Live password-requirement indicator on the registration page. The policy is
+// length-only (minimum 12 characters), kept in step with the backend DTO.
+function updatePasswordRequirements(value){
+  const min = document.getElementById('reqMin');
+  if (!min) return;
+  const ok = typeof value === 'string' && value.length >= 12;
+  min.textContent = (ok ? '✓ Minimum 12 characters' : '✗ Minimum 12 characters');
+  min.className = 'pw-req' + (ok ? ' ok' : '');
+}
+
+(function initRegisterPage(){
+  const form = document.getElementById('registerForm');
+  if (!form) return;
+  const pw = document.getElementById('password');
+  if (pw) {
+    updatePasswordRequirements(pw.value);
+    pw.addEventListener('input', function(){ updatePasswordRequirements(pw.value); });
   }
 })();
 
 async function handleRegister(e){
   e.preventDefault();
-  const body = {
-    firstName: document.getElementById('firstName').value,
-    middleName: document.getElementById('middleName').value || null,
-    lastName: document.getElementById('lastName').value,
-    username: document.getElementById('username').value,
-    email: document.getElementById('email').value,
-    password: document.getElementById('password').value,
-    confirmPassword: document.getElementById('confirmPassword').value
-  };
   try{
-    const res = await fetch(AUTH_URL + '/auth/register', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include', body: JSON.stringify(body)});
+    const body = {
+      firstName: document.getElementById('firstName').value,
+      middleName: document.getElementById('middleName').value || null,
+      lastName: document.getElementById('lastName').value,
+      username: document.getElementById('username').value,
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+      confirmPassword: document.getElementById('confirmPassword').value
+    };
+    if (body.password !== body.confirmPassword) {
+      document.getElementById('message').innerText = 'Passwords do not match';
+      return;
+    }
+    if (body.password.length < 12) {
+      document.getElementById('message').innerText = 'Password must be at least 12 characters long';
+      return;
+    }
+    const request = await sealCredentials(body);
+    const payload = request ? { request } : body;
+    const res = await fetch(AUTH_URL + '/auth/register', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include', body: JSON.stringify(payload)});
     const data = await res.json();
     if(res.ok){
-      window.location.href = '/login?registered=1';
+      window.location.href = '/login';
     } else {
       document.getElementById('message').innerText = data.message || JSON.stringify(data);
     }
@@ -42,7 +179,9 @@ async function handleLogin(e){
   const identifier = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   try{
-    const res = await fetch(AUTH_URL + '/auth/login', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include', body: JSON.stringify({identifier, password})});
+    const request = await sealCredentials({identifier, password});
+    const payload = request ? { request } : {identifier, password};
+    const res = await fetch(AUTH_URL + '/auth/login', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include', body: JSON.stringify(payload)});
     const data = await res.json();
     if(res.ok){
       storeTokens(data);
@@ -56,8 +195,10 @@ async function handleLogin(e){
 }
 
 // The refresh token is an HttpOnly+Secure cookie managed by the auth service;
-// it is never stored in localStorage and never read by JavaScript. This helper
-// asks the auth service to rotate it and returns the new access token.
+// it is never stored in localStorage and never read by JavaScript. The auth
+// service renews the access token every 15 minutes against the SAME refresh
+// token, which stays valid for its whole 7-day life (the cookie is not
+// re-issued). This helper asks for a new access token and returns it.
 async function rotateAccessToken(){
   const res = await fetch(AUTH_URL + '/auth/refresh', {method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include'});
   const data = await res.json();
@@ -70,32 +211,35 @@ function storeTokens(data){
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('refresh_token');
   localStorage.setItem('jwt', data.accessToken);
-  if(data.user && data.user.accountId){
-    localStorage.setItem('accountId', String(data.user.accountId));
+  if(data.user && data.user.accountId !== undefined && data.user.accountId !== null){
+    cachedAccountId = parseInt(data.user.accountId, 10);
   }
 }
 
 function clearTokens(){
   localStorage.removeItem('jwt');
-  localStorage.removeItem('accountId');
+  cachedAccountId = null;
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('refresh_token');
 }
 
 async function getAccountId(){
-  const cached = localStorage.getItem('accountId');
-  if(cached) return parseInt(cached, 10);
+  if (cachedAccountId !== null && typeof cachedAccountId === 'number') {
+    return cachedAccountId;
+  }
   try{
     const res = await apiFetch(AUTH_URL + '/auth/me');
     const data = await res.json();
-    if(res.ok && data.accountId){
-      localStorage.setItem('accountId', String(data.accountId));
-      return parseInt(data.accountId, 10);
+    if(res.ok && data.accountId !== undefined && data.accountId !== null){
+      cachedAccountId = parseInt(data.accountId, 10);
+      return cachedAccountId;
     }
   }catch(err){
     console.warn('getAccountId failed:', err);
   }
-  return 1;
+  clearTokens();
+  window.location.replace('/login');
+  throw new Error('Unable to determine account');
 }
 
 function logout(){
@@ -161,8 +305,9 @@ function renderDataInline(obj){
 }
 
 // Wrapper to add Authorization header to requests when a JWT is present.
-// On a 401 the refresh token (HttpOnly cookie) is rotated via /auth/refresh
-// once and the request is retried. If refresh fails the user is redirected.
+// On a 401 the access token is renewed once via /auth/refresh (the HttpOnly
+// refresh cookie itself is never rotated — it keeps its 7-day life), and the
+// request is retried. If refresh fails the user is redirected.
 async function apiFetch(input, init = {}){
   const doFetch = async (token) => {
     const headers = new Headers(init.headers || {});

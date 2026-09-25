@@ -31,7 +31,7 @@ export class RegisterDto {
   @ApiProperty({ example: 'priya.menon' })
   @IsString()
   @MinLength(3)
-  @MaxLength(50)
+  @MaxLength(64)
   @Matches(/^[a-zA-Z0-9._-]+$/, {
     message: 'username may only contain letters, numbers, dot, dash and underscore',
   })
@@ -42,13 +42,15 @@ export class RegisterDto {
   @MaxLength(255)
   email!: string;
 
-  @ApiProperty({ example: 'Capstone@2026' })
+  @ApiProperty({
+    example: 'Capstone@2026',
+    description:
+      'Minimum twelve characters, length-only policy per the contract: length beats ' +
+      'character-class rules, so no symbol/upper/lower/digit requirements are imposed.',
+  })
   @IsString()
   @MinLength(12, { message: 'password must be at least 12 characters long' })
-  @Matches(/[a-z]/, { message: 'password must contain a lowercase letter' })
-  @Matches(/[A-Z]/, { message: 'password must contain an uppercase letter' })
-  @Matches(/[0-9]/, { message: 'password must contain a digit' })
-  @Matches(/[^a-zA-Z0-9]/, { message: 'password must contain a special character' })
+  @MaxLength(128, { message: 'password must be at most 128 characters long' })
   password!: string;
 
   @ApiProperty({ example: 'Capstone@2026' })

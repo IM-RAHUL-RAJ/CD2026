@@ -8,23 +8,23 @@
 
  :: Spring Boot ::                (v3.4.3)
 
-2026-09-24T08:59:10.968Z  INFO 14048 --- [trade-api] [           main] c.trading.tradeapi.TradeApiApplication   : Starting TradeApiApplication v1.0-SNAPSHOT using Java 21.0.12.1 with PID 14048 (C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\sprint8\target\sprint-08-trade-api-1.0-SNAPSHOT.jar started by Administrator in C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\sprint8)
-2026-09-24T08:59:10.973Z  INFO 14048 --- [trade-api] [           main] c.trading.tradeapi.TradeApiApplication   : No active profile set, falling back to 1 default profile: "default"
-2026-09-24T08:59:13.537Z  INFO 14048 --- [trade-api] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8085 (http)
-2026-09-24T08:59:13.558Z  INFO 14048 --- [trade-api] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-09-24T08:59:13.560Z  INFO 14048 --- [trade-api] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
-2026-09-24T08:59:13.606Z  INFO 14048 --- [trade-api] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-09-24T08:59:13.613Z  INFO 14048 --- [trade-api] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2534 ms
-2026-09-24T08:59:15.413Z  INFO 14048 --- [trade-api] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8085 (http) with context path '/'
-2026-09-24T08:59:15.442Z  INFO 14048 --- [trade-api] [           main] c.trading.tradeapi.TradeApiApplication   : Started TradeApiApplication in 5.317 seconds (process running for 6.494)
-2026-09-24T09:01:42.780Z  INFO 14048 --- [trade-api] [nio-8085-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-09-24T09:01:42.783Z  INFO 14048 --- [trade-api] [nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-09-24T09:01:42.787Z  INFO 14048 --- [trade-api] [nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2026-09-24T09:01:43.935Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-09-24T09:01:44.182Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5d3db9c5
-2026-09-24T09:01:44.186Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-09-24T09:01:44.264Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] c.trading.tradeapi.service.OrderService  : Order inserted with numeric ID: 5
-2026-09-24T09:01:44.321Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] o.a.k.clients.producer.ProducerConfig    : ProducerConfig values: 
+2026-09-25T06:53:27.599Z  INFO 7964 --- [trade-api] [           main] c.trading.tradeapi.TradeApiApplication   : Starting TradeApiApplication v1.0-SNAPSHOT using Java 21.0.12.1 with PID 7964 (C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\sprint8\target\sprint-08-trade-api-1.0-SNAPSHOT.jar started by Administrator in C:\Users\Administrator\Documents\sprint7\chennai-capstone-SE1-team3\sprint8)
+2026-09-25T06:53:27.606Z  INFO 7964 --- [trade-api] [           main] c.trading.tradeapi.TradeApiApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-09-25T06:53:30.175Z  INFO 7964 --- [trade-api] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8085 (http)
+2026-09-25T06:53:30.202Z  INFO 7964 --- [trade-api] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-25T06:53:30.204Z  INFO 7964 --- [trade-api] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-09-25T06:53:30.249Z  INFO 7964 --- [trade-api] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-25T06:53:30.252Z  INFO 7964 --- [trade-api] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2534 ms
+2026-09-25T06:53:31.744Z  INFO 7964 --- [trade-api] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8085 (http) with context path '/'
+2026-09-25T06:53:31.767Z  INFO 7964 --- [trade-api] [           main] c.trading.tradeapi.TradeApiApplication   : Started TradeApiApplication in 5.069 seconds (process running for 6.065)
+2026-09-25T07:14:30.747Z  INFO 7964 --- [trade-api] [nio-8085-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-25T07:14:30.752Z  INFO 7964 --- [trade-api] [nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-25T07:14:30.757Z  INFO 7964 --- [trade-api] [nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-09-25T07:14:31.224Z  INFO 7964 --- [trade-api] [nio-8085-exec-3] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-25T07:14:31.567Z  INFO 7964 --- [trade-api] [nio-8085-exec-3] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4108f8b0
+2026-09-25T07:14:31.572Z  INFO 7964 --- [trade-api] [nio-8085-exec-3] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-25T07:14:36.934Z  INFO 7964 --- [trade-api] [nio-8085-exec-5] c.trading.tradeapi.service.OrderService  : Order inserted with numeric ID: 9
+2026-09-25T07:14:37.005Z  INFO 7964 --- [trade-api] [nio-8085-exec-5] o.a.k.clients.producer.ProducerConfig    : ProducerConfig values: 
 	acks = -1
 	auto.include.jmx.reporter = true
 	batch.size = 16384
@@ -120,13 +120,263 @@
 	transactional.id = null
 	value.serializer = class org.springframework.kafka.support.serializer.JsonSerializer
 
-2026-09-24T09:01:44.382Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
-2026-09-24T09:01:44.560Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] o.a.k.clients.producer.KafkaProducer     : [Producer clientId=trade-api-producer-1] Instantiated an idempotent producer.
-2026-09-24T09:01:44.637Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
-2026-09-24T09:01:44.640Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
-2026-09-24T09:01:44.642Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1790240504636
-2026-09-24T09:01:45.106Z  INFO 14048 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.Metadata        : [Producer clientId=trade-api-producer-1] Cluster ID: 5L6g3nShT-eMCtK--X86sw
-2026-09-24T09:01:45.109Z  INFO 14048 --- [trade-api] [-api-producer-1] o.a.k.c.p.internals.TransactionManager   : [Producer clientId=trade-api-producer-1] ProducerId set to 2 with epoch 0
-2026-09-24T09:01:45.138Z  INFO 14048 --- [trade-api] [nio-8085-exec-3] c.t.t.kafka.producer.OrderProducer       : Published ORDER_PLACED event: orderId=5, accountId=1, eventId=ab24c237-80f0-417b-b8d1-9a28c5a42d41
-2026-09-24T09:10:45.101Z  INFO 14048 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
-2026-09-24T09:20:45.105Z  INFO 14048 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:14:37.078Z  INFO 7964 --- [trade-api] [nio-8085-exec-5] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-09-25T07:14:37.203Z  INFO 7964 --- [trade-api] [nio-8085-exec-5] o.a.k.clients.producer.KafkaProducer     : [Producer clientId=trade-api-producer-1] Instantiated an idempotent producer.
+2026-09-25T07:14:37.275Z  INFO 7964 --- [trade-api] [nio-8085-exec-5] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
+2026-09-25T07:14:37.277Z  INFO 7964 --- [trade-api] [nio-8085-exec-5] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
+2026-09-25T07:14:37.279Z  INFO 7964 --- [trade-api] [nio-8085-exec-5] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1790320477272
+2026-09-25T07:14:47.115Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Disconnecting from node -1 due to socket connection setup timeout. The timeout value is 9374 ms.
+2026-09-25T07:14:47.119Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:15:08.226Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:15:08.229Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:15:08.231Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:15:29.354Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:15:29.357Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:15:29.359Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:15:37.292Z ERROR 7964 --- [trade-api] [nio-8085-exec-5] o.s.k.support.LoggingProducerListener    : Exception thrown when sending a message with key='28' and payload='{"eventId":"b3db5d43-3fb5-43ae-b03d-2de8e37ba652","eventType":"ORDER_PLACED","eventTime":"2026-09-25...' to topic orders:
+
+org.apache.kafka.common.errors.TimeoutException: Topic orders not present in metadata after 60000 ms.
+
+2026-09-25T07:15:37.299Z ERROR 7964 --- [trade-api] [nio-8085-exec-5] c.t.t.kafka.producer.OrderProducer       : Failed to publish order placed event for orderId: 9
+
+org.springframework.kafka.KafkaException: Send failed
+	at org.springframework.kafka.core.KafkaTemplate.doSend(KafkaTemplate.java:848) ~[spring-kafka-3.3.3.jar!/:3.3.3]
+	at org.springframework.kafka.core.KafkaTemplate.observeSend(KafkaTemplate.java:805) ~[spring-kafka-3.3.3.jar!/:3.3.3]
+	at org.springframework.kafka.core.KafkaTemplate.send(KafkaTemplate.java:588) ~[spring-kafka-3.3.3.jar!/:3.3.3]
+	at com.trading.tradeapi.kafka.producer.OrderProducer.publishOrderPlaced(OrderProducer.java:78) ~[!/:1.0-SNAPSHOT]
+	at com.trading.tradeapi.service.OrderService.publishOrderToKafka(OrderService.java:100) ~[!/:1.0-SNAPSHOT]
+	at com.trading.tradeapi.service.OrderService.placeOrder(OrderService.java:56) ~[!/:1.0-SNAPSHOT]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-6.2.3.jar!/:6.2.3]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.2.3.jar!/:6.2.3]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.2.3.jar!/:6.2.3]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:380) ~[spring-tx-6.2.3.jar!/:6.2.3]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.2.3.jar!/:6.2.3]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.3.jar!/:6.2.3]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:727) ~[spring-aop-6.2.3.jar!/:6.2.3]
+	at com.trading.tradeapi.service.OrderService$$SpringCGLIB$$0.placeOrder(<generated>) ~[!/:1.0-SNAPSHOT]
+	at com.trading.tradeapi.controller.OrderController.placeOrder(OrderController.java:37) ~[!/:1.0-SNAPSHOT]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:257) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:190) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:986) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:891) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1088) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:978) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.2.3.jar!/:6.2.3]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at com.trading.tradeapi.security.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:57) ~[!/:1.0-SNAPSHOT]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.3.jar!/:6.2.3]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+Caused by: org.apache.kafka.common.errors.TimeoutException: Topic orders not present in metadata after 60000 ms.
+
+2026-09-25T07:15:37.304Z ERROR 7964 --- [trade-api] [nio-8085-exec-5] c.trading.tradeapi.service.OrderService  : Failed to publish order to Kafka, but order was saved: Failed to publish order to Kafka
+2026-09-25T07:15:50.564Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:15:50.567Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:15:50.569Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:16:11.988Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:16:11.990Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:16:11.993Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:16:33.961Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:16:33.964Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:16:33.966Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:16:55.980Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:16:55.982Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:16:55.985Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:17:17.983Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:17:17.986Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:17:17.988Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:17:40.006Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:17:40.008Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:17:40.010Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:18:01.815Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:18:01.818Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:18:01.820Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:18:23.818Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:18:23.822Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:18:23.824Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:18:45.820Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:18:45.822Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:18:45.824Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:19:07.840Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:19:07.843Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:19:07.845Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:19:29.812Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:19:29.815Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:19:29.817Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:19:51.721Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:19:51.723Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:19:51.725Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:20:13.744Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:20:13.746Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:20:13.748Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:20:35.693Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:20:35.695Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:20:35.698Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:20:57.613Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:20:57.616Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:20:57.618Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:21:19.638Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:21:19.641Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:21:19.643Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:21:41.601Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:21:41.603Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:21:41.605Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:22:03.605Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:22:03.608Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:22:03.610Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:22:25.609Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:22:25.612Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:22:25.614Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:22:47.611Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:22:47.614Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:22:47.616Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:23:09.496Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:23:09.498Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:23:09.500Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:23:31.491Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:23:31.494Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:23:31.496Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:23:53.514Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:23:53.517Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:23:53.519Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:24:15.436Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:24:15.438Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:24:15.440Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:24:37.437Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:24:37.440Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:24:37.442Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:24:59.456Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:24:59.458Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:24:59.460Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:25:21.425Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:25:21.428Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:25:21.430Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:25:43.393Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:25:43.395Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:25:43.398Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:26:05.365Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:26:05.367Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:26:05.369Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:26:27.280Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:26:27.283Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:26:27.285Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:26:49.284Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:26:49.287Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:26:49.289Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:27:11.159Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:27:11.161Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:27:11.163Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:27:33.177Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:27:33.180Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:27:33.181Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:27:55.195Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:27:55.197Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:27:55.199Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:28:17.067Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:28:17.069Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:28:17.071Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:28:39.068Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:28:39.070Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:28:39.072Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:29:01.072Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:29:01.074Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:29:01.076Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:29:23.046Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:29:23.049Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:29:23.051Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:29:45.018Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:29:45.020Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:29:45.022Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:30:06.835Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:30:06.838Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:30:06.840Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:30:28.880Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:30:28.882Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:30:28.884Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:30:50.883Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:30:50.886Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:30:50.888Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:31:12.889Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:31:12.891Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:31:12.893Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:31:34.890Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:31:34.892Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:31:34.894Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:31:56.900Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:31:56.903Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:31:56.905Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:32:18.951Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:32:18.954Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:32:18.956Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:32:40.952Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:32:40.954Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:32:40.956Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:33:02.952Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:33:02.954Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:33:02.956Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:33:24.869Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:33:24.872Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:33:24.873Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:33:46.883Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:33:46.886Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:33:46.889Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:34:08.755Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:34:08.757Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:34:08.759Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:34:30.759Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:34:30.761Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:34:30.763Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:34:52.678Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:34:52.680Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:34:52.682Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:35:14.497Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:35:14.499Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:35:14.502Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:35:36.415Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:35:36.417Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:35:36.419Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected
+2026-09-25T07:35:58.419Z  INFO 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Node -1 disconnected.
+2026-09-25T07:35:58.421Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Connection to node -1 (/10.8.71.240:9092) could not be established. Node may not be available.
+2026-09-25T07:35:58.423Z  WARN 7964 --- [trade-api] [-api-producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=trade-api-producer-1] Bootstrap broker 10.8.71.240:9092 (id: -1 rack: null) disconnected

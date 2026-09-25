@@ -57,12 +57,20 @@ Account **1** is seeded with an AAPL holding (50 @ 150.00), a filled order and
 cd sprint8-auth-service
 cp .env.example .env      # edit DB credentials if needed
 npm install
-npm test                  # 19 tests in 4 suites
+npm test                  # 29 tests in 5 suites
+npm run test:integration  # 21 tests (real PostgreSQL; global-setup creates trading_system_db_test)
 npm run build
 npm start
 ```
 
 Swagger UI: http://localhost:3000/docs — OpenAPI JSON: http://localhost:3000/docs/json
+
+On first boot the auth service generates an **RSA-4096 keypair** into
+`LOGIN_KEY_DIR` (default `login-keys/`, auto-created). The keypair is used to
+**seal login/register payloads** (see the credential-transport section below);
+keep `private.pem` secret and keep the directory between restarts (the public
+key is served at `/auth/public-key` and the frontend caches it).
+`login-keys/` is git-ignored.
 
 ## 3. Run the trade API (port 8085)
 
@@ -95,8 +103,23 @@ python app.py
 - `/analytics` — reporting dashboard reading `analytics.duckdb` (built by the
   ETL below)
 
-The frontend purges any legacy `refreshToken` / `refresh_token` localStorage
-keys on load — the refresh token is cookie-only now.
+**Route guard.** `/dashboard` is protected: `app.js` redirects
+anonymous visitors to `/login` and re-validates the access token via
+`/auth/me` on navigation — it never refreshes on ordinary navigation. The
+access token is only renewed when a protected call returns 401 (the
+`apiFetch` wrapper calls `/auth/refresh` once and retries); if the refresh
+token is invalid/expired the user is bounced to `/login`. **`/analytics` is
+public** — it is not part of the session and is left untouched by the guard.
+
+After a successful registration the frontend redirects to **exactly
+`/login`** (no query string). Registration never stores tokens or a refresh
+cookie.
+
+The frontend stores **only the access token** (`jwt`) in localStorage; on load
+it purges any legacy `refreshToken` / `refresh_token` / `accountId` /
+`account_id` keys. The **refresh token is an HttpOnly cookie** and the account
+id is always derived from the authenticated user via `/auth/me` / the login
+response — never from localStorage.
 
 ## 5. Run the order executor + analytics ETL
 
@@ -131,7 +154,8 @@ are joined to `instrument` on `ticker`/`symbol`) and refreshes
 | ------ | --------------- | ----- | ------- | ------ |
 | POST   | `/auth/register`| none  | 201 `{ message, user }` — account created, **no tokens and no cookie**; sign in afterwards | 409 `AUTH-409`, 422 `VAL-422` |
 | POST   | `/auth/login`   | none  | 200 access body `{ accessToken, expiresIn, user }` + sets `refresh_token` cookie (HttpOnly; Secure; SameSite=Lax; Path=/; 7 days) | 401 `AUTH-401`, 429 `RATE-429`, 422 `VAL-422` |
-| POST   | `/auth/refresh` | cookie (or body fallback)| 200 rotated access body + rotates the cookie | 401 `AUTH-401`, 422 `VAL-422` |
+| GET    | `/auth/public-key`| none | 200 `{ key }` — PEM public key used to seal login/register credentials | — |
+| POST   | `/auth/refresh` | cookie (or body fallback)| 200 renewed access body `{ accessToken, expiresIn, user }` — **non-rotating**: the same refresh token keeps its 7-day life, cookie not re-issued | 401 `AUTH-401`, 422 `VAL-422` |
 | POST   | `/auth/logout`  | cookie (or body fallback)| 200 `{ message }`; revokes + clears cookie | 401 `AUTH-401` |
 | GET    | `/auth/me`      | Bearer| 200 profile + accountId | 401 `AUTH-401` |
 
@@ -148,10 +172,42 @@ Registration atomically creates `auth.users` row **and** a
 register → `POST /auth/login` → tokens (the frontend redirects to `/login`
 after registration). Login returns the access body and sets the `refresh_token`
 cookie.
-JWT claims: `sub` = user `uuid`, `accountId`, `roles` (always non-empty),
-`iss` = `auth-service`, 15-minute expiry (access `JWT_TTL_SECONDS=900`;
-refresh cookie `REFRESH_TTL_SECONDS=604800`, 7 days). Tokens are issued at
-every successful login (and rotated at `/auth/refresh`).
+JWT claims: `sub` = user `uuid`, `accountId` (integer — coerced from the DB
+BIGSERIAL), `roles` (always non-empty), `iss` = `auth-service`, 15-minute
+expiry (access `JWT_TTL_SECONDS=900`; refresh cookie `REFRESH_TTL_SECONDS=604800`,
+7 days). Tokens are issued at every successful login; the access token is
+renewed (non-rotating) at `/auth/refresh` while the **same** refresh token stays
+valid for its full 7-day lifetime — the cookie is left untouched.
+
+**Password policy (review decision, spec-aligned).** Length-only: minimum **12**
+characters, maximum **128** (`RegisterDto` `MinLength`/`MaxLength`), per the
+spec's "length beats character-class rules / do not impose a symbol
+requirement" guidance. Username `^[a-zA-Z0-9._-]+$`, min 3, max 64. The
+register page mirrors the same rule client-side (`minlength="12"` + a live
+✔/✗ "Minimum 12 characters" indicator) so submissions are blocked before the
+network.
+
+**Password handling (task 3/5).** Passwords are hashed with **bcrypt cost 12**
+(`BCRYPT_ROUNDS` in `auth.service.ts`, spec: "bcrypt at cost 12 or above"). Only
+the bcrypt hash is persisted; no plaintext password is ever stored, logged
+(`AuthService` logs user ids/identifiers only) or echoed.
+
+**Credential transport — sealed payloads.** The browser never sends the
+plaintext password over the wire. On login and registration `app.js` fetches
+`GET /auth/public-key`, generates an ephemeral AES-256-GCM key, and encrypts
+the payload (credentials + a fresh random nonce + a 60-second expiry) in hybrid
+mode: RSA-OAEP (SHA-256) wraps the AES key, and the body becomes
+`{ "request": "<base64>.<base64>.<base64>" }`. The server unwraps with its
+private key, authenticates the GCM tag, checks the nonce is fresh/unused and
+the expiry window holds, then runs the exact same DTO validation as the
+plaintext path — so the plaintext password no longer appears in the DevTools
+Network tab. Replayed ciphertext, stale payloads and tampered bodies are
+refused with `422 VAL-422`. The plaintext `{ identifier, password }` form is
+kept as a compatibility fallback for API clients, and the frontend falls back
+to it only when Web Crypto is unavailable (plain-HTTP hosts other than
+localhost). A TLS-terminating proxy/HTTPS is still required in front of the
+auth service before deployment (TLS protects the HTTP layer — headers, cookies
+and the whole session — which payload sealing does not).
 
 Trade API endpoints (Bearer token required for `/api/v1/**`; cross-account
 access returns 401):
@@ -163,6 +219,50 @@ access returns 401):
 - `POST /api/v1/orders` — place order (`idempotencyKey` required, min 8 chars)
 - `DELETE /api/v1/orders/{idempotencyKey}` — cancel a `NEW` order
 
+## Security & review verification (2026-09-25)
+
+Re-run of the Sprint 8 auth review after the register→login rework:
+
+1. Unit: `npm test` → **29/29** in 5 suites (password policy now length-only; DTO
+   suite covers min 12 / max 128 / username bounds; new `LoginCryptoService`
+   suite covers seal round-trip, tamper, replay, expiry and wrong-key
+   rejection).
+2. Integration: `npm run test:integration` → **21/21** against a real
+   PostgreSQL `trading_system_db_test` (global-setup creates the DB and the
+   `auth`/`trading` schemas; drop/recreate each run). Covers register
+   (success/dup 409/invalid email 422/short password 422/mismatch 422/DB
+   persistence with bcrypt + account row), login (claims exactly
+   `accountId, roles, iat, exp, iss, sub`; refresh token stored as SHA-256;
+cookie attributes HttpOnly/Secure/SameSite=Lax/Path=/), **non-rotating
+    refresh** (the same token works repeatedly, access renewed 15-min, exactly
+    one unrevoked DB row, expired → 401, logout revokes → 401),
+   `/auth/me` ownership mapping, and the **sealed-credential path** (public-key
+   endpoint serves the PEM; a sealed register/login succeeds exactly like the
+   plaintext one; replay of the same ciphertext → `422 VAL-422`; tampered and
+   garbage `request` bodies → `422 VAL-422`; DTO validation still applies after
+   decryption).
+3. Playwright E2E: `cd e2e && npm install && npx playwright install chromium &&
+npx playwright test` → **15/15**. Notably: registration lands on exactly
+    `/login` (no query string) with no tokens stored and no cookie; **the login
+    and register POST bodies are sealed `{"request": "..."}` blobs that never
+    contain the plaintext password or readable field names**; protected
+    `/dashboard` redirects anonymous users while `/analytics` is **public**
+    (no `/auth/me` guard); after login only the
+   `jwt` key is in localStorage (no `accountId`/`refresh_token`); the access
+   token is renewed **only on a 401** (navigation itself never triggers
+   `/auth/refresh`; non-rotating — the cookie never changes); an invalid/revoked refresh token bounces to `/login`; the
+   refresh cookie is HttpOnly+Secure+SameSite=Lax on the auth origin; an
+   account-id mismatch in the trade API is refused with `403 ACC-403`.
+4. **accountId typed correctly**: Postgres BIGSERIAL values are coerced to
+   numbers in `AuthService` (login/refresh/me/register), so `user.accountId`,
+   `/auth/me` and the JWT claim are integers, not strings.
+5. **Credential transport**: RSA-4096 keypair generated on boot; `GET
+   /auth/public-key` serves the PEM; the frontend seals login/register payloads
+   (RSA-OAEP + AES-256-GCM + nonce + expiry) so the DevTools Network payload no
+   longer shows the plaintext password; verified live (register via UI →
+   Network payload = `{request: "…"}`) and by E2E/integration.
+6. `npm run build` clean; auth service restarted on the new build (port 3000).
+
 ## Verified end-to-end (this machine, 2026-09-24)
 
 1. `CREATE DATABASE trading_system_db` + `schema.sql` + `seed-data.sql` — OK.
@@ -172,9 +272,9 @@ access returns 401):
 3. Login `tuser1` → **200** (accountId 2, access body + cookie set); wrong password → **401 `AUTH-401`**;
    unknown user → **401 `AUTH-401`** (identical envelope, uniform 150ms delay).
 4. `GET /auth/me` → **200** with accountId.
-5. `POST /auth/refresh` (cookie, empty body) → **200** rotated access token +
-   rotated cookie; replaying an already-rotated token → **401** and its whole
-   family is revoked; `POST /auth/logout` → **200** "Logged out" and the cookie
+5. `POST /auth/refresh` (cookie, empty body) → **200** renewed access token,
+   same refresh token still valid (non-rotating — cookie untouched, DB holds one
+   row); `POST /auth/logout` → **200** "Logged out" and the cookie
    is cleared (Max-Age 0).
 6. Trade API with an auth-issued token:
    - `GET /api/v1/accounts/2` → **200** `ACC-000002`, holder `Test User`, 100000.00.
@@ -211,11 +311,35 @@ access returns 401):
   (trade-api and auth service) and `docker-compose.yml` are untested here. The
   Kafka broker runs in Docker on the user's machine at the private IP in
   `sprint8/.env` (`KAFKA_BOOTSTRAP_SERVERS`); the executor and trade-api must
-  point at it or fills stay `NEW`.
+  point at it or fills stay `NEW`. **2026-09-25: the broker at that private IP
+  was unreachable during the review** (the E2E cross-account checks still pass
+  — the 403 fires before any Kafka work; the own-account order assertion is
+  skipped when the broker is down).
+- **Registration auto-creates the trading account** (user decision): the API
+  contract (`auth_api_yaml.txt`) says registration must link to an existing
+  `accountId` and must **not** create an account; this implementation instead
+  atomically inserts `auth.users` + `trading.account` (USD 100000.00) and
+  projects the new `accountId`. Documented divergence; keep in sync with the
+  contract for a strict conformance review.
+- **Transport is plain HTTP** in this dev environment, but credentials are no
+  longer sent as plaintext: the browser seals login/register payloads with the
+  server's RSA-4096 public key (RSA-OAEP + AES-256-GCM + fresh nonce + expiry),
+  so the literal password does not appear in the request body (DevTools Network
+  tab) and replayed/stale ciphertext is rejected. TLS is **still required**
+  before deployment to protect the HTTP layer (headers, refresh cookie,
+  sessions) — payload sealing is not a substitute for HTTPS, and on plain-HTTP
+  hosts other than `localhost` Web Crypto is unavailable so the frontend falls
+  back to the plaintext contract.
+- **Refresh semantics:** the access token is never refreshed on page
+  navigation; `apiFetch` renews it internally only when a
+  protected request 401s. The refresh itself is **non-rotating** — the access
+  token is re-issued every 15 minutes against the same HttpOnly refresh cookie,
+  which keeps its full 7-day life (never re-issued, never in a response body).
+  An expired/invalid/revoked refresh token logs the user out.
 - Registration intentionally returns **no token**: the refresh-token insert
   happens only at `/auth/login`, so there is no partial-state risk during
   signup (a failed signup leaves no user session). The frontend redirects to
-  `/login?registered=1` after a successful register.
+  `/login` after a successful register.
 - Login throttle state is in-memory (single instance). Documented in the auth
   service README; a shared store (e.g. Redis) is recommended before
   multi-instance deployment.

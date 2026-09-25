@@ -1,17 +1,33 @@
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +30ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +2ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +2ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDbModule dependencies initialized[39m[38;5;3m +3ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTokensModule dependencies initialized[39m[38;5;3m +2ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +3ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +28ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +4ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +3ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/refresh, POST} route[39m[38;5;3m +2ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/logout, POST} route[39m[38;5;3m +2ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/me, GET} route[39m[38;5;3m +3ms[39m
-[32m[Nest] 3676  - [39m09/24/2026, 9:22:51 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +3ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +15ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDbModule dependencies initialized[39m[38;5;3m +3ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTokensModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCryptoModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +16ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/public-key, GET} route[39m[38;5;3m +4ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/refresh, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/logout, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/me, GET} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:12:31 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +5ms[39m
 Sprint 08 auth service listening on http://localhost:3000
 Swagger UI at http://localhost:3000/docs
-[32m[Nest] 3676  - [39m09/24/2026, 9:23:50 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=8 with accountId=7[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:37 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=53 with accountId=52[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:38 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=54 with accountId=53[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:39 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=55 with accountId=54[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:42 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=56 with accountId=55[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:44 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=57 with accountId=56[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:46 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRenewed access token for user id=57[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:46 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=58 with accountId=57[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:47 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mLogged out: refresh token revoked[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:48 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=59 with accountId=58[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:49 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mLogged out: refresh token revoked[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:49 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=60 with accountId=59[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:13:49 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=61 with accountId=60[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:16:37 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRegistered user id=62 with accountId=61[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:16:37 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRenewed access token for user id=62[39m
+[32m[Nest] 16348  - [39m09/25/2026, 8:16:37 AM [32m    LOG[39m [38;5;3m[AuthService] [39m[32mRenewed access token for user id=62[39m

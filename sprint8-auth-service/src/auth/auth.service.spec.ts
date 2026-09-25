@@ -1,7 +1,10 @@
 import { HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
+import * as os from 'os';
+import * as path from 'path';
 import { DbService } from '../db/db.service';
+import { LoginCryptoService } from '../crypto/login-crypto.service';
 import { TokensService } from '../tokens/tokens.service';
 import { AuthService } from './auth.service';
 import { LoginThrottleService } from './login-throttle.service';
@@ -16,6 +19,7 @@ describe('AuthService', () => {
   };
   let service: AuthService;
   let tokens: TokensService;
+  let crypto: LoginCryptoService;
 
   function buildConfig(values: Record<string, unknown> = {}) {
     const defaults: Record<string, unknown> = {
@@ -30,6 +34,7 @@ describe('AuthService', () => {
       'refresh.ttlSeconds': 604800,
       'throttle.maxAttempts': 5,
       'throttle.windowMs': 900000,
+      'crypto.keyDir': path.join(os.tmpdir(), 'auth-unit-login-keys'),
     };
     return {
       get: (key: string) => ({ ...defaults, ...values })[key],
@@ -43,11 +48,13 @@ describe('AuthService', () => {
     };
     tokens = new TokensService(buildConfig());
     const throttle = new LoginThrottleService(buildConfig());
+    crypto = new LoginCryptoService(buildConfig());
     service = new AuthService(
       db as unknown as DbService,
       buildConfig(),
       tokens,
       throttle,
+      crypto,
     );
   });
 

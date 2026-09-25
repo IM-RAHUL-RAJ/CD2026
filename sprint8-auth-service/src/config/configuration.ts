@@ -26,4 +26,7 @@ export const configuration = () => ({
     maxAttempts: parseInt(process.env.THROTTLE_MAX_ATTEMPTS || '5', 10),
     windowMs: parseInt(process.env.THROTTLE_WINDOW_MS || '900000', 10),
   },
+  crypto: {
+    keyDir: process.env.LOGIN_KEY_DIR || 'login-keys',
+  },
 });

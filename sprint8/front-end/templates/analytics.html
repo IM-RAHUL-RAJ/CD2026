@@ -94,9 +94,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px">
       <div class="nav">
         <a href="/dashboard" class="btn secondary">Dashboard</a>
-        <a href="/analytics" class="btn secondary active">Analytics</a>
       </div>
-      <a href="/" class="btn">Logout</a>
     </div>
 
     <div class="banner">
@@ -405,5 +403,11 @@
       startTimer();
     });
   </script>
+
+  <script>
+    const AUTH_URL = "{{ AUTH_URL }}";
+    const BACKEND_URL = "{{ BACKEND_URL }}";
+  </script>
+  <script src="/static/js/app.js"></script>
 </body>
 </html>

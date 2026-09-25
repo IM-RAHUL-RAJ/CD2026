@@ -13,7 +13,7 @@ locally with no network call.
   **Issues no tokens** — responds `201` `{ message, user }` and sets no cookie;
   the client must call `POST /auth/login` to get tokens.
 - `POST /auth/login` — authenticate with username or email + password. Identical body/status for "unknown user" and "wrong password". Throttled and time-uniform. Returns the access token and sets the `refresh_token` cookie.
-- `POST /auth/refresh` — rotate the refresh token read from the **cookie** (or, as a fallback, the body); a presented token that was already rotated (replay) revokes its whole family.
+- `POST /auth/refresh` — renew the access token (15-min) from the **same** refresh token read via the **cookie** (or, as a fallback, the body); non-rotating — the refresh token keeps its 7-day life, the cookie is re-set only when the token actually changes.
 - `POST /auth/logout` — revoke the current refresh token and clear the session cookie.
 - `GET /auth/me` — current user profile + trading `accountId`, requires `Authorization: Bearer <accessToken>`.
 
@@ -27,7 +27,7 @@ SameSite=Lax` cookie scoped to `Path=/`, and JavaScript never reads it.
 | ------ | --------------- | ----- | --------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | POST   | `/auth/register`| none  | `201` `{ message, user: { userId, uuid, firstName, middleName, lastName, username, email, roles, accountId } }` — **no tokens, no cookie**; sign in afterwards | `409` `AUTH-409`, `422` `VAL-422` |
 | POST   | `/auth/login`   | none  | `200` `{ accessToken, expiresIn, user: {...} }` + sets `refresh_token` cookie | `401` `AUTH-401`, `429` `RATE-429`, `422` `VAL-422` |
-| POST   | `/auth/refresh` | cookie| `200` same access body as login + rotated `refresh_token` cookie. Reads the token from the `refresh_token` cookie (body `refreshToken` still accepted as a fallback) | `401` `AUTH-401`, `422` `VAL-422` |
+| POST   | `/auth/refresh` | cookie| `200` same access body as login + renewed access token; **cookie not re-issued** (non-rotating). Reads the token from the `refresh_token` cookie (body `refreshToken` still accepted as a fallback) | `401` `AUTH-401`, `422` `VAL-422` |
 | POST   | `/auth/logout`  | cookie| `200` `{ message: "Logged out" }`; revokes the refresh token and clears the cookie (body `refreshToken` fallback supported) | `401` `AUTH-401`                               |
 | GET    | `/auth/me`      | Bearer| `200` `{ userId, uuid, firstName, middleName, lastName, username, email, roles, accountId }` | `401` `AUTH-401`                              |
 | GET    | `/docs`         | none  | Swagger UI                                                                               |                                                 |
@@ -97,13 +97,14 @@ docker run --rm -p 3000:3000 --env-file .env sprint08-auth-service
   and hashes are never logged and never returned.
 - **No self-declared roles**: registration inserts `ARRAY['CUSTOMER']`
   server-side; the payload plays no role in role assignment.
-- **Refresh rotation + replay protection**: tokens stored as SHA-256 digests.
-  A refresh rotates the token (old one revoked, new one in the same `family_id`).
-  Presenting an already-rotated token revokes the whole family and returns `AUTH-401`.
+- **Non-rotating refresh**: tokens stored as SHA-256 digests. The refresh token
+  is minted once at login with a 7-day life; `/auth/refresh` renews only the
+  access token (15-min), leaving the same refresh token valid until
+  logout/expiry. Presenting a revoked or expired token returns `AUTH-401`.
 - **Httponly cookies**: the refresh token is set as an `HttpOnly; Secure;
   SameSite=Lax` cookie (`Path=/`) and is never present in a JSON response,
-  so JavaScript/XSS cannot read or exfiltrate it. The cookie is rotated on
-  every refresh and cleared on logout.
+  so JavaScript/XSS cannot read or exfiltrate it. The cookie is minted once at
+  login and left untouched on refresh; it is cleared on logout.
 - **Login timing**: a fixed 150 ms delay is added before every failed response so
   unknown-user and wrong-password cases are indistinguishable in time and body.
 - **Login throttle**: in-memory per-identifier sliding window (default 5 / 15 min)

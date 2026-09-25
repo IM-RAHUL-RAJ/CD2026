@@ -1,39 +1,9 @@
-import {
-  UnprocessableEntityException,
-  ValidationPipe,
-} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import { ErrorEnvelopeFilter } from './common/error.envelope.filter';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import cookieParser = require('cookie-parser');
+import { createApplication } from './init-app';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, {
-    cors: { origin: true, credentials: true },
-  });
-
-  app.use(cookieParser());
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      stopAtFirstError: false,
-      exceptionFactory: (errors) => {
-        const messages = errors.flatMap((error) =>
-          Object.values(error.constraints ?? {}),
-        );
-        return new UnprocessableEntityException({
-          errorCode: 'VAL-422',
-          message: messages.join('; ') || 'Invalid input',
-        });
-      },
-    }),
-  );
-  app.useGlobalFilters(new ErrorEnvelopeFilter());
+  const app = await createApplication();
 
   const config = new DocumentBuilder()
     .setTitle('Sprint 08 Auth Service')

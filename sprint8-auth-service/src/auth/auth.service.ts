@@ -1,12 +1,15 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import { randomBytes } from 'crypto';
 import { DbService } from '../db/db.service';
 import {
   invalidInput,
   unauthorized,
 } from '../common/error.envelope.filter';
+import { LoginCryptoService } from '../crypto/login-crypto.service';
 import { TokensService } from '../tokens/tokens.service';
 import { LoginThrottleService } from './login-throttle.service';
 import { LoginDto } from './dto/login.dto';
@@ -15,6 +18,8 @@ import { RegisterDto } from './dto/register.dto';
 
 const BCRYPT_ROUNDS = 12;
 const DEFAULT_ACCOUNT_BALANCE = '100000.00';
+
+type ClassConstructor<T> = new () => T;
 
 interface UserRow {
   user_id: number;
@@ -60,11 +65,13 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly tokens: TokensService,
     private readonly throttle: LoginThrottleService,
+    private readonly crypto: LoginCryptoService,
   ) {
     this.refreshTtlSeconds = this.config.get<number>('refresh.ttlSeconds')!;
   }
 
   async register(dto: RegisterDto): Promise<RegistrationResult> {
+    dto = await this.resolveCredentials(RegisterDto, dto);
     if (dto.password !== dto.confirmPassword) {
       throw invalidInput('Passwords do not match');
     }
@@ -107,7 +114,7 @@ export class AuthService {
          RETURNING account_id`,
         [user.user_id, DEFAULT_ACCOUNT_BALANCE],
       );
-      const accountId = accountRes.rows[0].account_id as number;
+      const accountId = Number(accountRes.rows[0].account_id);
       await client.query('COMMIT');
       this.logger.log(`Registered user id=${user.user_id} with accountId=${accountId}`);
 
@@ -131,6 +138,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<AuthResponse> {
+    dto = await this.resolveCredentials(LoginDto, dto);
     const identifier = dto.identifier.trim();
     this.throttle.check(identifier);
 
@@ -160,7 +168,7 @@ export class AuthService {
       [user.user_id],
     );
     if (accountRes.rows.length > 0) {
-      accountId = accountRes.rows[0].account_id as number;
+      accountId = Number(accountRes.rows[0].account_id);
     }
 
     return this.issueTokens(user, accountId);
@@ -190,13 +198,9 @@ export class AuthService {
       expires_at: Date;
     };
 
-    // Replay of an already rotated (revoked) token revokes the whole family.
+    // A revoked token (logout) can no longer be used.
     if (row.revoked_on) {
-      this.logger.warn(`Replayed refresh token detected; revoking family=${row.family_id}`);
-      await this.db.query(
-        'UPDATE auth.refresh_token SET revoked_on = now() WHERE family_id = $1',
-        [row.family_id],
-      );
+      this.logger.warn(`Refresh attempt with revoked token for user id=${row.user_id}`);
       throw unauthorized();
     }
 
@@ -224,16 +228,25 @@ export class AuthService {
       [user.user_id],
     );
     if (accountRes.rows.length > 0) {
-      accountId = accountRes.rows[0].account_id as number;
+      accountId = Number(accountRes.rows[0].account_id);
     }
 
-    // Rotate: revoke the presented token and issue a new pair in the same family.
-    await this.db.query(
-      'UPDATE auth.refresh_token SET revoked_on = now() WHERE token_hash = $1',
-      [tokenHash],
-    );
-    this.logger.log(`Rotated refresh token for user id=${row.user_id} family=${row.family_id}`);
-    return this.issueTokens(user, accountId, row.family_id);
+    // Non-rotating refresh: the SAME refresh token stays valid for its full
+    // 7-day lifetime (expires_at set at login); only the access token is
+    // renewed here. No new row is inserted and the presented token is not
+    // revoked, so the browser cookie is left untouched.
+    const { accessToken, expiresIn } = this.tokens.signAccessToken({
+      uuid: user.uuid,
+      accountId,
+      roles: user.roles,
+    });
+    this.logger.log(`Renewed access token for user id=${row.user_id}`);
+    return {
+      accessToken,
+      refreshToken: dto.refreshToken,
+      expiresIn,
+      user: this.toPublicUser(user, accountId),
+    };
   }
 
   async logout(refreshToken: string): Promise<void> {
@@ -264,7 +277,7 @@ export class AuthService {
       [user.user_id],
     );
     if (accountRes.rows.length > 0) {
-      accountId = accountRes.rows[0].account_id as number;
+      accountId = Number(accountRes.rows[0].account_id);
     }
     return this.toPublicUser(user, accountId);
   }
@@ -300,7 +313,7 @@ export class AuthService {
 
   private toPublicUser(user: UserRow, accountId: number | null): AuthResponse['user'] {
     return {
-      userId: user.user_id,
+      userId: Number(user.user_id),
       uuid: user.uuid,
       firstName: user.first_name,
       middleName: user.middle_name,
@@ -310,6 +323,48 @@ export class AuthService {
       roles: user.roles,
       accountId,
     };
+  }
+
+  /**
+   * Accepts either a plaintext DTO or a sealed `{ request }` payload produced
+   * by the browser's Web Crypto layer. Decrypted payloads are validated exactly
+   * like plaintext ones so the two transport modes are interchangeable.
+   */
+  private async resolveCredentials<T extends LoginDto | RegisterDto>(
+    dtoType: ClassConstructor<T>,
+    body: unknown,
+  ): Promise<T> {
+    const raw = body as { request?: unknown };
+    if (raw && typeof raw.request === 'string') {
+      let decrypted: Record<string, unknown>;
+      try {
+        decrypted = this.crypto.decryptRequest(raw.request);
+      } catch {
+        throw invalidInput('Invalid credential request');
+      }
+      return this.validateDto(dtoType, decrypted);
+    }
+    if (raw && raw.request !== undefined) {
+      throw invalidInput('Invalid credential request');
+    }
+    return this.validateDto(dtoType, body);
+  }
+
+  private async validateDto<T extends object>(
+    dtoType: ClassConstructor<T>,
+    body: unknown,
+  ): Promise<T> {
+    const instance = plainToInstance(dtoType, body);
+    const errors = await validate(instance, {
+      whitelist: true,
+      forbidNonWhitelisted: false,
+      stopAtFirstError: false,
+    });
+    if (errors.length > 0) {
+      const messages = errors.flatMap((error) => Object.values(error.constraints ?? {}));
+      throw invalidInput(messages.join('; ') || 'Invalid input');
+    }
+    return instance;
   }
 
   private randomFamilyId(): string {

@@ -1,0 +1,14 @@
+{
+  "name": "sprint08-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sprint 8 end-to-end tests for the collaborative trading system (auth review)",
+  "scripts": {
+    "test": "playwright test",
+    "test:e2e": "playwright test --reporter=line"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.63.0",
+    "pg": "^8.23.0"
+  }
+}

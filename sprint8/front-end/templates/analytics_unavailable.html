@@ -34,5 +34,10 @@
   <script>
     setTimeout(function () { location.reload(); }, {{ DASHBOARD_REFRESH_SECONDS }} * 1000);
   </script>
+  <script>
+    const AUTH_URL = "{{ AUTH_URL }}";
+    const BACKEND_URL = "{{ BACKEND_URL }}";
+  </script>
+  <script src="/static/js/app.js"></script>
 </body>
 </html>
