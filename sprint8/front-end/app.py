@@ -11,7 +11,8 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 
 BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:8085')
 AUTH_URL = os.getenv('AUTH_URL', 'http://localhost:3000')
-REPO_ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+REPO_ROOT = _here.parents[2] if len(_here.parents) > 2 else _here.parent
 DUCKDB_PATH = os.getenv('DUCKDB_PATH', str(REPO_ROOT / 'analytics.duckdb'))
 DASHBOARD_REFRESH_SECONDS = int(os.getenv('DASHBOARD_REFRESH_SECONDS', '120'))
 
