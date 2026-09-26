@@ -68,10 +68,11 @@ COPY ${PY_REQUIREMENTS} requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Companion script(s) the jar will spawn via ProcessBuilder/subprocess at
-# runtime. Space-separated list so a project with one script or several
-# both work without editing this file.
-ARG PY_SCRIPTS="analytics_pipeline.py etl_trigger_service.py"
-COPY ${PY_SCRIPTS} ./
+# runtime. Two separate COPY instructions because Docker's ARG substitution
+# does not word-split a space-separated value into multiple COPY sources.
+ARG PY_SCRIPT_1=analytics_pipeline.py
+ARG PY_SCRIPT_2=etl_trigger_service.py
+COPY ${PY_SCRIPT_1} ${PY_SCRIPT_2} ./
 
 # Non-root user for security. Owns /app so the subprocess can write logs,
 # lock files, or (if pointed here) a local analytics DB file.
