@@ -12,7 +12,8 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+REPO_ROOT = _here.parents[2] if len(_here.parents) > 2 else _here.parent
 REQUIRED_TABLES = {"dim_account", "dim_date", "dim_instrument", "fact_trades"}
 
 
