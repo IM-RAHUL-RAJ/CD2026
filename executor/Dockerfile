@@ -62,10 +62,9 @@ RUN apt-get update \
 # the script copy below, so editing a .py file doesn't force a pip re-run.
 ARG PY_REQUIREMENTS=requirements.txt
 COPY ${PY_REQUIREMENTS} requirements.txt
-# --break-system-packages: Debian 12+ marks the system Python as
-# externally-managed (PEP 668); this is a single-purpose container image,
-# not a shared system, so installing straight into it is the correct call.
-RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
+# jammy's pip (22.0.2) predates PEP 668 enforcement, so no
+# --break-system-packages flag is needed (or accepted) here.
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Companion script(s) the jar will spawn via ProcessBuilder/subprocess at
 # runtime. Two separate COPY instructions because Docker's ARG substitution
