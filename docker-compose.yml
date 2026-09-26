@@ -1,42 +1,58 @@
+# ==============================================================================
+# Sprint 8 — Enterprise Trading Platform
+# Full stack: Postgres, Kafka (KRaft), Auth Service, Trade API, Executor
+# (+ embedded analytics ETL), and the Flask frontend.
+#
+# Quick start:
+#   docker compose up --build
+#   Frontend:    http://localhost:5000
+#   Auth Swagger http://localhost:3000/docs
+#   Trade API:   http://localhost:8085/health
+# ==============================================================================
+
 services:
   postgres:
     image: postgres:16-alpine
     container_name: trading-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-trading_db}
+      POSTGRES_DB: ${DB_NAME:-trading_system_db}
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./sprint3/migrations:/docker-entrypoint-initdb.d
+      - ./sprint8/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./sprint8/db/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql:ro
     networks:
       - trading-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-trading_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-trading_system_db}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
 
   kafka:
     image: apache/kafka:3.8.0
     container_name: trading-kafka
     ports:
       - "9092:9092"
-      - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:9092'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://10.8.68.169:9092'  
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'  
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # Design contract (design/kafka.md): auto-creation is off so a missing
+      # topic fails loudly instead of silently getting 1 partition/default
+      # retention.
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
     networks:
       - trading-network
@@ -44,31 +60,102 @@ services:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 15s
 
-  trade-api:
+  # One-shot job: creates the contracted topics + dead-letter topics per
+  # design/kafka.md, then exits. trade-api/executor wait for it to succeed
+  # so they never race a broker with no topics yet.
+  kafka-init:
+    image: apache/kafka:3.8.0
+    container_name: trading-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - trading-network
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        BS=kafka:29092
+        create() {
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server "$$BS" --create --if-not-exists \
+            --topic "$$1" --partitions "$$2" --replication-factor 1 --config retention.ms="$$3"
+        }
+        create orders 3 604800000
+        create trade-events 3 2592000000
+        create market-data 6 86400000
+        create orders.DLT 3 604800000
+        create trade-events.DLT 3 2592000000
+        create market-data.DLT 6 86400000
+        echo "=== topics ready ==="
+
+  auth-service:
     build:
-      context: ./sprint6
+      context: ./sprint8-auth-service
       dockerfile: Dockerfile
-    container_name: trading-trade-api
+    container_name: trading-auth-service
     ports:
-      - "3000:8083"
+      - "3000:3000"
     environment:
+      PORT: 3000
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-trading_db}
+      DB_NAME: ${DB_NAME:-trading_system_db}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      JWT_SECRET: ${JWT_SECRET:-replace_with_at_least_32_character_secret_key}
+      JWT_SECRET: ${JWT_SECRET:-akatsuki_akatsuki_akatsuki_akatsuki_akatsuki}
+      JWT_ISSUER: ${JWT_ISSUER:-auth-service}
+      JWT_TTL_SECONDS: ${JWT_TTL_SECONDS:-900}
+      REFRESH_TTL_SECONDS: ${REFRESH_TTL_SECONDS:-604800}
+      THROTTLE_MAX_ATTEMPTS: ${THROTTLE_MAX_ATTEMPTS:-5}
+      THROTTLE_WINDOW_MS: ${THROTTLE_WINDOW_MS:-900000}
+      COOKIE_NAME: refresh_token
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      LOGIN_KEY_DIR: login-keys
+    volumes:
+      # RSA-4096 keypair must survive container restarts.
+      - auth_keys:/app/login-keys
     networks:
       - trading-network
     depends_on:
       postgres:
         condition: service_healthy
-      kafka:
-        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/docs/json || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
+  trade-api:
+    build:
+      context: ./sprint8
+      dockerfile: Dockerfile
+    container_name: trading-trade-api
+    ports:
+      - "8085:8085"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-trading_system_db}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JWT_SECRET: ${JWT_SECRET:-akatsuki_akatsuki_akatsuki_akatsuki_akatsuki}
+      JWT_ISSUER: ${JWT_ISSUER:-auth-service}
+    networks:
+      - trading-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      auth-service:
+        condition: service_healthy
 
   executor:
     build:
@@ -76,49 +163,64 @@ services:
       dockerfile: Dockerfile
     container_name: trading-executor
     ports:
-      - "8084:8084"
+      - "8083:8083"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-trading_db}
+      DB_NAME: ${DB_NAME:-trading_system_db}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       FAUXNANCE_API_KEY: ${FAUXNANCE_API_KEY:-mock_api_key}
       FAUXNANCE_BASE_URL: ${FAUXNANCE_BASE_URL:-http://localhost:8080}
       POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-60}
+      # ETL trigger (EtlStartupRunner spawns this as a python3 subprocess)
+      ETL_ENABLED: ${ETL_ENABLED:-true}
+      ETL_PYTHON_SCRIPT_PATH: etl_trigger_service.py
+      ETL_PYTHON_EXECUTABLE: python3
+      ETL_REFRESH_INTERVAL_SECONDS: ${ETL_REFRESH_INTERVAL_SECONDS:-45}
+      DUCKDB_PATH: /data/analytics.duckdb
+      PG_SCHEMA: trading
+      FRONTEND_PORT: 5000
+    volumes:
+      # Shared with the frontend so /analytics can read the file this
+      # container's ETL subprocess rebuilds every ~45s.
+      - analytics_data:/data
     networks:
       - trading-network
     depends_on:
       postgres:
         condition: service_healthy
-      kafka:
-        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
 
-
-  etl:
+  frontend:
     build:
-      context: ./etl
+      context: ./sprint8/front-end
       dockerfile: Dockerfile
-    container_name: trading-etl
+    container_name: trading-frontend
+    ports:
+      - "5000:5000"
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      TRADE_EVENTS_TOPIC: trade-events
-      MARKET_DATA_TOPIC: market-data
-      CONSUMER_GROUP_ID: trade-etl
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-trading_db}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      BATCH_FLUSH_INTERVAL_SECONDS: 30
+      FLASK_ENV: ${FLASK_ENV:-development}
+      FLASK_APP: app.py
+      BACKEND_URL: http://trade-api:8085
+      AUTH_URL: http://auth-service:3000
+      DUCKDB_PATH: /data/analytics.duckdb
+      DASHBOARD_REFRESH_SECONDS: ${DASHBOARD_REFRESH_SECONDS:-120}
+    volumes:
+      - analytics_data:/data
     networks:
       - trading-network
     depends_on:
-      postgres:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+      - trade-api
+      - auth-service
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
 networks:
   trading-network:
@@ -126,3 +228,5 @@ networks:
 
 volumes:
   postgres_data:
+  auth_keys:
+  analytics_data:

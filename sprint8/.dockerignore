@@ -1,0 +1,6 @@
+target
+*.log
+front-end
+db
+e2e
+.env
